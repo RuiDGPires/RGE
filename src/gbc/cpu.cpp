@@ -78,5 +78,6 @@ void SharpSM83::reset(){
     this->regs[PC] = 0x0100;
     this->regs[SP] = 0xFFFE;
     this->running = false;
+    this->halted = false;
 }
 

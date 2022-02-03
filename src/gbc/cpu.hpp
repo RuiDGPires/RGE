@@ -424,6 +424,7 @@ class SharpSM83{
         u16 regs[6];
 
         Bus *bus;
+        bool halted;
         bool running;
 
         const instruction get_instruction(u8 opcode);
