@@ -69,11 +69,9 @@ class SharpSM83{
         bool IT_CALL();
         bool IT_RETI();
         bool IT_LDH();
-        bool IT_JPHL();
         bool IT_DI();
         bool IT_EI();
         bool IT_RST();
-        bool IT_ERR();
         //CB instructions...
         bool IT_RLC();
         bool IT_RRC();

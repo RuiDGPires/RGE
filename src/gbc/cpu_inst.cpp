@@ -142,7 +142,7 @@ bool SharpSM83::IT_CPL(){
 
 bool SharpSM83::IT_SCF(){
     // Set carry flag
-    this->write(RT_F, this->read(RT_F) | flags::c & ~flags::n & ~flags::h);
+    this->write(RT_F, (this->read(RT_F) | flags::c) & ~flags::n & ~flags::h);
     return false;
 }
 
@@ -201,26 +201,85 @@ bool SharpSM83::IT_OR(){
 }
 
 bool SharpSM83::IT_CP(){
+    // TODO : flags
     u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
+    (void) val;
     return false;
 }
 
 bool SharpSM83::IT_POP(){
+    u16 val = 0;
+    val |= this->pop();
+    val |= (this->pop() << 8) & 0xFF00;
+
+    this->write_reg((SharpSM83::reg_type) fetch_info.inst.reg_1, val);
+
     return false;
 }
 
-bool SharpSM83::IT_JP(){return false;}
-bool SharpSM83::IT_PUSH(){return false;}
-bool SharpSM83::IT_RET(){return false;}
-bool SharpSM83::IT_CB(){return false;}
-bool SharpSM83::IT_CALL(){return false;}
-bool SharpSM83::IT_RETI(){return false;}
-bool SharpSM83::IT_LDH(){return false;}
-bool SharpSM83::IT_JPHL(){return false;}
-bool SharpSM83::IT_DI(){return false;}
-bool SharpSM83::IT_EI(){return false;}
-bool SharpSM83::IT_RST(){return false;}
-bool SharpSM83::IT_ERR(){return false;}
+bool SharpSM83::IT_JP(){
+    return this->jump();
+}
+
+bool SharpSM83::IT_PUSH(){
+    u8 val = (read_reg(fetch_info.inst.reg_1) >> 8) & 0xFF;
+    this->push(val);
+    val = read_reg(fetch_info.inst.reg_1) & 0xFF;
+    this->push(val);
+    return false;
+}
+
+bool SharpSM83::IT_RET(){
+    if (eval_condition()){
+        u16 val = this->pop() & 0x00FF;
+        val |= (this->pop() << 8) & 0xFF00;
+
+        this->regs[PC] = val;
+        return true;
+    }
+
+    return false;
+}
+
+bool SharpSM83::IT_CB(){
+    // TODO
+    return false;
+}
+
+bool SharpSM83::IT_CALL(){
+    return this->jump(true);
+}
+
+bool SharpSM83::IT_RETI(){
+    // TODO : interruptions
+    return this->IT_RET();
+}
+
+bool SharpSM83::IT_LDH(){
+    if (fetch_info.inst.reg_1 == RT_A) {
+        write_reg(fetch_info.inst.reg_1, this->read(0xFF00 | fetch_info.data));
+    } else {
+        this->write(fetch_info.dest, fetch_info.data);
+    }
+
+    return false;
+}
+
+bool SharpSM83::IT_DI(){
+    // TODO : interruptions
+    return false;
+}
+
+bool SharpSM83::IT_EI(){
+    // TODO : interruptions
+    return false;
+}
+
+bool SharpSM83::IT_RST(){
+    fetch_info.dest = fetch_info.inst.param;
+    return this->jump(true);
+}
+
 //CB instructions...
 bool SharpSM83::IT_RLC(){return false;}
 bool SharpSM83::IT_RRC(){return false;}
