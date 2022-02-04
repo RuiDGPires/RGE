@@ -1,8 +1,6 @@
 #include "cpu.hpp"
 #include "../common/assert.hpp"
 
-// TODO : flags
-
 bool SharpSM83::IT_NONE(){
     // Unkown behaviour
     return false;
@@ -28,6 +26,9 @@ bool SharpSM83::IT_INC(){
     else
         this->write_reg((SharpSM83::reg_type) fetch_info.dest, val);
 
+    if ((fetch_info.op_code & 0x03) != 0x03)
+        this->set_flags(val == 0, 1, (val & 0x0F) == 0, NA);
+
     return false;
 }
 
@@ -38,6 +39,8 @@ bool SharpSM83::IT_DEC(){
     else
         this->write_reg((SharpSM83::reg_type) fetch_info.dest, val);
 
+    this->set_flags(val == 0, 1, (val & 0x0F) == 0x0F, NA);
+
     return false;
 }
 
@@ -45,15 +48,42 @@ bool SharpSM83::IT_RLCA(){
     fetch_info.dest = this->regs[RT_A];
     fetch_info.data = this->read_reg(RT_A);
 
-    return this->IT_RLC();
+    return this->IT_RLC(true);
 }
 
 bool SharpSM83::IT_ADD(){
     ASSERT(!(fetch_info.is_dest_addr), "Dest must be a register");
 
-    // missing size specification and flags
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) + fetch_info.data;
+    bool is_16_bit = ((fetch_info.inst.reg_1 & 0xFFFF) ^ 0xFFFF) == 0;
 
+    u8 z, h, c;
+    u32 val;
+
+    if (fetch_info.inst.reg_1 == RT_SP){
+        val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) + (u8) fetch_info.data;
+    
+        z = 0;
+        h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
+        c = val >= 0x100;
+        goto end;
+    }
+
+    val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) + fetch_info.data;
+
+    if (is_16_bit){
+        z = (val & 0xFFFF) == 0;
+        h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xFF) + (fetch_info.data & 0xFF) >= 0x1000;
+        c = val >= 0x10000;
+    }else{
+        z = (val & 0xFF) == 0;
+        h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
+        c = val >= 0x100;
+    }
+
+    if (fetch_info.inst.reg_1 == RT_HL)
+        z = NA;
+end:
+    this->set_flags(z, 0, h, c);
     this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
 
     return false;
@@ -63,10 +93,12 @@ bool SharpSM83::IT_RRCA(){
     fetch_info.dest = this->regs[RT_A];
     fetch_info.data = this->read_reg(RT_A);
 
-    return this->IT_RRC();
+    return this->IT_RRC(true);
 }
 
 bool SharpSM83::IT_STOP(){
+    this->running = false;
+    this->halted = false;
     return false;
 }
 
@@ -74,7 +106,7 @@ bool SharpSM83::IT_RLA(){
     fetch_info.dest = this->regs[RT_A];
     fetch_info.data = this->read_reg(RT_A);
 
-    return this->IT_RL();
+    return this->IT_RL(true);
 }
 
 bool SharpSM83::eval_condition(){
@@ -127,27 +159,47 @@ bool SharpSM83::IT_RRA(){
     fetch_info.dest = this->regs[RT_A];
     fetch_info.data = this->read_reg(RT_A);
 
-    return this->IT_RR();
+    return this->IT_RR(true);
 }
 
 bool SharpSM83::IT_DAA(){
-    // TODO
+    u8 u = 0;
+    int fc = 0;
+    
+    u8 flags_ = read_reg(RT_F);
+
+    u8 n = (flags_ & flags::n) != 0;
+    u8 h = (flags_ & flags::h) != 0;
+    u8 c = (flags_ & flags::c) != 0;
+
+    if (h || (!n && (read_reg(RT_A) & 0xF) > 9))
+        u = 6;
+
+    if (c || (!n && read_reg(RT_A) > 0x99)) {
+        u |= 0x60;
+        fc = 1;
+    }
+
+    write_reg(RT_A, read_reg(RT_A) + n ? -u : u);
+
+    this->set_flags(read_reg(RT_A) == 0, NA, 0, fc);
     return false;
 }
 
 bool SharpSM83::IT_CPL(){
     this->write_reg(RT_A, ~this->read(RT_A));
+    this->set_flags(NA, 1, 1, NA);
     return false;
 }
 
 bool SharpSM83::IT_SCF(){
     // Set carry flag
-    this->write(RT_F, (this->read(RT_F) | flags::c) & ~flags::n & ~flags::h);
+    this->set_flags(NA, 0, 0, 1);
     return false;
 }
 
 bool SharpSM83::IT_CCF(){
-    this->write(RT_F, (this->read(RT_F) ^ flags::c) & ~flags::n & ~flags::h);
+    this->set_flags(NA, 0, 0, (this->read(RT_F) & flags::c) ^ flags::c);
     return false;
 }
 
@@ -160,7 +212,13 @@ bool SharpSM83::IT_ADC(){
     u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) + fetch_info.data;
     u8 carry = (this->read_reg(RT_F) & flags::c) != 0;
 
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, (val + carry) & 0xFFFF);
+    val += carry;
+
+    u8 h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF);
+
+    this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFF);
+
+    this->set_flags(val == 0, 0, h, val > 0xFF);
 
     return false;
 }
@@ -168,42 +226,54 @@ bool SharpSM83::IT_ADC(){
 bool SharpSM83::IT_SUB(){
     u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
 
+    u8 h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF);
+
     this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+
+    this->set_flags(val == 0, 1, h, ((int) val) < 0);
 
     return false;
 }
 
 bool SharpSM83::IT_SBC(){
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
+    u8 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
     u8 carry = (this->read_reg(RT_F) & flags::c) != 0;
 
+    u8 h = (int)((read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF) - carry) < 0;
+
+    this->set_flags(val - carry == 0, 1, h, (int)(val - carry) < 0);
     this->write_reg((SharpSM83::reg_type) fetch_info.dest, (val - carry) & 0xFFFF);
 
     return false;
 }
 
 bool SharpSM83::IT_AND(){
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & fetch_info.data;
+    u16 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & fetch_info.data;
     this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    this->set_flags(val == 0, 0, 1, 0);
     return false;
 }
 
 bool SharpSM83::IT_XOR(){
     u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) ^ fetch_info.data;
     this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    this->set_flags(val == 0, 0, 0, 0);
     return false;
 }
 
 bool SharpSM83::IT_OR(){
     u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) | fetch_info.data;
     this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    this->set_flags(val == 0, 0, 0, 0);
     return false;
 }
 
 bool SharpSM83::IT_CP(){
-    // TODO : flags
     u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
-    (void) val;
+    u8 h = (int)((read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF));
+
+    this->set_flags(val == 0, 1, h, ((int) val) < 0);
+
     return false;
 }
 
@@ -213,6 +283,9 @@ bool SharpSM83::IT_POP(){
     val |= (this->pop() << 8) & 0xFF00;
 
     this->write_reg((SharpSM83::reg_type) fetch_info.inst.reg_1, val);
+
+    if (fetch_info.inst.reg_1 == RT_AF)
+        write_reg(RT_AF, val & 0xFFF0);
 
     return false;
 }
@@ -242,7 +315,45 @@ bool SharpSM83::IT_RET(){
 }
 
 bool SharpSM83::IT_CB(){
-    // TODO
+    u8 op = fetch_info.data;
+    
+    u8 reg_bits = op & 0b111; 
+    bool is_left_reg = reg_bits & 1; 
+    reg_type reg = (SharpSM83::reg_type) (((reg_bits >> 1) << 16) | (0xFF << 8 * is_left_reg));
+
+    u8 bit = (op >> 3) & 0b111;
+    u8 bit_op = (op >> 6) & 0b11;
+    u8 val = read_reg(reg);
+
+    switch(bit_op){
+        case 1: // Bit
+            this->set_flags(!(val & (1 << bit)), 0, 1, NA);
+            return false;
+        case 2: // RST
+            write_reg(reg, val & ~(1 << bit));
+            return false;
+        case 3: // SET
+            write_reg(reg, val | (1 << bit));
+            return false;
+    }
+
+    switch (bit){
+        case 1:
+            return IT_RRC();
+        case 2:
+            return IT_RL();
+        case 3:
+            return IT_RR();
+        case 4:
+            return IT_SLA();
+        case 5:
+            return IT_SRA();
+        case 6:
+            return IT_SWAP();
+        case 7:
+            return IT_SRL();
+    }
+
     return false;
 }
 
@@ -363,17 +474,3 @@ bool SharpSM83::IT_SRL(){
     write_reg((SharpSM83::reg_type) fetch_info.dest, res);
     return false;
 }
-
-bool SharpSM83::IT_BIT(){
-    return false;
-}
-
-bool SharpSM83::IT_RES(){
-    return false;
-}
-
-bool SharpSM83::IT_SET(){
-    return false;
-}
-
-

@@ -81,9 +81,6 @@ class SharpSM83{
         bool IT_SRA();
         bool IT_SWAP();
         bool IT_SRL();
-        bool IT_BIT();
-        bool IT_RES();
-        bool IT_SET();
 
         //Addressing modes
         void AM_IMP();
