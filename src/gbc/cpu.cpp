@@ -81,3 +81,32 @@ void SharpSM83::reset(){
     this->halted = false;
 }
 
+void SharpSM83::set_flags(u8 nz, u8 nn, u8 nh, u8 nc){
+    // If value is not changed flags == 255
+
+    u8 flags = read_reg(RT_F);
+
+    if (nz != 255)
+        flags &= ~(flags::z); // clear bit
+    else
+        nz = 0;
+    if (nn != 255)
+        flags &= ~(flags::n); // clear bit
+    else
+        nn = 0;
+    if (nh != 255)
+        flags &= ~(flags::h); // clear bit
+    else
+        nh = 0;
+    if (nc != 255)
+        flags &= ~(flags::c); // clear bit
+    else
+        nc = 0;
+
+    flags |= (nz != 0) << 7;
+    flags |= (nn != 0) << 6;
+    flags |= (nh != 0) << 5;
+    flags |= (nc != 0) << 4;
+
+    this->write_reg(RT_F, flags);
+}

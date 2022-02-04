@@ -73,10 +73,10 @@ class SharpSM83{
         bool IT_EI();
         bool IT_RST();
         //CB instructions...
-        bool IT_RLC();
-        bool IT_RRC();
-        bool IT_RL();
-        bool IT_RR();
+        bool IT_RLC(bool clear_z = false);
+        bool IT_RRC(bool clear_z = false);
+        bool IT_RL(bool clear_z = false);
+        bool IT_RR(bool clear_z = false);
         bool IT_SLA();
         bool IT_SRA();
         bool IT_SWAP();
@@ -431,7 +431,8 @@ class SharpSM83{
         void write(u16 addr, u8 data);
         u8 read(u16 addr);
 
-
+#define NA 255
+        void set_flags(u8 z, u8 n, u8 h, u8 c);
   
     public:
         SharpSM83();

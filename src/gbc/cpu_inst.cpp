@@ -281,15 +281,72 @@ bool SharpSM83::IT_RST(){
 }
 
 //CB instructions...
-bool SharpSM83::IT_RLC(){return false;}
-bool SharpSM83::IT_RRC(){return false;}
-bool SharpSM83::IT_RL(){return false;}
-bool SharpSM83::IT_RR(){return false;}
-bool SharpSM83::IT_SLA(){return false;}
-bool SharpSM83::IT_SRA(){return false;}
-bool SharpSM83::IT_SWAP(){return false;}
-bool SharpSM83::IT_SRL(){return false;}
-bool SharpSM83::IT_BIT(){return false;}
-bool SharpSM83::IT_RES(){return false;}
-bool SharpSM83::IT_SET(){return false;}
+bool SharpSM83::IT_RLC(bool clear_z){
+    u8 carry = (fetch_info.data & (1 << 7)) != 0;
+    u8 res = (fetch_info.data << 1) | carry;
+
+    set_flags((res == 0) & !clear_z, NA, NA, carry);
+
+    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    return false;
+}
+
+bool SharpSM83::IT_RRC(bool clear_z){
+    u8 carry = fetch_info.data & 0x1;
+    u8 res = (fetch_info.data >> 1) | (carry << 7);
+
+    set_flags((res == 0) & !clear_z, NA, NA, carry);
+
+    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    return false;
+}
+
+bool SharpSM83::IT_RL(bool clear_z){
+    u8 carry = (fetch_info.data & (1 << 7)) != 0;
+    u8 res = (fetch_info.data << 1);
+
+    set_flags((res == 0) & !clear_z, NA, NA, carry);
+
+    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    return false;
+}
+
+bool SharpSM83::IT_RR(bool clear_z){
+    u8 carry = fetch_info.data & 0x1;
+    u8 res = (fetch_info.data >> 1);
+
+    set_flags((res == 0) & !clear_z, NA, NA, carry);
+
+    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    return false;
+}
+
+bool SharpSM83::IT_SLA(){
+    return false;
+}
+
+bool SharpSM83::IT_SRA(){
+    return false;
+}
+
+bool SharpSM83::IT_SWAP(){
+    return false;
+}
+
+bool SharpSM83::IT_SRL(){
+    return false;
+}
+
+bool SharpSM83::IT_BIT(){
+    return false;
+}
+
+bool SharpSM83::IT_RES(){
+    return false;
+}
+
+bool SharpSM83::IT_SET(){
+    return false;
+}
+
 
