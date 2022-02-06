@@ -22,7 +22,11 @@ typedef struct {
 } rom_header;
 
 class Cartridge{
+#ifndef DEBUG
     private:
+#else
+    public:
+#endif
         u32 size;
         u8 *data;
         rom_header *header;

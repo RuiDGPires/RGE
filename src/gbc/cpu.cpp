@@ -56,7 +56,9 @@ u16 SharpSM83::read_reg(reg_type reg_t){
 }
 
 void SharpSM83::clock(){
-    if (cycles == 0){
+    if (fetch_info.op_code == 0x76) // halt
+        cycles++;
+    else if (cycles == 0){
         fetch_info = {0, {0, "---", &a::IT_NONE}, false, 0, 0};
         // Fetch instruction
         fetch_info.op_code = this->read(regs[PC]++);

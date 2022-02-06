@@ -12,7 +12,11 @@
 class SharpSM83;
 
 class Bus{
+#ifndef DEBUG
     private:
+#else
+    public:
+#endif
         SharpSM83 *cpu;
         Cartridge *cart;
         u8 ram[RAM_SIZE];

@@ -4,7 +4,11 @@
 #include "cpu.hpp"
 
 class GameBoy{
+#ifndef DEBUG
     private:
+#else
+    public:
+#endif
         SharpSM83 cpu;
         Bus mem_bus;
         Cartridge *slot = NULL;

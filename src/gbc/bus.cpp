@@ -1,5 +1,6 @@
 #include "bus.hpp"
-#include "assert.h"
+#include "../common/assert.hpp"
+#include "../common/defs.hpp"
 
 // 0000	3FFF	16 KiB ROM bank 00	From cartridge, usually a fixed bank
 // 4000	7FFF	16 KiB ROM Bank 01~NN	From cartridge, switchable bank via mapper (if any)
@@ -15,6 +16,8 @@
 // FFFF	FFFF	Interrupt Enable register (IE)	
 
 Bus::Bus(){
+    for (u32 i = 0; i < RAM_SIZE; i++)
+        this->ram[i] = 0;
 }
 
 Bus::~Bus(){}
@@ -24,7 +27,6 @@ Bus::~Bus(){}
 
 #define RAM_BEGIN 0x8000
 #define RAM_END 0xDFFF
-
 
 void Bus::write(u16 addr, u8 data){
     if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){

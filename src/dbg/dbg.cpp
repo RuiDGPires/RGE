@@ -1,0 +1,308 @@
+#define DEBUG
+
+#include "../gbc/cpu.hpp"
+#include "../gbc/gameboy.hpp"
+#include "../common/assert.hpp"
+
+#include <termios.h>
+#include <unistd.h>
+#include <string>
+#include <string.h>
+#include <vector>
+
+#define ROW_SIZE 16
+
+struct termios saved_attributes;
+
+std::vector<std::string> rom_str;
+std::vector<u32> str_map;
+
+void reset_input_mode (void)
+{
+  tcsetattr (STDIN_FILENO, TCSANOW, &saved_attributes);
+}
+
+void set_input_mode (void)
+{
+  struct termios tattr;
+
+/* Make sure stdin is a terminal. */
+  if (!isatty (STDIN_FILENO))
+    {
+      fprintf (stderr, "Not a terminal.\n");
+      exit (EXIT_FAILURE);
+    }
+
+/* Save the terminal attributes so we can restore them later. */
+  tcgetattr (STDIN_FILENO, &saved_attributes);
+  atexit (reset_input_mode);
+
+/* Set the funny terminal modes. */
+  tcgetattr (STDIN_FILENO, &tattr);
+  tattr.c_lflag &= ~(ICANON | ECHO);	/* Clear ICANON and ECHO. */
+  tattr.c_cc[VMIN] = 1;
+  tattr.c_cc[VTIME] = 0;
+  tcsetattr (STDIN_FILENO, TCSAFLUSH, &tattr);
+}
+
+
+#define BLUE "\e[1;36m"
+#define YELLOW "\e[1;33m"
+#define BOLD "\e[1;37m"
+#define GREEN "\e[1;32m"
+#define reset "\e[0m"
+
+static std::string hex(unsigned int val){                                                                                
+    char tmp[10];
+    sprintf (tmp, "%x", val);
+    u8 rest = strlen(tmp) % 4 != 0? 4 - (strlen (tmp) % 4): 0;
+    std::string str = std::string ("0x") + std::string (rest, '0');
+    for (size_t i = 0; i < strlen (tmp); i++){
+        if ((i + rest) % 4 == 0 && i != 0)
+            str += " ";
+        str += tmp[i];
+    }
+    return str;
+}  
+
+const std::string reg_str[13] = {
+    "<NONE>",
+    "A",
+    "F",
+    "B",
+    "C",
+    "D",
+    "E",
+    "H",
+    "L",
+    "S",
+    "P",
+    "P",
+    "C"
+};
+
+static std::string decode_reg(SharpSM83::reg_type reg){
+    if (reg == SharpSM83::reg_type::RT_NONE)
+        return reg_str[0];
+
+    u8 order = (reg >> 16) + 1;
+    
+
+    std::string str = "";
+
+    if (reg & 0xFF00)
+        str += reg_str[order];
+    if (reg & 0x00FF)
+        str += reg_str[order + 1];
+
+    return str;
+}
+
+static void append(std::string &str, std::string a){
+    str.push_back(' ');
+    str.append(a);
+}
+
+static std::string envolve(std::string str){
+    return "(" + str + ")";
+}
+
+
+
+static void fetch_rom(Cartridge &cart){
+    rom_str = std::vector(cart.size, std::string("<NONE>"));
+    str_map = std::vector(cart.size, (u32) 0);
+    SharpSM83::instruction inst;
+    SharpSM83 dummy;
+
+
+    std::cout << "Cart size: " << cart.size << "\n";
+    fflush(stdout);
+    for (u32 i = 0x100, count = 0; i < cart.size; count++){
+        std::string str = "";
+
+        inst = dummy.lookup[cart.data[i]];
+
+        str += inst.str;
+
+        str_map[i++] = count;
+
+        using a = SharpSM83;
+        if (inst.mode == &a::AM_IMP)
+            ;
+        else if (inst.mode == &a::AM_R_D16){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, hex(cart.data[i++]));
+
+        }else if (inst.mode == &a::AM_R_R){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, decode_reg(inst.reg_2));
+
+        }else if (inst.mode == &a::AM_MR_R){
+            append(str, envolve(decode_reg(inst.reg_1)));
+            str.push_back(',');
+            append(str, decode_reg(inst.reg_2));
+
+        }else if (inst.mode == &a::AM_R){
+            append(str, decode_reg(inst.reg_1));
+
+        }else if (inst.mode == &a::AM_R_D8){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, hex(cart.data[i++]));
+
+        }else if (inst.mode == &a::AM_R_MR){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, envolve(hex(cart.data[i++])));
+
+        }else if (inst.mode == &a::AM_R_MHLI){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, envolve(decode_reg(inst.reg_2) + "+"));
+
+        }else if (inst.mode == &a::AM_R_MHLD){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, envolve(decode_reg(inst.reg_2) + "-"));
+
+        }else if (inst.mode == &a::AM_MHLI_R){
+            append(str, envolve(decode_reg(inst.reg_1) + "+"));
+            str.push_back(',');
+            append(str, decode_reg(inst.reg_2));
+
+        }else if (inst.mode == &a::AM_MHLD_R){
+            append(str, envolve(decode_reg(inst.reg_1) + "-"));
+            str.push_back(',');
+            append(str, decode_reg(inst.reg_2));
+
+        }else if (inst.mode == &a::AM_R_A8){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, envolve("0xFF00 + " + hex(cart.data[i++])));
+
+        }else if (inst.mode == &a::AM_A8_R){
+            append(str, envolve("0xFF00 + " + hex(cart.data[i++])));
+            str.push_back(',');
+            append(str, decode_reg(inst.reg_2));
+
+        }else if (inst.mode == &a::AM_MHL_SPR){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            append(str, "$SP + " + hex(cart.data[i++]));
+
+        }else if (inst.mode == &a::AM_D16){
+            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            val |= cart.data[i++] & 0x00FF;
+            append(str, hex(val));
+
+        }else if (inst.mode == &a::AM_D8){
+            append(str, hex(cart.data[i++]));
+
+        }else if (inst.mode == &a::AM_D16_R){
+            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            val |= cart.data[i++] & 0x00FF;
+            append(str, hex(val));
+            str.push_back(',');
+            append(str, decode_reg(inst.reg_2));
+
+        }else if (inst.mode == &a::AM_MR_D8){
+            append(str, envolve(decode_reg(inst.reg_1)));
+            str.push_back(',');
+            append(str, hex(cart.data[i++]));
+
+        }else if (inst.mode == &a::AM_MR){
+            append(str, envolve(decode_reg(inst.reg_1)));
+
+        }else if (inst.mode == &a::AM_A16_R){
+            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            val |= cart.data[i++] & 0x00FF;
+            append(str, envolve(hex(val)));
+            str.push_back(',');
+            append(str, decode_reg(inst.reg_1));
+        }else if (inst.mode == &a::AM_R_A16){
+            append(str, decode_reg(inst.reg_1));
+            str.push_back(',');
+            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            val |= cart.data[i++] & 0x00FF;
+            append(str, envolve(hex(val)));
+        }
+
+        rom_str[count] = str;
+    }
+}
+
+u16 regs[6];
+#define EXTRA_LINES 3
+
+static void print_info(GameBoy gb){
+    SharpSM83 cpu = gb.cpu;
+	system("clear");
+
+	printf("\n");
+    
+
+	printf(" REGS \n");
+	printf("--------\n");
+	for (u32 i = 0; i < 6; i++){
+		printf("[%s]: %s%s\n%s", (reg_str[i*2+1] + reg_str[i*2+2]).c_str(), cpu.regs[i] != regs[i] ? GREEN : "", hex(cpu.regs[i]).c_str(), reset);
+		regs[i] = cpu.regs[i];
+	}	
+
+	printf("\n CODE \n");
+	printf("--------\n");
+
+    for (int i = -EXTRA_LINES; i <= EXTRA_LINES; i++){
+        u32 pc = cpu.regs[PC];
+        u32 line = str_map[pc];
+        std::cout << "Line: " << line << "\n";
+
+        if (line + i >= 0 && line + i < gb.slot->size)
+            std::cout << rom_str[line + i] << "\n";
+        else
+            std::cout << "\n";
+    }
+
+	printf("\n MEMORY \n");
+	printf("--------\n");
+
+    u32 rows = RAM_SIZE / ROW_SIZE;
+
+    for (u32 j = 0; j < rows; j++){
+        std::cout << hex(j*ROW_SIZE) << " | ";
+        for (u32 i = 0; i < ROW_SIZE; i++)
+            std::cout << hex(gb.mem_bus.ram[i+j]) << " ";
+
+        std::cout << "\n";
+    }
+
+
+	fflush(stdout);
+}
+
+static void run(GameBoy &gb){
+	// Pass the control to the VM
+	set_input_mode();
+	do {
+		print_info(gb);
+		gb.cpu.clock();
+		getchar();
+	}while(gb.cpu.running);
+	reset_input_mode();
+}
+
+int main(int argc, char *argv[]){
+	ASSERT(argc == 2, "Invalid number of arguments");
+	
+    GameBoy gb;
+
+    gb.load_rom(argv[1]);
+    fetch_rom(*(gb.slot));
+
+    //run(gb);
+    
+
+	return 0;
+}

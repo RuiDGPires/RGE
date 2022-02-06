@@ -131,9 +131,15 @@ const char *Cartridge::type_name() {
 Cartridge::Cartridge(const char *file_name){
     FILE *file = fopen(file_name, "rb");
 
+    if (file == NULL){
+        perror("Unable to open file\n");
+        exit(1);
+    }
+
     size_t file_size = get_file_size(file);
 
     data = (u8 *) malloc(sizeof(u8) * file_size);
+    this->size = file_size;
 
     fread(data, 1, file_size, file);
 
@@ -156,6 +162,7 @@ Cartridge::Cartridge(std::string file_name) : Cartridge(file_name.c_str()){
 
 Cartridge::~Cartridge(){
     free(data);
+    data = NULL;
 }
 
 void Cartridge::write(u16 addr, u8 data){

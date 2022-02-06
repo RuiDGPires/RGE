@@ -1,3 +1,4 @@
+cpu_instrs/**
 gameboy
 roms/*
 *.txt

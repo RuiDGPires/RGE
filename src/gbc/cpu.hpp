@@ -9,7 +9,11 @@
 class Bus;
 
 class SharpSM83{
+#ifndef DEBUG
     private:
+#else
+    public:
+#endif
         enum reg_type{
             RT_NONE = 0, 
             RT_A = 0x0FF00,

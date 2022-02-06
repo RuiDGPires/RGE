@@ -1,3 +1,4 @@
+#ifdef MAIN_
 #include "gbc/gameboy.hpp"
 #include "common/assert.hpp"
 #include <iostream>
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]){
     gb.turn_off();
     return 0;
 }
+#endif
 
 /*
 void print_regs(SharpSM83 &cpu){
