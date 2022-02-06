@@ -71,7 +71,10 @@ void SharpSM83::clock(){
                 cycles += fetch_info.inst.extra_cycles;
     }
 
-    cycles--;
+    if (debug_mode)
+        cycles = 0;
+    else
+        cycles--;
 }
 
 void SharpSM83::reset(){

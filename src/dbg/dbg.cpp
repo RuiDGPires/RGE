@@ -1,4 +1,6 @@
+#ifndef DEBUG
 #define DEBUG
+#endif
 
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
@@ -10,7 +12,12 @@
 #include <string.h>
 #include <vector>
 
-#define ROW_SIZE 16
+
+#define BLUE "\e[1;36m"
+#define YELLOW "\e[1;33m"
+#define BOLD "\e[1;37m"
+#define GREEN "\e[1;32m"
+#define reset "\e[0m"
 
 struct termios saved_attributes;
 
@@ -45,12 +52,6 @@ void set_input_mode (void)
   tcsetattr (STDIN_FILENO, TCSAFLUSH, &tattr);
 }
 
-
-#define BLUE "\e[1;36m"
-#define YELLOW "\e[1;33m"
-#define BOLD "\e[1;37m"
-#define GREEN "\e[1;32m"
-#define reset "\e[0m"
 
 static std::string hex(unsigned int val){                                                                                
     char tmp[10];
@@ -235,31 +236,38 @@ static void fetch_rom(Cartridge &cart){
 }
 
 u16 regs[6];
+#define MAX_ROWS 10
 #define EXTRA_LINES 3
+#define ROW_SIZE 16
 
-static void print_info(GameBoy gb){
-    SharpSM83 cpu = gb.cpu;
+static u32 mem_page = 0;
+
+static void print_info(GameBoy &gb){
 	system("clear");
 
 	printf("\n");
+    printf("DEBUG MODE [%s]\n", gb.cpu.debug_mode ? "ON": "OFF");
     
 
 	printf(" REGS \n");
 	printf("--------\n");
 	for (u32 i = 0; i < 6; i++){
-		printf("[%s]: %s%s\n%s", (reg_str[i*2+1] + reg_str[i*2+2]).c_str(), cpu.regs[i] != regs[i] ? GREEN : "", hex(cpu.regs[i]).c_str(), reset);
-		regs[i] = cpu.regs[i];
+		printf("[%s]: %s%s\n%s", (reg_str[i*2+1] + reg_str[i*2+2]).c_str(), gb.cpu.regs[i] != regs[i] ? GREEN : "", hex(gb.cpu.regs[i]).c_str(), reset);
+		regs[i] = gb.cpu.regs[i];
 	}	
 
 	printf("\n CODE \n");
 	printf("--------\n");
 
     for (int i = -EXTRA_LINES; i <= EXTRA_LINES; i++){
-        u32 pc = cpu.regs[PC];
+        u32 pc = gb.cpu.regs[PC];
         u32 line = str_map[pc];
-        std::cout << "Line: " << line << "\n";
 
-        if (line + i >= 0 && line + i < gb.slot->size)
+
+        if (i == 0){
+            std::cout << YELLOW << rom_str[line] << reset;
+            std::cout << "\t\t[" << hex(pc) << "]\n";
+        }else if (line + i >= 0 && line + i < gb.slot->size)
             std::cout << rom_str[line + i] << "\n";
         else
             std::cout << "\n";
@@ -268,27 +276,61 @@ static void print_info(GameBoy gb){
 	printf("\n MEMORY \n");
 	printf("--------\n");
 
-    u32 rows = RAM_SIZE / ROW_SIZE;
+    for (u32 j = 0; j < MAX_ROWS; j++){
+        u32 first = mem_page * MAX_ROWS * ROW_SIZE;
 
-    for (u32 j = 0; j < rows; j++){
-        std::cout << hex(j*ROW_SIZE) << " | ";
-        for (u32 i = 0; i < ROW_SIZE; i++)
-            std::cout << hex(gb.mem_bus.ram[i+j]) << " ";
+        std::cout << hex(first + j*ROW_SIZE) << " | ";
+        for (u32 i = 0; i < ROW_SIZE; i++){
+            if (first + j + i > RAM_SIZE)
+                goto end;
+
+            std::cout << hex(gb.mem_bus.ram[first + i+j]) << " ";
+        }
 
         std::cout << "\n";
     }
 
+end:
 
 	fflush(stdout);
 }
 
+#define ARROW_UP 'A'
+#define ARROW_DOWN 'B'
+
 static void run(GameBoy &gb){
 	// Pass the control to the VM
 	set_input_mode();
+    gb.cpu.running = true;
 	do {
+        // Display information
 		print_info(gb);
-		gb.cpu.clock();
-		getchar();
+
+		char c = getchar();
+        bool step = true;
+
+        if (c == '\033'){ // key pressed{
+            (void) getchar();
+            switch (getchar()){
+                case ARROW_UP:
+                    if ((int)(mem_page - 1) >= 0)
+                        mem_page--;
+                    
+                    step = false;
+                    break;
+                case ARROW_DOWN:
+                    if (mem_page + 1 * MAX_ROWS * ROW_SIZE < RAM_SIZE)
+                        mem_page++;
+
+                    step = false;
+                    break;
+                default:
+                    printf("OTHER\n");
+                    break;
+            }
+        }
+        if (step)
+            gb.cpu.clock();
 	}while(gb.cpu.running);
 	reset_input_mode();
 }
@@ -302,6 +344,10 @@ int main(int argc, char *argv[]){
     fetch_rom(*(gb.slot));
 
     //run(gb);
+
+    for (u32 i = 0; i < 20; i++)
+        std::cout << rom_str[i] << "\n";
+
     
 
 	return 0;

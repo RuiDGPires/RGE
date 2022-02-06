@@ -5,7 +5,7 @@ C_FILES := $(wildcard src/*.cpp) $(wildcard src/gbc/*.cpp) $(wildcard src/dbg/*.
 H_FILES := $(wildcard src/*.hpp)
 
 $(TARGET): $(C_FILES) $(H_FILES)
-	$(CC) -Wall $(C_FILES) -o $@ -g
+	$(CC) -Wall $(C_FILES) -o $@ -g -D DEBUG
 
 main: $(C_FILES) $(H_FILES)
 	$(CC) -D MAIN -Wall $(C_FILES) -o $(TARGET) -g

@@ -11,8 +11,10 @@ class Bus;
 class SharpSM83{
 #ifndef DEBUG
     private:
+        const bool debug_mode = false;
 #else
     public:
+        const bool debug_mode = true;
 #endif
         enum reg_type{
             RT_NONE = 0, 
