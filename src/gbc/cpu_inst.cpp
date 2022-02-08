@@ -120,6 +120,8 @@ bool SharpSM83::eval_condition(){
             return flg & flags::z;
         case CT_NZ:
             return !(flg & flags::z);
+        case CT_NONE:
+            return true;
         default:
             return false;
     }
