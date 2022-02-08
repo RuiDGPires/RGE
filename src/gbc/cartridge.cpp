@@ -170,6 +170,8 @@ void Cartridge::write(u16 addr, u8 data){
 }
 
 u8 Cartridge::read(u16 addr){
+    if (addr >= this->size)
+        return 0;
     return this->data[addr];
 }
 

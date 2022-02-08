@@ -56,13 +56,13 @@ void set_input_mode (void)
 }
 
 
-static std::string hex(unsigned int val, bool prefix = true){
+static std::string hex(unsigned int val, bool prefix = true, u32 n = 4){
     char tmp[10];
     sprintf (tmp, "%x", val);
-    u8 rest = strlen(tmp) % 4 != 0? 4 - (strlen (tmp) % 4): 0;
+    u8 rest = strlen(tmp) % n != 0? n - (strlen (tmp) % n): 0;
     std::string str = prefix? std::string ("0x"): "" + std::string (rest, '0');
     for (size_t i = 0; i < strlen (tmp); i++){
-        if ((i + rest) % 4 == 0 && i != 0)
+        if ((i + rest) % n == 0 && i != 0)
             str += " ";
         str += tmp[i];
     }
@@ -300,10 +300,10 @@ static void print_info(GameBoy &gb){
 
         std::cout << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
-            if (first + j + i > RAM_END)
+            if (first + i + j*ROW_SIZE > RAM_END)
                 goto end;
 
-            std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false) << " ";
+            std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false, 2) << " ";
         }
 
         std::cout << "\n";

@@ -207,6 +207,7 @@ bool SharpSM83::IT_CCF(){
 
 bool SharpSM83::IT_HALT(){
     this->halted = true;
+    this->regs[PC]--;
     return false;
 }
 

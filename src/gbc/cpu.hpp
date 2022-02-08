@@ -256,7 +256,7 @@ class SharpSM83{
             {8, "LD", &a::IT_LD, &a::AM_MR_R,  RT_HL, RT_E},
             {8, "LD", &a::IT_LD, &a::AM_MR_R,  RT_HL, RT_H},
             {8, "LD", &a::IT_LD, &a::AM_MR_R,  RT_HL, RT_L},
-            {4, "HALT", &a::IT_HALT},
+            {4, "HALT", &a::IT_HALT, &a::AM_IMP},
             {8, "LD", &a::IT_LD, &a::AM_MR_R,  RT_HL, RT_A},
             {4, "LD", &a::IT_LD, &a::AM_R_R,  RT_A, RT_B},
             {4, "LD", &a::IT_LD, &a::AM_R_R,  RT_A, RT_C},
