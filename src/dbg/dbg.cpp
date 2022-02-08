@@ -2,6 +2,9 @@
 #define DEBUG
 #endif
 
+
+#define CLEAR_TERM 1
+
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
 #include "../common/assert.hpp"
@@ -53,11 +56,11 @@ void set_input_mode (void)
 }
 
 
-static std::string hex(unsigned int val){                                                                                
+static std::string hex(unsigned int val, bool prefix = true){
     char tmp[10];
     sprintf (tmp, "%x", val);
     u8 rest = strlen(tmp) % 4 != 0? 4 - (strlen (tmp) % 4): 0;
-    std::string str = std::string ("0x") + std::string (rest, '0');
+    std::string str = prefix? std::string ("0x"): "" + std::string (rest, '0');
     for (size_t i = 0; i < strlen (tmp); i++){
         if ((i + rest) % 4 == 0 && i != 0)
             str += " ";
@@ -86,15 +89,15 @@ static std::string decode_reg(SharpSM83::reg_type reg){
     if (reg == SharpSM83::reg_type::RT_NONE)
         return reg_str[0];
 
-    u8 order = (reg >> 16) + 1;
+    u8 order = (reg >> 16);
     
 
     std::string str = "";
 
     if (reg & 0xFF00)
-        str += reg_str[order];
+        str += reg_str[order*2 + 1];
     if (reg & 0x00FF)
-        str += reg_str[order + 1];
+        str += reg_str[order*2 + 2];
 
     return str;
 }
@@ -134,7 +137,9 @@ static void fetch_rom(Cartridge &cart){
         else if (inst.mode == &a::AM_R_D16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, hex(cart.data[i++]));
+            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
+            val |= cart.data[i++] & 0x00FF;
+            append(str, hex(val));
 
         }else if (inst.mode == &a::AM_R_R){
             append(str, decode_reg(inst.reg_1));
@@ -157,7 +162,12 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_MR){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, envolve(hex(cart.data[i++])));
+            std::string aux = "";
+            if (inst.reg_1 == SharpSM83::RT_A && inst.reg_2 == SharpSM83::RT_C)
+                aux = "0xFF00 + ";
+
+            append(str, envolve(aux + decode_reg(inst.reg_1)));
+
 
         }else if (inst.mode == &a::AM_R_MHLI){
             append(str, decode_reg(inst.reg_1));
@@ -195,7 +205,7 @@ static void fetch_rom(Cartridge &cart){
             append(str, "$SP + " + hex(cart.data[i++]));
 
         }else if (inst.mode == &a::AM_D16){
-            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
             val |= cart.data[i++] & 0x00FF;
             append(str, hex(val));
 
@@ -203,7 +213,7 @@ static void fetch_rom(Cartridge &cart){
             append(str, hex(cart.data[i++]));
 
         }else if (inst.mode == &a::AM_D16_R){
-            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
             val |= cart.data[i++] & 0x00FF;
             append(str, hex(val));
             str.push_back(',');
@@ -218,17 +228,26 @@ static void fetch_rom(Cartridge &cart){
             append(str, envolve(decode_reg(inst.reg_1)));
 
         }else if (inst.mode == &a::AM_A16_R){
-            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
             val |= cart.data[i++] & 0x00FF;
-            append(str, envolve(hex(val)));
+
+            std::string aux = "";
+            if (inst.reg_2 == SharpSM83::RT_A)
+                aux = "0xFF00 + ";
+
+            append(str, envolve(aux + hex(val)));
             str.push_back(',');
-            append(str, decode_reg(inst.reg_1));
+            append(str, decode_reg(inst.reg_2));
         }else if (inst.mode == &a::AM_R_A16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            u32 val = (cart.data[i++] << 8) & 0xFF00;
+            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
             val |= cart.data[i++] & 0x00FF;
-            append(str, envolve(hex(val)));
+
+            std::string aux = "";
+            if (inst.reg_1 == SharpSM83::RT_A)
+                aux = "0xFF00 + ";
+            append(str, envolve(aux + hex(val)));
         }
 
         rom_str[count] = str;
@@ -240,12 +259,13 @@ u16 regs[6];
 #define EXTRA_LINES 3
 #define ROW_SIZE 16
 
-static u32 mem_page = 0;
+static u32 mem_page = RAM_BEGIN / (MAX_ROWS * ROW_SIZE);
 
 static void print_info(GameBoy &gb){
-	system("clear");
+    if (CLEAR_TERM)
+        system("clear");
 
-	printf("\n");
+    printf("\n");
     printf("DEBUG MODE [%s]\n", gb.cpu.debug_mode ? "ON": "OFF");
     
 
@@ -262,7 +282,6 @@ static void print_info(GameBoy &gb){
     for (int i = -EXTRA_LINES; i <= EXTRA_LINES; i++){
         u32 pc = gb.cpu.regs[PC];
         u32 line = str_map[pc];
-
 
         if (i == 0){
             std::cout << YELLOW << rom_str[line] << reset;
@@ -281,10 +300,10 @@ static void print_info(GameBoy &gb){
 
         std::cout << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
-            if (first + j + i > RAM_SIZE)
+            if (first + j + i > RAM_END)
                 goto end;
 
-            std::cout << hex(gb.mem_bus.ram[first + i+j]) << " ";
+            std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false) << " ";
         }
 
         std::cout << "\n";
@@ -343,12 +362,10 @@ int main(int argc, char *argv[]){
     gb.load_rom(argv[1]);
     fetch_rom(*(gb.slot));
 
-    //run(gb);
+    run(gb);
 
     for (u32 i = 0; i < 20; i++)
         std::cout << rom_str[i] << "\n";
 
-    
-
-	return 0;
+    return 0;
 }

@@ -29,7 +29,7 @@ u8 SharpSM83::read(u16 addr){
 }
 
 void SharpSM83::write_reg(reg_type reg_t, u16 data){
-    u8 reg = reg_t >> 16;
+    u32 reg = ((u32) reg_t >> 16) & 0xFF;
     u16 mask = reg_t & 0xFFFF;
 
     this->regs[reg] &= ~(mask);

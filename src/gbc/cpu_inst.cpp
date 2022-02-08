@@ -11,10 +11,12 @@ bool SharpSM83::IT_NOP(){
 }
 
 bool SharpSM83::IT_LD(){
+    printf("\n*****\nData: 0x%x\n*****\n", fetch_info.data);
+    printf("\n*****\nDest: 0x%x\n*****\n\n", fetch_info.dest);
     if (fetch_info.is_dest_addr)
         this->write(fetch_info.dest, fetch_info.data);  
     else
-        this->write_reg((SharpSM83::reg_type) fetch_info.dest, fetch_info.data);
+        this->write_reg((reg_type) fetch_info.dest, fetch_info.data);
 
     return false;
 }
@@ -24,7 +26,7 @@ bool SharpSM83::IT_INC(){
     if (fetch_info.is_dest_addr)
         this->write(fetch_info.dest, val);
     else
-        this->write_reg((SharpSM83::reg_type) fetch_info.dest, val);
+        this->write_reg((reg_type) fetch_info.dest, val);
 
     if ((fetch_info.op_code & 0x03) != 0x03)
         this->set_flags(val == 0, 1, (val & 0x0F) == 0, NA);
@@ -37,7 +39,7 @@ bool SharpSM83::IT_DEC(){
     if (fetch_info.is_dest_addr)
         this->write(fetch_info.dest, val);
     else
-        this->write_reg((SharpSM83::reg_type) fetch_info.dest, val);
+        this->write_reg((reg_type) fetch_info.dest, val);
 
     this->set_flags(val == 0, 1, (val & 0x0F) == 0x0F, NA);
 
@@ -60,23 +62,23 @@ bool SharpSM83::IT_ADD(){
     u32 val;
 
     if (fetch_info.inst.reg_1 == RT_SP){
-        val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) + (u8) fetch_info.data;
+        val = read_reg((reg_type) fetch_info.inst.reg_1) + (u8) fetch_info.data;
     
         z = 0;
-        h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
+        h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
         c = val >= 0x100;
         goto end;
     }
 
-    val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) + fetch_info.data;
+    val = read_reg((reg_type) fetch_info.inst.reg_1) + fetch_info.data;
 
     if (is_16_bit){
         z = (val & 0xFFFF) == 0;
-        h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xFF) + (fetch_info.data & 0xFF) >= 0x1000;
+        h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xFF) + (fetch_info.data & 0xFF) >= 0x1000;
         c = val >= 0x10000;
     }else{
         z = (val & 0xFF) == 0;
-        h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
+        h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
         c = val >= 0x100;
     }
 
@@ -84,7 +86,7 @@ bool SharpSM83::IT_ADD(){
         z = NA;
 end:
     this->set_flags(z, 0, h, c);
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    this->write_reg((reg_type) fetch_info.dest, val & 0xFFFF);
 
     return false;
 }
@@ -209,14 +211,14 @@ bool SharpSM83::IT_HALT(){
 }
 
 bool SharpSM83::IT_ADC(){
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) + fetch_info.data;
+    u32 val = read_reg((reg_type) fetch_info.inst.reg_1) + fetch_info.data;
     u8 carry = (this->read_reg(RT_F) & flags::c) != 0;
 
     val += carry;
 
-    u8 h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF);
+    u8 h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF);
 
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFF);
+    this->write_reg((reg_type) fetch_info.dest, val & 0xFF);
 
     this->set_flags(val == 0, 0, h, val > 0xFF);
 
@@ -224,11 +226,11 @@ bool SharpSM83::IT_ADC(){
 }
 
 bool SharpSM83::IT_SUB(){
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
+    u32 val = read_reg((reg_type) fetch_info.inst.reg_1) - fetch_info.data;
 
-    u8 h = (read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF);
+    u8 h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF);
 
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    this->write_reg((reg_type) fetch_info.dest, val & 0xFFFF);
 
     this->set_flags(val == 0, 1, h, ((int) val) < 0);
 
@@ -236,41 +238,41 @@ bool SharpSM83::IT_SUB(){
 }
 
 bool SharpSM83::IT_SBC(){
-    u8 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
+    u8 val = read_reg((reg_type) fetch_info.inst.reg_1) - fetch_info.data;
     u8 carry = (this->read_reg(RT_F) & flags::c) != 0;
 
-    u8 h = (int)((read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF) - carry) < 0;
+    u8 h = (int)((read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF) - carry) < 0;
 
     this->set_flags(val - carry == 0, 1, h, (int)(val - carry) < 0);
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, (val - carry) & 0xFFFF);
+    this->write_reg((reg_type) fetch_info.dest, (val - carry) & 0xFFFF);
 
     return false;
 }
 
 bool SharpSM83::IT_AND(){
-    u16 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & fetch_info.data;
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    u16 val = read_reg((reg_type) fetch_info.inst.reg_1) & fetch_info.data;
+    this->write_reg((reg_type) fetch_info.dest, val & 0xFFFF);
     this->set_flags(val == 0, 0, 1, 0);
     return false;
 }
 
 bool SharpSM83::IT_XOR(){
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) ^ fetch_info.data;
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    u32 val = read_reg((reg_type) fetch_info.inst.reg_1) ^ fetch_info.data;
+    this->write_reg((reg_type) fetch_info.dest, val & 0xFFFF);
     this->set_flags(val == 0, 0, 0, 0);
     return false;
 }
 
 bool SharpSM83::IT_OR(){
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) | fetch_info.data;
-    this->write_reg((SharpSM83::reg_type) fetch_info.dest, val & 0xFFFF);
+    u32 val = read_reg((reg_type) fetch_info.inst.reg_1) | fetch_info.data;
+    this->write_reg((reg_type) fetch_info.dest, val & 0xFFFF);
     this->set_flags(val == 0, 0, 0, 0);
     return false;
 }
 
 bool SharpSM83::IT_CP(){
-    u32 val = read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) - fetch_info.data;
-    u8 h = (int)((read_reg((SharpSM83::reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF));
+    u32 val = read_reg((reg_type) fetch_info.inst.reg_1) - fetch_info.data;
+    u8 h = (int)((read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF));
 
     this->set_flags(val == 0, 1, h, ((int) val) < 0);
 
@@ -282,7 +284,7 @@ bool SharpSM83::IT_POP(){
     val |= this->pop();
     val |= (this->pop() << 8) & 0xFF00;
 
-    this->write_reg((SharpSM83::reg_type) fetch_info.inst.reg_1, val);
+    this->write_reg((reg_type) fetch_info.inst.reg_1, val);
 
     if (fetch_info.inst.reg_1 == RT_AF)
         write_reg(RT_AF, val & 0xFFF0);
@@ -319,7 +321,7 @@ bool SharpSM83::IT_CB(){
     
     u8 reg_bits = op & 0b111; 
     bool is_left_reg = reg_bits & 1; 
-    reg_type reg = (SharpSM83::reg_type) (((reg_bits >> 1) << 16) | (0xFF << 8 * is_left_reg));
+    reg_type reg = (reg_type) (((reg_bits >> 1) << 16) | (0xFF << 8 * is_left_reg));
 
     u8 bit = (op >> 3) & 0b111;
     u8 bit_op = (op >> 6) & 0b11;
@@ -398,7 +400,7 @@ bool SharpSM83::IT_RLC(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -408,7 +410,7 @@ bool SharpSM83::IT_RRC(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -418,7 +420,7 @@ bool SharpSM83::IT_RL(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -428,7 +430,7 @@ bool SharpSM83::IT_RR(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -439,7 +441,7 @@ bool SharpSM83::IT_SLA(){
 
     set_flags(res == 0, 0, 0, carry);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -451,7 +453,7 @@ bool SharpSM83::IT_SRA(){
 
     set_flags(res == 0, 0, 0, carry);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -460,7 +462,7 @@ bool SharpSM83::IT_SWAP(){
 
     set_flags(res == 0, 0, 0, 0);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -471,6 +473,6 @@ bool SharpSM83::IT_SRL(){
 
     set_flags(res == 0, 0, 0, carry);
 
-    write_reg((SharpSM83::reg_type) fetch_info.dest, res);
+    write_reg((reg_type) fetch_info.dest, res);
     return false;
 }

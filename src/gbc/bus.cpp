@@ -22,17 +22,13 @@ Bus::Bus(){
 
 Bus::~Bus(){}
 
-#define CART_ROM_BEGIN 0x0000
-#define CART_ROM_END 0x7FFF
-
-#define RAM_BEGIN 0x8000
-#define RAM_END 0xDFFF
 
 void Bus::write(u16 addr, u8 data){
     if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){
         this->cart->write(addr - CART_ROM_BEGIN, data); // NO EFFECT
     }else if (addr >= RAM_BEGIN && addr <= RAM_END){
         ram[addr-RAM_BEGIN] = data;
+        printf("\nDATA: 0x%x\n", data);
     }
 }
 

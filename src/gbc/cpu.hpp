@@ -33,6 +33,7 @@ class SharpSM83{
             RT_SP = 0x4FFFF,
             RT_PC = 0x5FFFF,
         };
+
         void write_reg(reg_type reg_t, u16 data);
         u16 read_reg(reg_type reg_t);
 
@@ -408,7 +409,8 @@ class SharpSM83{
             instruction inst;
             bool is_dest_addr;
 
-            u16 data, dest;
+            u32 data;
+            u32 dest;
         };
 
         enum flags{

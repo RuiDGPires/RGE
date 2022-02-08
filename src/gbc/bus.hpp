@@ -4,10 +4,16 @@
 #include "cartridge.hpp"
 #include "cpu.hpp"
 
-#define RAM_SIZE 32000 // bytes
 #define ROM_SIZE 2000000 // bytes
 #define BOOT_ROM_SIZE 0x0100// bytes
 #define OAM_SIZE 160 // bytes
+
+#define CART_ROM_BEGIN 0x0000
+#define CART_ROM_END 0x7FFF
+
+#define RAM_BEGIN 0x8000
+#define RAM_END 0xDFFF
+#define RAM_SIZE RAM_END - RAM_BEGIN
 
 class SharpSM83;
 
