@@ -11,8 +11,6 @@ bool SharpSM83::IT_NOP(){
 }
 
 bool SharpSM83::IT_LD(){
-    printf("\n*****\nData: 0x%x\n*****\n", fetch_info.data);
-    printf("\n*****\nDest: 0x%x\n*****\n\n", fetch_info.dest);
     if (fetch_info.is_dest_addr)
         this->write(fetch_info.dest, fetch_info.data);  
     else
