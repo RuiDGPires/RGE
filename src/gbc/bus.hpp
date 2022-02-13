@@ -40,7 +40,7 @@
 #define HRAM_END 0xFFFE
 
 // Interrupt
-#define IE_BIT 0xFFFF
+#define IE_BYTE 0xFFFF
 
 class SharpSM83;
 

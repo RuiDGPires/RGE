@@ -24,18 +24,86 @@ Bus::~Bus(){}
 
 
 void Bus::write(u16 addr, u8 data){
-    if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){ // CART ROM
+    // CART ROM
+    if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){ 
         this->cart->write(addr - CART_ROM_BEGIN, data); // NO EFFECT
-    }else if (addr >= WRAM_BEGIN && addr <= WRAM_END){ // WRAM
+    }
+
+    // CART RAM
+    else if (addr >= CRAM_BEGIN && addr <= CRAM_END){
+        // TODO
+    }
+
+    // WRAM
+    else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
         ram[addr-WRAM_BEGIN] = data;
+    }
+
+    // ERAM
+    else if (addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END){
+        // TODO
+    }
+
+    // OAM
+    else if (addr >= OAM_BEGIN && addr <= OAM_END){
+        // TODO
+    }
+
+    // IO
+    else if (addr >= IO_BEGIN && addr <= IO_END){
+        // TODO
+    }
+
+    // HRAM
+    else if (addr >= HRAM_BEGIN && addr <= HRAM_END){
+        // TODO
+    }
+
+    // Interrupt byte
+    else if (addr == IE_BYTE){
+        // TODO
     }
 }
 
 u8 Bus::read(u16 addr){
+    // CART ROM
     if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){
         return this->cart->read(addr - CART_ROM_BEGIN);
-    }else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
+    } 
+
+    // CART_RAM
+    else if (addr >= CRAM_BEGIN && addr <= CRAM_END){
+        // TODO
+    }
+
+    // WRAM
+    else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
         return ram[addr-WRAM_BEGIN];
+    }
+
+    // ERAM
+    else if (addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END){
+        // TODO
+    }
+
+    // OAM
+    else if (addr >= OAM_BEGIN && addr <= OAM_END){
+        // TODO
+    }
+
+    // IO
+    else if (addr >= IO_BEGIN && addr <= IO_END){
+        // TODO
+    }
+
+    // HRAM
+    else if (addr >= HRAM_BEGIN && addr <= HRAM_END){
+        // TODO
+    }
+
+    // Interrupt byte
+    else if (addr == IE_BYTE){
+        // TODO
     }
     return 0;
 }
