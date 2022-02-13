@@ -16,7 +16,7 @@
 // FFFF	FFFF	Interrupt Enable register (IE)	
 
 Bus::Bus(){
-    for (u32 i = 0; i < RAM_SIZE; i++)
+    for (u32 i = 0; i < WRAM_SIZE; i++)
         this->ram[i] = 0;
 }
 
@@ -24,19 +24,18 @@ Bus::~Bus(){}
 
 
 void Bus::write(u16 addr, u8 data){
-    if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){
+    if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){ // CART ROM
         this->cart->write(addr - CART_ROM_BEGIN, data); // NO EFFECT
-    }else if (addr >= RAM_BEGIN && addr <= RAM_END){
-        ram[addr-RAM_BEGIN] = data;
-        printf("\nDATA: 0x%x\n", data);
+    }else if (addr >= WRAM_BEGIN && addr <= WRAM_END){ // WRAM
+        ram[addr-WRAM_BEGIN] = data;
     }
 }
 
 u8 Bus::read(u16 addr){
     if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){
         return this->cart->read(addr - CART_ROM_BEGIN);
-    }else if (addr >= RAM_BEGIN && addr <= RAM_END){
-        return ram[addr-RAM_BEGIN];
+    }else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
+        return ram[addr-WRAM_BEGIN];
     }
     return 0;
 }

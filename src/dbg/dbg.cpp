@@ -2,7 +2,6 @@
 #define DEBUG
 #endif
 
-
 #define CLEAR_TERM 1
 
 #include "../gbc/cpu.hpp"
@@ -120,7 +119,8 @@ static void fetch_rom(Cartridge &cart){
     SharpSM83 dummy;
 
 
-    std::cout << "Cart size: " << cart.size << "\n";
+    printf("Cart size: %s\n", hex(cart.size).c_str());
+
     fflush(stdout);
     for (u32 i = 0x100, count = 0; i < cart.size; count++){
         std::string str = "";
@@ -166,7 +166,7 @@ static void fetch_rom(Cartridge &cart){
             if (inst.reg_1 == SharpSM83::RT_A && inst.reg_2 == SharpSM83::RT_C)
                 aux = "0xFF00 + ";
 
-            append(str, envolve(aux + decode_reg(inst.reg_1)));
+            append(str, envolve(aux + decode_reg(inst.reg_2)));
 
 
         }else if (inst.mode == &a::AM_R_MHLI){
@@ -259,7 +259,7 @@ u16 regs[6];
 #define EXTRA_LINES 3
 #define ROW_SIZE 16
 
-static u32 mem_page = RAM_BEGIN / (MAX_ROWS * ROW_SIZE);
+static u32 mem_page = WRAM_BEGIN / (MAX_ROWS * ROW_SIZE);
 
 static void print_info(GameBoy &gb){
     if (CLEAR_TERM)
@@ -300,7 +300,7 @@ static void print_info(GameBoy &gb){
 
         std::cout << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
-            if (first + i + j*ROW_SIZE > RAM_END)
+            if (first + i + j*ROW_SIZE > WRAM_END)
                 goto end;
 
             std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false, 2) << " ";
@@ -338,7 +338,7 @@ static void run(GameBoy &gb){
                     step = false;
                     break;
                 case ARROW_DOWN:
-                    if (mem_page + 1 * MAX_ROWS * ROW_SIZE < RAM_SIZE)
+                    if (mem_page + 1 * MAX_ROWS * ROW_SIZE < WRAM_SIZE)
                         mem_page++;
 
                     step = false;
@@ -354,6 +354,8 @@ static void run(GameBoy &gb){
 	reset_input_mode();
 }
 
+
+#ifndef MAIN
 int main(int argc, char *argv[]){
 	ASSERT(argc == 2, "Invalid number of arguments");
 	
@@ -369,3 +371,4 @@ int main(int argc, char *argv[]){
 
     return 0;
 }
+#endif

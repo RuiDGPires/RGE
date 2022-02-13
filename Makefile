@@ -1,14 +1,15 @@
 CC := g++
 TARGET := gameboy
+FLAGS := -Wall -g `sdl2-config --cflags --libs`
 
-C_FILES := $(wildcard src/*.cpp) $(wildcard src/gbc/*.cpp) $(wildcard src/dbg/*.cpp)
+C_FILES := $(wildcard src/*.cpp) $(wildcard src/gbc/*.cpp) $(wildcard src/dbg/*.cpp) $(wildcard src/sdl/*.cpp)
 H_FILES := $(wildcard src/*.hpp)
 
 $(TARGET): $(C_FILES) $(H_FILES)
-	$(CC) -Wall $(C_FILES) -o $@ -g -D DEBUG
+	$(CC) -D DEBUG $(FLAGS) $(C_FILES) -o $@ $(FLAGS)
 
 main: $(C_FILES) $(H_FILES)
-	$(CC) -D MAIN -Wall $(C_FILES) -o $(TARGET) -g
+	$(CC) -D MAIN $(C_FILES) -o $(TARGET) $(FLAGS)
 clean:
 	rm $(TARGET)
 
