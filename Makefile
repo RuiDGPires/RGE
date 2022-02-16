@@ -13,3 +13,6 @@ main: $(C_FILES) $(H_FILES)
 clean:
 	rm $(TARGET)
 
+
+run: $(TARGET)
+	./$(TARGET)
