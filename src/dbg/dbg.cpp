@@ -3,7 +3,7 @@
 #endif
 
 #define CLEAR_TERM 1
-#define INFO 1
+#define INFO 0
 
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
@@ -349,8 +349,11 @@ static void run(GameBoy &gb){
             if (stepping){
                 char c = getchar();
 
-                if (c == '\n')
+                if (c == '\n'){
                     stepping = false;
+                    if (!INFO)
+                        show_info = false;
+                }
                 else if (c == '\033'){ // key pressed{
                     (void) getchar();
                     switch (getchar()){
