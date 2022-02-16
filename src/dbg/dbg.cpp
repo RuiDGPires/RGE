@@ -3,11 +3,12 @@
 #endif
 
 #define CLEAR_TERM 1
-#define STEP 0
+#define INFO 1
 
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
 #include "../common/assert.hpp"
+#include "confparser.hpp"
 
 #include <termios.h>
 #include <unistd.h>
@@ -15,6 +16,21 @@
 #include <string.h>
 #include <vector>
 
+static const std::string reg_str[13] = {
+    "<NONE>",
+    "A",
+    "F",
+    "B",
+    "C",
+    "D",
+    "E",
+    "H",
+    "L",
+    "S",
+    "P",
+    "P",
+    "C"
+};
 
 #define BLUE "\e[1;36m"
 #define YELLOW "\e[1;33m"
@@ -28,6 +44,7 @@ static std::vector<std::string> rom_str;
 static std::vector<u32> str_map;
 
 static std::string test_msg = "";
+static ConfParser conf;
 
 void check_test_char(GameBoy &gb){
     if (gb.mem_bus.read(0xFF02) == 0x81){
@@ -64,36 +81,6 @@ void set_input_mode (void)
   tcsetattr (STDIN_FILENO, TCSAFLUSH, &tattr);
 }
 
-
-static std::string hex(unsigned int val, bool prefix = true, u32 n = 4){
-    char tmp[10];
-    sprintf (tmp, "%x", val);
-    u8 rest = strlen(tmp) % n != 0? n - (strlen (tmp) % n): 0;
-    std::string str = prefix? std::string ("0x"): "" + std::string (rest, '0');
-    for (size_t i = 0; i < strlen (tmp); i++){
-        if ((i + rest) % n == 0 && i != 0)
-            str += " ";
-        str += tmp[i];
-    }
-    return str;
-}  
-
-const std::string reg_str[13] = {
-    "<NONE>",
-    "A",
-    "F",
-    "B",
-    "C",
-    "D",
-    "E",
-    "H",
-    "L",
-    "S",
-    "P",
-    "P",
-    "C"
-};
-
 static std::string decode_reg(SharpSM83::reg_type reg){
     if (reg == SharpSM83::reg_type::RT_NONE)
         return reg_str[0];
@@ -110,6 +97,20 @@ static std::string decode_reg(SharpSM83::reg_type reg){
 
     return str;
 }
+
+static std::string hex(unsigned int val, bool prefix = true, u32 n = 4){
+    char tmp[10];
+    sprintf (tmp, "%x", val);
+    u8 rest = strlen(tmp) % n != 0? n - (strlen (tmp) % n): 0;
+    std::string str = prefix? std::string ("0x"): "" + std::string (rest, '0');
+    for (size_t i = 0; i < strlen (tmp); i++){
+        if ((i + rest) % n == 0 && i != 0)
+            str += " ";
+        str += tmp[i];
+    }
+    return str;
+}  
+
 
 static void append(std::string &str, std::string a){
     str.push_back(' ');
@@ -327,58 +328,74 @@ end:
 #define ARROW_UP 'A'
 #define ARROW_DOWN 'B'
 
+static bool gb_step(GameBoy &gb){
+    gb.cpu.clock();
+
+    return conf.check(gb);
+}
+
 static void run(GameBoy &gb){
 	// Pass the control to the VM
 	set_input_mode();
     gb.cpu.running = true;
+    bool show_info = INFO;
+    bool stepping = true;
 	do {
-        if (STEP){
+        if (show_info){
             // Display information
             print_info(gb);
-
-            char c = getchar();
             bool step = true;
 
-            if (c == '\033'){ // key pressed{
-                (void) getchar();
-                switch (getchar()){
-                    case ARROW_UP:
-                        if ((int)(mem_page - 1) >= 0)
-                            mem_page--;
-                        
-                        step = false;
-                        break;
-                    case ARROW_DOWN:
-                        if (mem_page + 1 * MAX_ROWS * ROW_SIZE < WRAM_SIZE)
-                            mem_page++;
+            if (stepping){
+                char c = getchar();
 
-                        step = false;
-                        break;
-                    default:
-                        printf("OTHER\n");
-                        break;
+                if (c == '\n')
+                    stepping = false;
+                else if (c == '\033'){ // key pressed{
+                    (void) getchar();
+                    switch (getchar()){
+                        case ARROW_UP:
+                            if ((int)(mem_page - 1) >= 0)
+                                mem_page--;
+                            
+                            step = false;
+                            break;
+                        case ARROW_DOWN:
+                            if (mem_page + 1 * MAX_ROWS * ROW_SIZE < WRAM_SIZE)
+                                mem_page++;
+
+                            step = false;
+                            break;
+                        default:
+                            printf("OTHER\n");
+                            break;
+                    }
                 }
-                
             }
-            if (step)
-                gb.cpu.clock();
-            }else{
-                if (test_msg != "")
-                    printf("%s\n", test_msg.c_str());
-                gb.cpu.clock();
+            if (step){
+                bool b = gb_step(gb);
+                if (!stepping)
+                   stepping = b; 
             }
+        }else{
+            if (test_msg != "")
+                printf("%s\n", test_msg.c_str());
+
+            show_info = gb_step(gb);
+        }
 	}while(gb.cpu.running);
 
-    if (!STEP)
+    if (!show_info)
         print_info(gb);
 
-	reset_input_mode();
+    reset_input_mode();
 }
 
 
 #ifndef MAIN
 int main(int argc, char *argv[]){
 	ASSERT(argc == 2, "Invalid number of arguments");
+    conf.parse("debug.conf");
 	
     GameBoy gb;
 
