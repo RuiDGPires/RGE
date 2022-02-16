@@ -59,7 +59,12 @@ void SharpSM83::clock(){
     if (this->halted) // halt
         return;
     else if (cycles == 0){
-        fetch_info = {0, {0, "---", &a::IT_NONE}, false, 0, 0};
+        if (ei){
+            IME = true;
+            ei = false; 
+        }
+
+        fetch_info = {0, {0, "---", &a::IT_NONE}, false, false, 0, 0};
         // Fetch instruction
         fetch_info.op_code = this->read(regs[PC]++);
         fetch_info.inst = get_instruction(fetch_info.op_code);
@@ -68,7 +73,7 @@ void SharpSM83::clock(){
 
         (this->*fetch_info.inst.mode)();
         if ((this->*fetch_info.inst.type)())
-                cycles += fetch_info.inst.extra_cycles;
+            cycles += fetch_info.inst.extra_cycles;
     }
 
     if (debug_mode)

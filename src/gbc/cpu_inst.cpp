@@ -21,6 +21,9 @@ bool SharpSM83::IT_LD(){
 
 bool SharpSM83::IT_INC(){
     u16 val = fetch_info.data + 1;
+    if (!fetch_info.is_16_bit)
+        val = (u8) val;
+
     if (fetch_info.is_dest_addr)
         this->write(fetch_info.dest, val);
     else
@@ -34,6 +37,10 @@ bool SharpSM83::IT_INC(){
 
 bool SharpSM83::IT_DEC(){
     u16 val = fetch_info.data - 1;
+
+    if (!fetch_info.is_16_bit)
+        val = (u8) val;
+
     if (fetch_info.is_dest_addr)
         this->write(fetch_info.dest, val);
     else
@@ -153,7 +160,7 @@ bool SharpSM83::jump(bool save_pc = false){
 }
 
 bool SharpSM83::IT_JR(){
-    fetch_info.data += this->regs[PC];
+    fetch_info.data = this->regs[PC] + (i8) fetch_info.data;
     return this->jump();
 }
 
@@ -365,7 +372,7 @@ bool SharpSM83::IT_CALL(){
 }
 
 bool SharpSM83::IT_RETI(){
-    // TODO : interruptions
+    this->IME = true;
     return this->IT_RET();
 }
 
@@ -380,12 +387,12 @@ bool SharpSM83::IT_LDH(){
 }
 
 bool SharpSM83::IT_DI(){
-    // TODO : interruptions
+    this->IME = false;
     return false;
 }
 
 bool SharpSM83::IT_EI(){
-    // TODO : interruptions
+    this->ei = true; // delay the effect by one instruction
     return false;
 }
 

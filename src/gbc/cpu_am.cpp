@@ -5,12 +5,14 @@ void SharpSM83::AM_IMP(){
 }
 void SharpSM83::AM_R_D16(){
     fetch_info.dest = fetch_info.inst.reg_1;
+    fetch_info.data = (this->read(regs[PC]++)) & 0xFF;
     fetch_info.data |= (this->read(regs[PC]++) << 8) & 0xFF00;
-    fetch_info.data |= (this->read(regs[PC]++)) & 0xFF;
+    fetch_info.is_16_bit = true;
 }
 void SharpSM83::AM_D16(){
+    fetch_info.data = (this->read(regs[PC]++)) & 0xFF;
     fetch_info.data |= (this->read(regs[PC]++) << 8) & 0xFF00;
-    fetch_info.data |= (this->read(regs[PC]++)) & 0xFF;
+    fetch_info.is_16_bit = true;
 }
 void SharpSM83::AM_R_R(){
     fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
@@ -78,8 +80,8 @@ void SharpSM83::AM_A16_R(){
 }
 void SharpSM83::AM_D16_R(){
     fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
-    fetch_info.dest = ((u32)(this->read(regs[PC]++)) << 8) & 0xFF00;
-    fetch_info.dest |= (this->read(regs[PC]++)) & 0xFF;
+    fetch_info.dest = (this->read(regs[PC]++)) & 0xFF;
+    fetch_info.dest |= ((u32)(this->read(regs[PC]++)) << 8) & 0xFF00;
     fetch_info.is_dest_addr = true;
 }
 void SharpSM83::AM_MR_D8(){
@@ -93,8 +95,9 @@ void SharpSM83::AM_MR(){
     fetch_info.is_dest_addr = true;
 }
 void SharpSM83::AM_R_A16(){
-    fetch_info.data = (this->read(regs[PC]++) << 8) & 0xFF00;
-    fetch_info.data |= (this->read(regs[PC]++)) & 0xFF;
+    fetch_info.data = (this->read(regs[PC]++)) & 0xFF;
+    fetch_info.data |= (this->read(regs[PC]++) << 8) & 0xFF00;
     fetch_info.data = this->read(fetch_info.data);
     fetch_info.dest = fetch_info.inst.reg_1;
+    fetch_info.is_16_bit = true;
 }

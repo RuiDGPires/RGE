@@ -3,6 +3,7 @@
 #endif
 
 #define CLEAR_TERM 1
+#define STEP 0
 
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
@@ -21,10 +22,19 @@
 #define GREEN "\e[1;32m"
 #define reset "\e[0m"
 
-struct termios saved_attributes;
+static struct termios saved_attributes;
 
-std::vector<std::string> rom_str;
-std::vector<u32> str_map;
+static std::vector<std::string> rom_str;
+static std::vector<u32> str_map;
+
+static std::string test_msg = "";
+
+void check_test_char(GameBoy &gb){
+    if (gb.mem_bus.read(0xFF02) == 0x81){
+        test_msg.push_back(gb.mem_bus.read(0xFF01));
+        gb.mem_bus.write(0xFF02, 0);
+    }
+}
 
 void reset_input_mode (void)
 {
@@ -137,8 +147,8 @@ static void fetch_rom(Cartridge &cart){
         else if (inst.mode == &a::AM_R_D16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
-            val |= cart.data[i++] & 0x00FF;
+            u32 val = cart.data[i++] & 0x00FF;
+            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
             append(str, hex(val));
 
         }else if (inst.mode == &a::AM_R_R){
@@ -205,16 +215,16 @@ static void fetch_rom(Cartridge &cart){
             append(str, "$SP + " + hex(cart.data[i++]));
 
         }else if (inst.mode == &a::AM_D16){
-            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
-            val |= cart.data[i++] & 0x00FF;
+            u32 val = cart.data[i++] & 0x00FF;
+            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
             append(str, hex(val));
 
         }else if (inst.mode == &a::AM_D8){
             append(str, hex(cart.data[i++]));
 
         }else if (inst.mode == &a::AM_D16_R){
-            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
-            val |= cart.data[i++] & 0x00FF;
+            u32 val = cart.data[i++] & 0x00FF;
+            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
             append(str, hex(val));
             str.push_back(',');
             append(str, decode_reg(inst.reg_2));
@@ -228,8 +238,8 @@ static void fetch_rom(Cartridge &cart){
             append(str, envolve(decode_reg(inst.reg_1)));
 
         }else if (inst.mode == &a::AM_A16_R){
-            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
-            val |= cart.data[i++] & 0x00FF;
+            u32 val = cart.data[i++] & 0x00FF;
+            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
 
             std::string aux = "";
             if (inst.reg_2 == SharpSM83::RT_A)
@@ -241,8 +251,8 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_A16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            u32 val = (((u32) cart.data[i++]) << 8) & 0xFF00;
-            val |= cart.data[i++] & 0x00FF;
+            u32 val = cart.data[i++] & 0x00FF;
+            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
 
             std::string aux = "";
             if (inst.reg_1 == SharpSM83::RT_A)
@@ -266,7 +276,7 @@ static void print_info(GameBoy &gb){
         system("clear");
 
     printf("\n");
-    printf("DEBUG MODE [%s]\n", gb.cpu.debug_mode ? "ON": "OFF");
+    gb.slot->print_info();
     
 
 	printf(" REGS \n");
@@ -322,35 +332,46 @@ static void run(GameBoy &gb){
 	set_input_mode();
     gb.cpu.running = true;
 	do {
-        // Display information
-		print_info(gb);
+        if (STEP){
+            // Display information
+            print_info(gb);
 
-		char c = getchar();
-        bool step = true;
+            char c = getchar();
+            bool step = true;
 
-        if (c == '\033'){ // key pressed{
-            (void) getchar();
-            switch (getchar()){
-                case ARROW_UP:
-                    if ((int)(mem_page - 1) >= 0)
-                        mem_page--;
-                    
-                    step = false;
-                    break;
-                case ARROW_DOWN:
-                    if (mem_page + 1 * MAX_ROWS * ROW_SIZE < WRAM_SIZE)
-                        mem_page++;
+            if (c == '\033'){ // key pressed{
+                (void) getchar();
+                switch (getchar()){
+                    case ARROW_UP:
+                        if ((int)(mem_page - 1) >= 0)
+                            mem_page--;
+                        
+                        step = false;
+                        break;
+                    case ARROW_DOWN:
+                        if (mem_page + 1 * MAX_ROWS * ROW_SIZE < WRAM_SIZE)
+                            mem_page++;
 
-                    step = false;
-                    break;
-                default:
-                    printf("OTHER\n");
-                    break;
+                        step = false;
+                        break;
+                    default:
+                        printf("OTHER\n");
+                        break;
+                }
+                
             }
-        }
-        if (step)
-            gb.cpu.clock();
+            if (step)
+                gb.cpu.clock();
+            }else{
+                if (test_msg != "")
+                    printf("%s\n", test_msg.c_str());
+                gb.cpu.clock();
+            }
 	}while(gb.cpu.running);
+
+    if (!STEP)
+        print_info(gb);
+
 	reset_input_mode();
 }
 

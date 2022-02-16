@@ -408,6 +408,7 @@ class SharpSM83{
             u8 op_code;
             instruction inst;
             bool is_dest_addr;
+            bool is_16_bit;
 
             u32 data;
             u32 dest;
@@ -422,9 +423,11 @@ class SharpSM83{
 
 
         u8 cycles = 0;
-        fetch_info_t fetch_info = {0, {0, "---", &a::IT_NONE}, false, 0, 0};
+        fetch_info_t fetch_info = {0, {0, "---", &a::IT_NONE}, false, false, 0, 0};
 
         u16 regs[6];
+        bool IME = false, ei = false;
+        // ei is used to delay the EI instruction effect by one
 
         Bus *bus;
         bool halted;
