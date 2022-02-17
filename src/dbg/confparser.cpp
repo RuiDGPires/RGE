@@ -4,7 +4,14 @@
 #include <sstream>
 #include <string>
 
-bool Rule::compare(u16 a, u16 b){
+#define SETTING(tok, s, var){\
+    if (tok == s){\
+       var = true; \
+        continue; \
+    }\
+}
+
+bool SimpleRule::compare(u16 a, u16 b){
     switch (this->op){
         case EQ:
             return a == b;
@@ -23,7 +30,7 @@ bool Rule::compare(u16 a, u16 b){
     }
 }
 
-Rule::Rule(u32 a, val_type ta, operand op, u32 b, val_type tb){
+SimpleRule::SimpleRule(u32 a, val_type ta, operand op, u32 b, val_type tb){
     this->val_a = a;
     this->val_b = b;
 
@@ -33,11 +40,11 @@ Rule::Rule(u32 a, val_type ta, operand op, u32 b, val_type tb){
     this->op = op;
 }
 
-Rule::~Rule(){
+SimpleRule::~SimpleRule(){
 
 }
 
-u16 Rule::get_val(GameBoy &gb, u32 val,  val_type t){
+u16 SimpleRule::get_val(GameBoy &gb, u32 val,  val_type t){
     switch (t){
         case REG:
             return gb.cpu.read_reg((SharpSM83::reg_type) val);
@@ -52,8 +59,34 @@ u16 Rule::get_val(GameBoy &gb, u32 val,  val_type t){
     }
 }
 
-bool Rule::check(GameBoy &gb){
+bool SimpleRule::check(GameBoy &gb){
     return this->compare(get_val(gb, val_a, ta), get_val(gb, val_b, tb));
+}
+
+CompositeRule::CompositeRule(){
+
+}
+
+CompositeRule::CompositeRule(SimpleRule r){
+    this->rules.push_back(r);
+}
+CompositeRule::CompositeRule(std::vector<SimpleRule> v){
+    this->rules = v;
+}
+CompositeRule::~CompositeRule(){
+
+}
+
+void CompositeRule::append(SimpleRule r){
+    this->rules.push_back(r);
+}
+
+bool CompositeRule::check(GameBoy &gb){
+    for (SimpleRule rule : this->rules)
+        if (!rule.check(gb))
+            return false;
+
+    return true;
 }
 
 ConfParser::ConfParser(){
@@ -163,30 +196,49 @@ static Rule::operand parse_op(std::string token){
 }
 
 
+#define SETFROMLINE(s, var) SETTING(line, s, var)
 void ConfParser::parse(const char *file_name){
     std::ifstream file(file_name);
 
     size_t line_number = 1;
     for(std::string line; getline(file, line ); line_number++){
+        if (line == "") continue;
         std::string tok1, tok2, tok3;
+        std::string tok4;
 
         std::stringstream line_stream(line);
 
-        line_stream >> tok1;
-        if (tok1[0] == '#') // comment
+        if (line[0] == '#') // comment
             continue;
 
-        line_stream >> tok2;
-        line_stream >> tok3;
+        if (line[0] == '$'){
+            line.erase(0, 1);
+            SETFROMLINE("CLEARTERM", clear_term);
+            SETFROMLINE("INFO", info);
 
-        std::pair<u32, Rule::val_type> a, b;
-        a = parse_token(tok1, line_number);
-        b = parse_token(tok3, line_number);
+            ASSERT(false, "Invalid setting: %s\n", line.c_str());
+        }
 
-        Rule::operand op = parse_op(tok2);
-        ASSERT(op != Rule::NONE, "Invalid operand");
-         
-        this->rules.push_back(Rule(a.first, a.second, op, b.first, b.second));
+        CompositeRule rule;
+
+        do{
+            line_stream >> tok1;
+            line_stream >> tok2;
+            line_stream >> tok3;
+
+            std::pair<u32, Rule::val_type> a, b;
+            a = parse_token(tok1, line_number);
+            b = parse_token(tok3, line_number);
+
+            Rule::operand op = parse_op(tok2);
+            ASSERT(op != Rule::NONE, "Invalid operand");
+             
+            rule.append(SimpleRule(a.first, a.second, op, b.first, b.second));
+
+            line_stream >> tok4;
+        }while(tok4 == "&&");
+
+        this->rules.push_back(rule);
     }
 }
 
@@ -197,4 +249,11 @@ bool ConfParser::check(GameBoy &gb){
         if (rules[i].check(gb)) return true;
         
     return false;
+}
+
+#define PRINT_BOOL(var) printf("%s: %s\n", #var, var? "True": "False")
+
+void ConfParser::print_info(){
+    PRINT_BOOL(clear_term);
+    PRINT_BOOL(info);
 }

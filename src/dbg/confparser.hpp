@@ -20,6 +20,10 @@ class Rule{
             NUM,
             ADDR
         };
+        virtual bool check(GameBoy &gb) = 0;
+};
+
+class SimpleRule : public Rule{
     private:
         operand op;
         u32 val_a, val_b;
@@ -28,20 +32,35 @@ class Rule{
         u16 get_val(GameBoy &gb, u32 val, val_type t);
         
     public:
-        Rule(u32 a, val_type ta, operand op, u32 b, val_type tb);
-        ~Rule();
-        bool check(GameBoy &gb);
+        SimpleRule(u32 a, val_type ta, operand op, u32 b, val_type tb);
+        ~SimpleRule();
+        bool check(GameBoy &gb) override;
 };
 
+class CompositeRule : public Rule{
+    private:
+        std::vector<SimpleRule> rules;
+    public:
+        CompositeRule();
+        CompositeRule(SimpleRule r);
+        CompositeRule(std::vector<SimpleRule> v);
+        ~CompositeRule();
+        void append(SimpleRule r);
+        bool check(GameBoy &gb) override;
+};
 
 class ConfParser{
     private:
-        std::vector<Rule> rules;
+        std::vector<CompositeRule> rules;
         std::pair<u32, Rule::val_type> parse_token(std::string, size_t line);
     public:
+        bool clear_term = false;
+        bool info = false;
         ConfParser();
         ~ConfParser();
 
         void parse(const char *);
         bool check(GameBoy &gb);
+
+        void print_info();
 };

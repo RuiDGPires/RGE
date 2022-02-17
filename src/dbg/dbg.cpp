@@ -2,9 +2,6 @@
 #define DEBUG
 #endif
 
-#define CLEAR_TERM 1
-#define INFO 0 
-
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
 #include "../common/assert.hpp"
@@ -46,9 +43,12 @@ static std::vector<u32> str_map;
 static std::string test_msg = "";
 static ConfParser conf;
 
+static bool changed = false;
+
 
 void check_test_char(GameBoy &gb){
     if (gb.mem_bus.read(0xFF02) == 0x81){
+        changed = true;
         test_msg.push_back(gb.mem_bus.read(0xFF01));
         gb.mem_bus.write(0xFF02, 0);
     }
@@ -271,14 +271,19 @@ u16 regs[6];
 static u32 mem_page = WRAM_BEGIN / (MAX_ROWS * ROW_SIZE);
 
 static void print_info(GameBoy &gb){
-    if (CLEAR_TERM)
+    if (conf.clear_term)
         system("clear");
 
-    printf("\n");
+    printf(" CONF\n");
+    printf("------\n");
+    conf.print_info();
+
+    printf("\n CART\n");
+    printf("------\n");
     gb.slot->print_info();
     
 
-	printf(" REGS \n");
+	printf("\n REGS \n");
 	printf("--------\n");
 	for (u32 i = 0; i < 6; i++){
 		printf("[%s]: %s%s\n%s", (reg_str[i*2+1] + reg_str[i*2+2]).c_str(), gb.cpu.regs[i] != regs[i] ? GREEN : "", hex(gb.cpu.regs[i]).c_str(), reset);
@@ -322,8 +327,22 @@ static void print_info(GameBoy &gb){
 
         std::cout << "\n";
     }
-
 end:
+
+	printf("\n IO \n");
+	printf("--------\n");
+
+    for (u32 j = 0; j < 4; j++){
+        u32 first = IO_BEGIN;
+
+        std::cout << hex(first + j*ROW_SIZE) << " | ";
+        for (u32 i = 0; i < ROW_SIZE; i++){
+            std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false, 2) << " ";
+        }
+
+        std::cout << "\n";
+    }
+
 
 	fflush(stdout);
 }
@@ -342,7 +361,7 @@ static void run(GameBoy &gb){
 	// Pass the control to the VM
 	set_input_mode();
     gb.cpu.running = true;
-    bool show_info = INFO;
+    bool show_info = conf.info;
     bool stepping = true;
 	do {
         if (show_info){
@@ -355,7 +374,7 @@ static void run(GameBoy &gb){
 
                 if (c == '\n'){
                     stepping = false;
-                    if (!INFO)
+                    if (!conf.info)
                         show_info = false;
                 }
                 else if (c == '\033'){ // key pressed{
