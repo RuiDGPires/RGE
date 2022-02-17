@@ -165,7 +165,7 @@ bool SharpSM83::IT_JR(){
 }
 
 bool SharpSM83::IT_RRA(){
-    fetch_info.dest = this->regs[RT_A];
+    fetch_info.dest = RT_A;
     fetch_info.data = this->read_reg(RT_A);
 
     return this->IT_RR(true);
