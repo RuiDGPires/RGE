@@ -52,7 +52,7 @@ bool SharpSM83::IT_DEC(){
 }
 
 bool SharpSM83::IT_RLCA(){
-    fetch_info.dest = this->regs[RT_A];
+    fetch_info.dest = RT_A;
     fetch_info.data = this->read_reg(RT_A);
 
     return this->IT_RLC(true);
@@ -97,7 +97,7 @@ end:
 }
 
 bool SharpSM83::IT_RRCA(){
-    fetch_info.dest = this->regs[RT_A];
+    fetch_info.dest = RT_A;
     fetch_info.data = this->read_reg(RT_A);
 
     return this->IT_RRC(true);
@@ -110,7 +110,7 @@ bool SharpSM83::IT_STOP(){
 }
 
 bool SharpSM83::IT_RLA(){
-    fetch_info.dest = this->regs[RT_A];
+    fetch_info.dest = RT_A;
     fetch_info.data = this->read_reg(RT_A);
 
     return this->IT_RL(true);
