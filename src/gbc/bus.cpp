@@ -51,7 +51,7 @@ void Bus::write(u16 addr, u8 data){
 
     // IO
     else if (addr >= IO_BEGIN && addr <= IO_END){
-        // TODO
+        io[addr-IO_BEGIN] = data;
     }
 
     // HRAM
@@ -93,7 +93,7 @@ u8 Bus::read(u16 addr){
 
     // IO
     else if (addr >= IO_BEGIN && addr <= IO_END){
-        // TODO
+        return io[addr-IO_BEGIN];
     }
 
     // HRAM

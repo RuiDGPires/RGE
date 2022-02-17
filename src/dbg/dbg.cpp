@@ -3,7 +3,7 @@
 #endif
 
 #define CLEAR_TERM 1
-#define INFO 0
+#define INFO 0 
 
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
@@ -45,6 +45,7 @@ static std::vector<u32> str_map;
 
 static std::string test_msg = "";
 static ConfParser conf;
+
 
 void check_test_char(GameBoy &gb){
     if (gb.mem_bus.read(0xFF02) == 0x81){
@@ -129,10 +130,6 @@ static void fetch_rom(Cartridge &cart){
     SharpSM83::instruction inst;
     SharpSM83 dummy;
 
-
-    printf("Cart size: %s\n", hex(cart.size).c_str());
-
-    fflush(stdout);
     for (u32 i = 0x100, count = 0; i < cart.size; count++){
         std::string str = "";
 
@@ -143,9 +140,11 @@ static void fetch_rom(Cartridge &cart){
         str_map[i++] = count;
 
         using a = SharpSM83;
-        if (inst.mode == &a::AM_IMP)
-            ;
-        else if (inst.mode == &a::AM_R_D16){
+        if (inst.mode == &a::AM_IMP){
+            if (inst.type == &a::IT_STOP){
+                i++;
+            }
+        }else if (inst.mode == &a::AM_R_D16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
             u32 val = cart.data[i++] & 0x00FF;
@@ -178,7 +177,6 @@ static void fetch_rom(Cartridge &cart){
                 aux = "0xFF00 + ";
 
             append(str, envolve(aux + decode_reg(inst.reg_2)));
-
 
         }else if (inst.mode == &a::AM_R_MHLI){
             append(str, decode_reg(inst.reg_1));
@@ -292,6 +290,11 @@ static void print_info(GameBoy &gb){
 
     for (int i = -EXTRA_LINES; i <= EXTRA_LINES; i++){
         u32 pc = gb.cpu.regs[PC];
+        if (pc > CART_ROM_END){
+            std::cout << YELLOW << "PC is outside ROM range\n" << reset;
+            break;
+        }
+
         u32 line = str_map[pc];
 
         if (i == 0){
@@ -330,6 +333,7 @@ end:
 
 static bool gb_step(GameBoy &gb){
     gb.cpu.clock();
+    check_test_char(gb);
 
     return conf.check(gb);
 }
@@ -406,9 +410,6 @@ int main(int argc, char *argv[]){
     fetch_rom(*(gb.slot));
 
     run(gb);
-
-    for (u32 i = 0; i < 20; i++)
-        std::cout << rom_str[i] << "\n";
 
     return 0;
 }

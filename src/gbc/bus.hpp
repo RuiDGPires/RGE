@@ -21,7 +21,7 @@
 // Work RAM 
 #define WRAM_BEGIN 0xC000
 #define WRAM_END 0xDFFF
-#define WRAM_SIZE WRAM_END - WRAM_BEGIN
+#define WRAM_SIZE WRAM_END - WRAM_BEGIN + 1
 
 // Echo RAM
 #define ECHO_RAM_BEGIN 0xE000
@@ -34,6 +34,7 @@
 // IO
 #define IO_BEGIN 0xFF00
 #define IO_END 0xFF7F
+#define IO_SIZE IO_END - IO_BEGIN + 1
 
 // High RAM
 #define HRAM_BEGIN 0xFF80
@@ -53,6 +54,7 @@ class Bus{
         SharpSM83 *cpu;
         Cartridge *cart;
         u8 ram[WRAM_SIZE];
+        u8 io[IO_SIZE]; // temporary
 
     public:
         Bus();
