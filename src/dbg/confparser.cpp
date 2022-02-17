@@ -235,6 +235,7 @@ void ConfParser::parse(const char *file_name){
              
             rule.append(SimpleRule(a.first, a.second, op, b.first, b.second));
 
+            tok4 = "";
             line_stream >> tok4;
         }while(tok4 == "&&");
 

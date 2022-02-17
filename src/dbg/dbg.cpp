@@ -343,8 +343,10 @@ end:
         std::cout << "\n";
     }
 
-
-	fflush(stdout);
+    printf("\n RET \n");
+	printf("--------\n");
+    
+    std::cout << test_msg << std::endl;
 }
 
 #define ARROW_UP 'A'
@@ -404,9 +406,6 @@ static void run(GameBoy &gb){
                    stepping = b; 
             }
         }else{
-            if (test_msg != "")
-                printf("%s\n", test_msg.c_str());
-
             show_info = gb_step(gb);
         }
 	}while(gb.cpu.running);
