@@ -18,6 +18,8 @@
 Bus::Bus(){
     for (u32 i = 0; i < WRAM_SIZE; i++)
         this->ram[i] = 0;
+    for (u32 i = 0; i < IO_SIZE; i++)
+        this->io[i] = 0;
 }
 
 Bus::~Bus(){}

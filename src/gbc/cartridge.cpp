@@ -180,10 +180,10 @@ bool Cartridge::check(){
 }
 
 void Cartridge::print_info(){
-    printf("\t Title    : %s\n", this->header->title);
-    printf("\t Type     : %2.2X (%s)\n", this->header->type, this->type_name());
-    printf("\t ROM Size : %d KB\n", 32 << this->header->rom_size);
-    printf("\t RAM Size : %2.2X\n", this->header->ram_size);
-    printf("\t LIC Code : %2.2X (%s)\n", this->header->lic_code, this->lic_name());
-    printf("\t ROM Vers : %2.2X\n", this->header->version);
+    printf("Title    : %s\n", this->header->title);
+    printf("Type     : %2.2X (%s)\n", this->header->type, this->type_name());
+    printf("ROM Size : %d KB\n", 32 << this->header->rom_size);
+    printf("RAM Size : %2.2X\n", this->header->ram_size);
+    printf("LIC Code : %2.2X (%s)\n", this->header->lic_code, this->lic_name());
+    printf("ROM Vers : %2.2X\n", this->header->version);
 }

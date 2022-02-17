@@ -46,25 +46,25 @@ void SharpSM83::AM_R_MR(){
     fetch_info.dest = fetch_info.inst.reg_1;
 }
 void SharpSM83::AM_R_MHLI(){
-    fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
-    this->write_reg(RT_HL, fetch_info.data + 1);
+    fetch_info.data = this->read(this->read_reg(RT_HL));
+    this->write_reg(RT_HL, this->read_reg(RT_HL) + 1);
     fetch_info.dest = fetch_info.inst.reg_1;
 }
 void SharpSM83::AM_R_MHLD(){
-    fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
-    this->write_reg(RT_HL, fetch_info.data - 1);
+    fetch_info.data = this->read(this->read_reg(RT_HL));
+    this->write_reg(RT_HL, this->read_reg(RT_HL) - 1);
     fetch_info.dest = fetch_info.inst.reg_1;
 }
 void SharpSM83::AM_MHLI_R(){
     fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
     fetch_info.dest = this->read_reg(fetch_info.inst.reg_1);
-    this->write_reg(RT_HL, fetch_info.dest + 1);
+    this->write_reg(RT_HL, this->read_reg(RT_HL) + 1);
     fetch_info.is_dest_addr = true;
 }
 void SharpSM83::AM_MHLD_R(){
     fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
     fetch_info.dest = this->read_reg(fetch_info.inst.reg_1);
-    this->write_reg(RT_HL, fetch_info.dest - 1);
+    this->write_reg(RT_HL, this->read_reg(RT_HL) - 1);
     fetch_info.is_dest_addr = true;
 }
 void SharpSM83::AM_A8_R(){
