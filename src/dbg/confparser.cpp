@@ -67,6 +67,10 @@ CompositeRule::CompositeRule(){
 
 }
 
+CompositeRule::CompositeRule(bool test){
+    this->test = test;
+}
+
 CompositeRule::CompositeRule(SimpleRule r){
     this->rules.push_back(r);
 }
@@ -151,8 +155,8 @@ std::pair<u32, Rule::val_type> ConfParser::parse_token(std::string token, size_t
     if (token[0] == '('){
         ASSERT(token[size-1] == ')', "Invalid token at line %lu\n", line);
         is_mem = true;
-        token.erase(size-1);
-        token.erase(0);
+        token.erase(token.end());
+        token.erase(token.begin());
     }
 
     SharpSM83::reg_type rt = parse_reg(token);
@@ -200,7 +204,10 @@ static Rule::operand parse_op(std::string token){
 void ConfParser::parse(const char *file_name){
     std::ifstream file(file_name);
 
+    ASSERT(file, "Unable to open file: %s\n", file_name);
+
     size_t line_number = 1;
+    bool is_test = false;
     for(std::string line; getline(file, line ); line_number++){
         if (line == "") continue;
         std::string tok1, tok2, tok3;
@@ -211,16 +218,26 @@ void ConfParser::parse(const char *file_name){
         if (line[0] == '#') // comment
             continue;
 
-        if (line[0] == '$'){
-            line.erase(0, 1);
+        if (line[0] == '$'){ // setting
+            line.erase(line.begin());
             SETFROMLINE("CLEARTERM", clear_term);
             SETFROMLINE("INFO", info);
 
             ASSERT(false, "Invalid setting: %s\n", line.c_str());
         }
 
-        CompositeRule rule;
+        if (line[0] == '@'){ // decorator
+            line.erase(line.begin());
+            if (line == "test")
+                is_test = true;
+            else ASSERT(false, "Invalid decorator: %s at line %lu\n", line.c_str(), line_number);
+            continue;
+        }
 
+        CompositeRule rule;
+        
+        rule.test = is_test;
+        is_test = false;
         do{
             line_stream >> tok1;
             line_stream >> tok2;
@@ -243,11 +260,18 @@ void ConfParser::parse(const char *file_name){
     }
 }
 
-bool ConfParser::check(GameBoy &gb){
+bool ConfParser::check(GameBoy &gb, bool *test){
+    if (test != NULL)
+        *test = false;
+
     size_t size = rules.size();
 
     for (size_t i = 0; i < size; i++)
-        if (rules[i].check(gb)) return true;
+        if (rules[i].check(gb)){
+            if (rules[i].test && test != NULL)
+                *test = true;
+            return true;
+        }
         
     return false;
 }

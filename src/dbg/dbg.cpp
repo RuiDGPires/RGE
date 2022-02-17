@@ -10,6 +10,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <string>
+#include <sstream>
 #include <string.h>
 #include <vector>
 
@@ -45,6 +46,16 @@ static ConfParser conf;
 
 static bool changed = false;
 
+bool check_test(){
+    if (test_msg[test_msg.size() - 1])
+        test_msg.erase(test_msg.end() - 1, test_msg.end());
+    std::stringstream stream(test_msg);
+
+    std::string line;
+    while(getline(stream, line)); // get last line
+
+    return line == "Passed";
+}
 
 void check_test_char(GameBoy &gb){
     if (gb.mem_bus.read(0xFF02) == 0x81){
@@ -121,8 +132,6 @@ static void append(std::string &str, std::string a){
 static std::string envolve(std::string str){
     return "(" + str + ")";
 }
-
-
 
 static void fetch_rom(Cartridge &cart){
     rom_str = std::vector(cart.size, std::string("<NONE>"));
@@ -356,7 +365,13 @@ static bool gb_step(GameBoy &gb){
     gb.cpu.clock();
     check_test_char(gb);
 
-    return conf.check(gb);
+    bool is_test;
+    bool ret = conf.check(gb, &is_test);
+    
+    if (is_test)
+        exit(!check_test());
+
+    return ret;
 }
 
 static void run(GameBoy &gb){
@@ -419,8 +434,10 @@ static void run(GameBoy &gb){
 
 #ifndef MAIN
 int main(int argc, char *argv[]){
-	ASSERT(argc == 2, "Invalid number of arguments");
-    conf.parse("debug.conf");
+	ASSERT(argc >= 2, "Invalid number of arguments");
+
+    if (argc == 3)
+        conf.parse(argv[2]);
 	
     GameBoy gb;
 

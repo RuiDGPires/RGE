@@ -41,7 +41,9 @@ class CompositeRule : public Rule{
     private:
         std::vector<SimpleRule> rules;
     public:
+        bool test = false;
         CompositeRule();
+        CompositeRule(bool test);
         CompositeRule(SimpleRule r);
         CompositeRule(std::vector<SimpleRule> v);
         ~CompositeRule();
@@ -60,7 +62,7 @@ class ConfParser{
         ~ConfParser();
 
         void parse(const char *);
-        bool check(GameBoy &gb);
+        bool check(GameBoy &gb, bool *test = NULL);
 
         void print_info();
 };
