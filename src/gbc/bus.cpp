@@ -18,6 +18,8 @@
 Bus::Bus(){
     for (u32 i = 0; i < WRAM_SIZE; i++)
         this->ram[i] = 0;
+    for (u32 i = 0; i < HRAM_SIZE; i++)
+        this->hram[i] = 0;
     for (u32 i = 0; i < IO_SIZE; i++)
         this->io[i] = 0;
 }
@@ -58,7 +60,7 @@ void Bus::write(u16 addr, u8 data){
 
     // HRAM
     else if (addr >= HRAM_BEGIN && addr <= HRAM_END){
-        // TODO
+        hram[addr-HRAM_BEGIN] = data;
     }
 
     // Interrupt byte
@@ -100,7 +102,7 @@ u8 Bus::read(u16 addr){
 
     // HRAM
     else if (addr >= HRAM_BEGIN && addr <= HRAM_END){
-        // TODO
+        return hram[addr-HRAM_BEGIN];
     }
 
     // Interrupt byte

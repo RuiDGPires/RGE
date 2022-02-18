@@ -329,13 +329,19 @@ bool SharpSM83::IT_RET(){
 bool SharpSM83::IT_CB(){
     u8 op = fetch_info.data;
     
-    u8 reg_bits = op & 0b111; 
-    bool is_left_reg = reg_bits & 1; 
-    reg_type reg = (reg_type) (((reg_bits >> 1) << 16) | (0xFF << 8 * is_left_reg));
+    reg_type reg;
+
+    u8 code = op & 0b111;
+    if (code > 0b111)
+        reg = RT_NONE;
+    else
+        reg = cb_reg_lookup[code];
 
     u8 bit = (op >> 3) & 0b111;
     u8 bit_op = (op >> 6) & 0b11;
     u8 val = read_reg(reg);
+    fetch_info.data = val;
+    fetch_info.dest = reg;
 
     switch(bit_op){
         case 1: // Bit

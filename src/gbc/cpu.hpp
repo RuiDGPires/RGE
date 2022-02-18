@@ -34,6 +34,17 @@ class SharpSM83{
             RT_PC = 0x5FFFF,
         };
 
+        const reg_type cb_reg_lookup[8] = {
+            RT_B,
+            RT_C,
+            RT_D,
+            RT_E,
+            RT_H,
+            RT_L,
+            RT_HL,
+            RT_A
+        };
+
         void write_reg(reg_type reg_t, u16 data);
         u16 read_reg(reg_type reg_t);
 

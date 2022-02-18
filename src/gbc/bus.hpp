@@ -39,6 +39,7 @@
 // High RAM
 #define HRAM_BEGIN 0xFF80
 #define HRAM_END 0xFFFE
+#define HRAM_SIZE HRAM_END - HRAM_BEGIN + 1
 
 // Interrupt
 #define IE_BYTE 0xFFFF
@@ -55,6 +56,7 @@ class Bus{
         Cartridge *cart;
         u8 ram[WRAM_SIZE];
         u8 io[IO_SIZE]; // temporary
+        u8 hram[HRAM_SIZE]; // tmp
 
     public:
         Bus();
