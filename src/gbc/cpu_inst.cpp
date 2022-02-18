@@ -160,7 +160,7 @@ bool SharpSM83::jump(bool save_pc = false){
 }
 
 bool SharpSM83::IT_JR(){
-    fetch_info.data = this->regs[PC] + (i8) fetch_info.data;
+    fetch_info.data = this->regs[PC] + (i8) (fetch_info.data & 0xFF);
     return this->jump();
 }
 
@@ -171,15 +171,17 @@ bool SharpSM83::IT_RRA(){
     return this->IT_RR(true);
 }
 
+#define FLAG_N ((read_reg(RT_F) & flags::n) != 0)
+#define FLAG_H ((read_reg(RT_F) & flags::h) != 0)
+#define FLAG_C ((read_reg(RT_F) & flags::c) != 0)
+
 bool SharpSM83::IT_DAA(){
-    u8 u = 0;
+    i8 u = 0;
     int fc = 0;
     
-    u8 flags_ = read_reg(RT_F);
-
-    u8 n = (flags_ & flags::n) != 0;
-    u8 h = (flags_ & flags::h) != 0;
-    u8 c = (flags_ & flags::c) != 0;
+    u8 n = FLAG_N;
+    u8 h = FLAG_H;
+    u8 c = FLAG_C;
 
     if (h || (!n && (read_reg(RT_A) & 0xF) > 9))
         u = 6;
@@ -189,7 +191,7 @@ bool SharpSM83::IT_DAA(){
         fc = 1;
     }
 
-    write_reg(RT_A, read_reg(RT_A) + n ? -u : u);
+    write_reg(RT_A, read_reg(RT_A) + (i8)(n ? -u : u));
 
     this->set_flags(read_reg(RT_A) == 0, NA, 0, fc);
     return false;
@@ -280,7 +282,7 @@ bool SharpSM83::IT_OR(){
 
 bool SharpSM83::IT_CP(){
     u32 val = read_reg((reg_type) fetch_info.inst.reg_1) - fetch_info.data;
-    u8 h = (int)((read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) - (fetch_info.data & 0xF));
+    u8 h = ((int)(read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) - (int)(fetch_info.data & 0xF)) < 0;
 
     this->set_flags(val == 0, 1, h, ((int) val) < 0);
 
