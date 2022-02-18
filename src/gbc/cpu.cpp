@@ -96,19 +96,19 @@ void SharpSM83::set_flags(u8 nz, u8 nn, u8 nh, u8 nc){
 
     u8 flags = read_reg(RT_F);
 
-    if (nz != 255)
+    if (nz != NA)
         flags &= ~(flags::z); // clear bit
     else
         nz = 0;
-    if (nn != 255)
+    if (nn != NA)
         flags &= ~(flags::n); // clear bit
     else
         nn = 0;
-    if (nh != 255)
+    if (nh != NA)
         flags &= ~(flags::h); // clear bit
     else
         nh = 0;
-    if (nc != 255)
+    if (nc != NA)
         flags &= ~(flags::c); // clear bit
     else
         nc = 0;

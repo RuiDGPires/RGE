@@ -25,12 +25,18 @@ bool SharpSM83::IT_INC(){
         val = (u8) val;
 
     if (fetch_info.is_dest_addr)
-        this->write(fetch_info.dest, val);
+        this->write(fetch_info.dest, val & 0xFF);
     else
         this->write_reg((reg_type) fetch_info.dest, val);
 
-    if ((fetch_info.op_code & 0x03) != 0x03)
-        this->set_flags(val == 0, 1, (val & 0x0F) == 0, NA);
+    // SET FLAGS
+    u8 row = (fetch_info.op_code & 0xF0) >> 4;
+    u8 col = fetch_info.op_code & 0x0F;
+
+    if (row >= 0 && row <= 3 && col == 3)
+        this->set_flags(NA, NA, NA, NA);
+    else
+        this->set_flags(val == 0, 0, (val & 0x0F) == 0x0F, NA);
 
     return false;
 }
@@ -46,7 +52,15 @@ bool SharpSM83::IT_DEC(){
     else
         this->write_reg((reg_type) fetch_info.dest, val);
 
-    this->set_flags(val == 0, 1, (val & 0x0F) == 0x0F, NA);
+    // SET FLAGS
+    u8 row = (fetch_info.op_code & 0xF0) >> 4;
+    u8 col = fetch_info.op_code & 0x0F;
+
+    if (row >= 0 && row <= 3 && col == 0xB)
+        this->set_flags(NA, NA, NA, NA);
+    else
+        this->set_flags(val == 0, 1, (val & 0x0F) == 0x0F, NA);
+
 
     return false;
 }
