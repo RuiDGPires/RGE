@@ -283,11 +283,8 @@ static void print_info(GameBoy &gb){
     if (conf.clear_term)
         system("clear");
 
-    printf(" CONF\n");
-    printf("------\n");
-    conf.print_info();
-
-    printf("\n CART\n");
+    printf("Conf.info = %s\n\n", conf.info? "True":"False");
+    printf(" CART\n");
     printf("------\n");
     gb.slot->print_info();
     
@@ -379,20 +376,21 @@ static void run(GameBoy &gb){
 	set_input_mode();
     gb.cpu.running = true;
     bool show_info = conf.info;
-    bool stepping = true;
+    bool prompt = true;
 	do {
         if (show_info){
             // Display information
             print_info(gb);
             bool step = true;
 
-            if (stepping){
+            if (prompt){
                 char c = getchar();
 
                 if (c == '\n'){
-                    stepping = false;
-                    if (!conf.info)
-                        show_info = false;
+                    bool res = gb_step(gb);
+                    prompt = res;
+                    show_info = res ? true: conf.info;
+                    continue;
                 }
                 else if (c == '\033'){ // key pressed{
                     (void) getchar();
@@ -417,11 +415,13 @@ static void run(GameBoy &gb){
             }
             if (step){
                 bool b = gb_step(gb);
-                if (!stepping)
-                   stepping = b; 
+                if (!prompt)
+                   prompt = b; 
             }
         }else{
-            show_info = gb_step(gb);
+            bool res = gb_step(gb);
+            prompt = res;
+            show_info = res;
         }
 	}while(gb.cpu.running);
 
