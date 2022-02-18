@@ -36,7 +36,7 @@ bool SharpSM83::IT_INC(){
     if (row >= 0 && row <= 3 && col == 3)
         this->set_flags(NA, NA, NA, NA);
     else
-        this->set_flags(val == 0, 0, (val & 0x0F) == 0x0F, NA);
+        this->set_flags(val == 0, 0, (val & 0x0F) == 0x0, NA);
 
     return false;
 }
@@ -419,7 +419,7 @@ bool SharpSM83::IT_EI(){
 }
 
 bool SharpSM83::IT_RST(){
-    fetch_info.dest = fetch_info.inst.param;
+    fetch_info.data = fetch_info.inst.param;
     return this->jump(true);
 }
 
