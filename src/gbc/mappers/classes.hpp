@@ -3,11 +3,13 @@
 #include "../../common/defs.hpp"
 
 class Mapper{
+    protected:
+        bool ram_enabled = false;
     public:
         Mapper();
         ~Mapper();
-        virtual u8 read(u16 addr) = 0;
-        virtual void write(u16 addr, u8 val) = 0;
+        virtual u16 map_read(u16 addr) = 0;
+        virtual u16 map_write(u16 addr, u8 val) = 0;
 };
 
 class MCB0 : public Mapper {
@@ -15,8 +17,8 @@ class MCB0 : public Mapper {
         MCB0();
         ~MCB0();
 
-        u8 read(u16 addr) override;
-        void write(u16 addr, u8 val) override;
+        u16 map_read(u16 addr) override;
+        u16 map_write(u16 addr, u8 val) override;
 };
 
 class MCB1 : public Mapper {
@@ -24,8 +26,8 @@ class MCB1 : public Mapper {
         MCB1();
         ~MCB1();
 
-        u8 read(u16 addr) override;
-        void write(u16 addr, u8 val) override;
+        u16 map_read(u16 addr) override;
+        u16 map_write(u16 addr, u8 val) override;
 };
 
 class MCB2 : public Mapper {
@@ -33,8 +35,8 @@ class MCB2 : public Mapper {
         MCB2();
         ~MCB2();
 
-        u8 read(u16 addr) override;
-        void write(u16 addr, u8 val) override;
+        u16 map_read(u16 addr) override;
+        u16 map_write(u16 addr, u8 val) override;
 };
 
 class MCB3 : public Mapper {
@@ -42,8 +44,8 @@ class MCB3 : public Mapper {
         MCB3();
         ~MCB3();
 
-        u8 read(u16 addr) override;
-        void write(u16 addr, u8 val) override;
+        u16 map_read(u16 addr) override;
+        u16 map_write(u16 addr, u8 val) override;
 };
 
 class MCB30 : public Mapper {
@@ -51,6 +53,6 @@ class MCB30 : public Mapper {
         MCB30();
         ~MCB30();
 
-        u8 read(u16 addr) override;
-        void write(u16 addr, u8 val) override;
+        u16 map_read(u16 addr) override;
+        u16 map_write(u16 addr, u8 val) override;
 };

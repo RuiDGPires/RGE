@@ -1,4 +1,5 @@
 #include "cartridge.hpp"
+#include "mem_map.hpp"
 #include <stdio.h>
 
 // taken from https://github.com/rockytriton/LLD_gbemu/
@@ -167,18 +168,17 @@ Cartridge::~Cartridge(){
     rom = NULL;
 }
 
-void Cartridge::write(u16 addr, u8 data, bool rom){
-    if (rom){
-        
-    }else{
-
-    }
+bool Cartridge::write(u16 addr, u8 data){
+    return false;
 }
 
-u8 Cartridge::read(u16 addr, bool rom){
-    if (addr >= this->size)
-        return 0;
-    return this->rom[addr];
+bool Cartridge::read(u16 addr, u8 *data){
+    if (addr >= ROM0_BEGIN && addr <= ROM1_END){
+        *data = this->rom[addr];
+        return true;
+    }
+
+    return false;
 }
 
 bool Cartridge::check(){

@@ -1,25 +1,15 @@
 #include "bus.hpp"
+#include "mem_map.hpp"
 #include "../common/assert.hpp"
 #include "../common/defs.hpp"
 
-// 0000	3FFF	16 KiB ROM bank 00	From cartridge, usually a fixed bank
-// 4000	7FFF	16 KiB ROM Bank 01~NN	From cartridge, switchable bank via mapper (if any)
-// 8000	9FFF	8 KiB Video RAM (VRAM)	In CGB mode, switchable bank 0/1
-// A000	BFFF	8 KiB External RAM	From cartridge, switchable bank if any
-// C000	CFFF	4 KiB Work RAM (WRAM)	
-// D000	DFFF	4 KiB Work RAM (WRAM)	In CGB mode, switchable bank 1~7
-// E000	FDFF	Mirror of C000~DDFF (ECHO RAM)	Nintendo says use of this area is prohibited.
-// FE00	FE9F	Sprite attribute table (OAM)	
-// FEA0	FEFF	Not Usable	Nintendo says use of this area is prohibited
-// FF00	FF7F	I/O Registers	
-// FF80	FFFE	High RAM (HRAM)	
-// FFFF	FFFF	Interrupt Enable register (IE)	
-
 Bus::Bus(){
-    for (u32 i = 0; i < WRAM_SIZE; i++)
-        this->ram[i] = 0;
-    for (u32 i = 0; i < HRAM_SIZE; i++)
-        this->hram[i] = 0;
+    for (u32 i = 0; i < WRA0_SIZE; i++)
+        this->wra0[i] = 0xFF;
+    for (u32 i = 0; i < WRA1_SIZE; i++)
+        this->wra1[i] = 0xFF;
+    for (u32 i = 0; i < HRA_SIZE; i++)
+        this->hra[i] = 0;
     for (u32 i = 0; i < IO_SIZE; i++)
         this->io[i] = 0;
 }
@@ -29,33 +19,38 @@ Bus::~Bus(){}
 
 void Bus::write(u16 addr, u8 data){
     // CART ROM
-    if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){ 
-        this->cart->write(addr - CART_ROM_BEGIN, data, true);
-    }
-
-    // CART RAM
-    else if (addr >= CRAM_BEGIN && addr <= CRAM_END){
-        this->cart->write(addr - CART_ROM_BEGIN, data);
-    }
+    
+    if (this->cart->write(addr, data))
+        return;
 
     // VRAM
-    else if (addr >= VRAM_BEGIN && addr <= VRAM_END){
-        ppu->vwrite(addr-VRAM_BEGIN, data);
+    else if (addr >= VRA_BEGIN && addr <= VRA_END){
+        // TODO
     }
 
-    // WRAM
-    else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
-        ram[addr-WRAM_BEGIN] = data;
+    // WRA0
+    else if (addr >= WRA0_BEGIN && addr <= WRA0_END){
+        wra0[addr-WRA0_BEGIN] = data;
+    }
+
+    // WRA1
+    else if (addr >= WRA1_BEGIN && addr <= WRA1_END){
+        wra1[addr-WRA1_BEGIN] = data;
     }
 
     // ERAM
-    else if (addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END){
-        ram[addr-ECHO_RAM_BEGIN] = data;
+    else if (addr >= ECH_BEGIN && addr <= ECH_END){
+        u16 real_addr = addr - ECH_BEGIN;
+
+        if (real_addr < WRA0_SIZE)
+            wra0[real_addr] = data;
+        else
+            wra1[real_addr-WRA0_SIZE] = data;
     }
 
     // OAM
     else if (addr >= OAM_BEGIN && addr <= OAM_END){
-        ppu->oamwrite(addr-OAM_BEGIN, data);
+        // TODO
     }
 
     // IO
@@ -64,40 +59,45 @@ void Bus::write(u16 addr, u8 data){
     }
 
     // HRAM
-    else if (addr >= HRAM_BEGIN && addr <= HRAM_END){
-        hram[addr-HRAM_BEGIN] = data;
+    else if (addr >= HRA_BEGIN && addr <= HRA_END){
+        hra[addr-HRA_BEGIN] = data;
     }
 
     // Interrupt byte
-    else if (addr == IE_BYTE){
+    else if (addr == IE_BEGIN){
         // TODO
     }
 }
 
 u8 Bus::read(u16 addr){
     // CART ROM
-    if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){
-        return this->cart->read(addr - CART_ROM_BEGIN, true);
-    } 
+    u8 data;
+    if (this->cart->read(addr, &data))
+        return data;
 
-    // CART_RAM
-    else if (addr >= CRAM_BEGIN && addr <= CRAM_END){
+    // VRAM
+    else if (addr >= VRA_BEGIN && addr <= VRA_END){
         // TODO
     }
 
-    // VRAM
-    else if (addr >= VRAM_BEGIN && addr <= VRAM_END){
-        return ppu->vread(addr-VRAM_BEGIN);
+    // WRA0
+    else if (addr >= WRA0_BEGIN && addr <= WRA0_END){
+        return wra0[addr-WRA0_BEGIN];
     }
 
-    // WRAM
-    else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
-        return ram[addr-WRAM_BEGIN];
+    // WRA1
+    else if (addr >= WRA1_BEGIN && addr <= WRA1_END){
+        return wra1[addr-WRA1_BEGIN];
     }
 
-    // ERAM
-    else if (addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END){
-        return ram[addr-ECHO_RAM_BEGIN];
+    // ECHO
+    else if (addr >= ECH_BEGIN && addr <= ECH_END){
+        u16 real_addr = addr - ECH_BEGIN;
+
+        if (real_addr < WRA0_SIZE)
+            return wra0[real_addr];
+        else
+            return wra1[real_addr-WRA0_SIZE];
     }
 
     // OAM
@@ -111,15 +111,15 @@ u8 Bus::read(u16 addr){
     }
 
     // HRAM
-    else if (addr >= HRAM_BEGIN && addr <= HRAM_END){
-        return hram[addr-HRAM_BEGIN];
+    else if (addr >= HRA_BEGIN && addr <= HRA_END){
+        return hra[addr-HRA_BEGIN];
     }
 
     // Interrupt byte
-    else if (addr == IE_BYTE){
+    else if (addr == IE_BEGIN){
         // TODO
     }
-    return 0;
+    return 0xFF;
 }
 
 void Bus::connect_cpu(SharpSM83 *cpu){

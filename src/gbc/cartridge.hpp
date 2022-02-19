@@ -46,8 +46,8 @@ class Cartridge{
         Cartridge(std::string);
         ~Cartridge();
 
-        void write(u16 addr, u8 data, bool rom = false);
-        u8 read(u16 addr, bool rom = false);
+        bool write(u16 addr, u8 data);
+        bool read(u16 addr, u8 *data);
 
         bool check();
 

@@ -2,6 +2,7 @@
 #define DEBUG
 #endif
 
+#include "../gbc/mem_map.hpp"
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
 #include "../common/assert.hpp"
@@ -277,13 +278,12 @@ u16 regs[6];
 #define EXTRA_LINES 3
 #define ROW_SIZE 16
 
-static u32 mem_page = WRAM_BEGIN / (MAX_ROWS * ROW_SIZE);
+static u32 mem_page = WRA0_BEGIN / (MAX_ROWS * ROW_SIZE);
 
 static void print_info(GameBoy &gb){
     if (conf.clear_term)
         system("clear");
 
-    printf("Conf.info = %s\n\n", conf.info? "True":"False");
     printf(" CART\n");
     printf("------\n");
     gb.slot->print_info();
@@ -301,7 +301,7 @@ static void print_info(GameBoy &gb){
 
     for (int i = -EXTRA_LINES; i <= EXTRA_LINES; i++){
         u32 pc = gb.cpu.regs[PC];
-        if (pc > CART_ROM_END){
+        if (pc > ROM1_END){
             std::cout << YELLOW << "PC is outside ROM range\n" << reset;
             break;
         }
@@ -323,9 +323,9 @@ static void print_info(GameBoy &gb){
     for (u32 j = 0; j < MAX_ROWS; j++){
         u32 first = mem_page * MAX_ROWS * ROW_SIZE;
 
-        std::cout << hex(first + j*ROW_SIZE) << " | ";
+        std::cout << get_mem_name(first) << " - " << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
-            if (first + i + j*ROW_SIZE > WRAM_END)
+            if (first + i + j*ROW_SIZE > IE_END)
                 goto end;
 
             std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false, 2) << " ";
@@ -402,7 +402,7 @@ static void run(GameBoy &gb){
                             step = false;
                             break;
                         case ARROW_DOWN:
-                            if (mem_page + 1 * MAX_ROWS * ROW_SIZE < WRAM_SIZE)
+                            if (mem_page + 1 * MAX_ROWS * ROW_SIZE < IE_END)
                                 mem_page++;
 
                             step = false;
