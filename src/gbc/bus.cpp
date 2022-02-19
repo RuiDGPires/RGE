@@ -30,12 +30,12 @@ Bus::~Bus(){}
 void Bus::write(u16 addr, u8 data){
     // CART ROM
     if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){ 
-        this->cart->write(addr - CART_ROM_BEGIN, data); // NO EFFECT
+        this->cart->write(addr - CART_ROM_BEGIN, data, true);
     }
 
     // CART RAM
     else if (addr >= CRAM_BEGIN && addr <= CRAM_END){
-        // TODO
+        this->cart->write(addr - CART_ROM_BEGIN, data);
     }
 
     // VRAM
@@ -77,7 +77,7 @@ void Bus::write(u16 addr, u8 data){
 u8 Bus::read(u16 addr){
     // CART ROM
     if (addr >= CART_ROM_BEGIN && addr <= CART_ROM_END){
-        return this->cart->read(addr - CART_ROM_BEGIN);
+        return this->cart->read(addr - CART_ROM_BEGIN, true);
     } 
 
     // CART_RAM
