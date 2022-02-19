@@ -142,7 +142,7 @@ static void fetch_rom(Cartridge &cart){
     for (u32 i = 0x100, count = 0; i < cart.size; count++){
         std::string str = "";
 
-        inst = dummy.lookup[cart.data[i]];
+        inst = dummy.lookup[cart.rom[i]];
 
         str += inst.str;
 
@@ -156,8 +156,8 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_D16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            u32 val = cart.data[i++] & 0x00FF;
-            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
+            u32 val = cart.rom[i++] & 0x00FF;
+            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
             append(str, hex(val));
 
         }else if (inst.mode == &a::AM_R_R){
@@ -176,7 +176,7 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_D8){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, hex(cart.data[i++]));
+            append(str, hex(cart.rom[i++]));
 
         }else if (inst.mode == &a::AM_R_MR){
             append(str, decode_reg(inst.reg_1));
@@ -210,29 +210,29 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_A8){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, envolve("0xFF00 + " + hex(cart.data[i++])));
+            append(str, envolve("0xFF00 + " + hex(cart.rom[i++])));
 
         }else if (inst.mode == &a::AM_A8_R){
-            append(str, envolve("0xFF00 + " + hex(cart.data[i++])));
+            append(str, envolve("0xFF00 + " + hex(cart.rom[i++])));
             str.push_back(',');
             append(str, decode_reg(inst.reg_2));
 
         }else if (inst.mode == &a::AM_MHL_SPR){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, "$SP + " + hex(cart.data[i++]));
+            append(str, "$SP + " + hex(cart.rom[i++]));
 
         }else if (inst.mode == &a::AM_D16){
-            u32 val = cart.data[i++] & 0x00FF;
-            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
+            u32 val = cart.rom[i++] & 0x00FF;
+            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
             append(str, hex(val));
 
         }else if (inst.mode == &a::AM_D8){
-            append(str, hex(cart.data[i++]));
+            append(str, hex(cart.rom[i++]));
 
         }else if (inst.mode == &a::AM_D16_R){
-            u32 val = cart.data[i++] & 0x00FF;
-            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
+            u32 val = cart.rom[i++] & 0x00FF;
+            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
             append(str, hex(val));
             str.push_back(',');
             append(str, decode_reg(inst.reg_2));
@@ -240,14 +240,14 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_MR_D8){
             append(str, envolve(decode_reg(inst.reg_1)));
             str.push_back(',');
-            append(str, hex(cart.data[i++]));
+            append(str, hex(cart.rom[i++]));
 
         }else if (inst.mode == &a::AM_MR){
             append(str, envolve(decode_reg(inst.reg_1)));
 
         }else if (inst.mode == &a::AM_A16_R){
-            u32 val = cart.data[i++] & 0x00FF;
-            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
+            u32 val = cart.rom[i++] & 0x00FF;
+            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
 
             std::string aux = "";
             if (inst.reg_2 == SharpSM83::RT_A)
@@ -259,8 +259,8 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_A16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            u32 val = cart.data[i++] & 0x00FF;
-            val |= (((u32) cart.data[i++]) << 8) & 0xFF00;
+            u32 val = cart.rom[i++] & 0x00FF;
+            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
 
             std::string aux = "";
             if (inst.reg_1 == SharpSM83::RT_A)
