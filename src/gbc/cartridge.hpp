@@ -30,10 +30,11 @@ class Cartridge{
     public:
 #endif
         u32 size;
-        u8 *data;
+        u8 *rom;
         rom_header *header;
 
         std::shared_ptr<Mapper> mapper;
+        std::vector<u8> ram;
 
         bool check_sum;
 
@@ -45,8 +46,8 @@ class Cartridge{
         Cartridge(std::string);
         ~Cartridge();
 
-        void write(u16 addr, u8 data);
-        u8 read(u16 addr);
+        void write(u16 addr, u8 data, bool rom = false);
+        u8 read(u16 addr, bool rom = false);
 
         bool check();
 

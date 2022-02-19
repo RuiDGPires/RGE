@@ -138,19 +138,19 @@ Cartridge::Cartridge(const char *file_name){
 
     size_t file_size = get_file_size(file);
 
-    data = (u8 *) malloc(sizeof(u8) * file_size);
+    rom = (u8 *) malloc(sizeof(u8) * file_size);
     this->size = file_size;
 
-    fread(data, 1, file_size, file);
+    fread(rom, 1, file_size, file);
 
     fclose(file);
 
-    this->header = (rom_header *) (data + 0x100);
+    this->header = (rom_header *) (rom + 0x100);
     this->header->title[15] = 0;
     
     u16 x = 0;
     for (u16 i=0x0134; i<=0x014C; i++) {
-        x = x - data[i] - 1;
+        x = x - rom[i] - 1;
     }
 
     this->check_sum =  (x & 0xFF) != 0;
@@ -163,18 +163,22 @@ Cartridge::Cartridge(std::string file_name) : Cartridge(file_name.c_str()){
 }
 
 Cartridge::~Cartridge(){
-    free(data);
-    data = NULL;
+    free(rom);
+    rom = NULL;
 }
 
-void Cartridge::write(u16 addr, u8 data){
-    // Do nothing
+void Cartridge::write(u16 addr, u8 data, bool rom){
+    if (rom){
+        
+    }else{
+
+    }
 }
 
-u8 Cartridge::read(u16 addr){
+u8 Cartridge::read(u16 addr, bool rom){
     if (addr >= this->size)
         return 0;
-    return this->data[addr];
+    return this->rom[addr];
 }
 
 bool Cartridge::check(){
