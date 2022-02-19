@@ -11,18 +11,18 @@ static const char *ROM_TYPES[] = {
     "MBC2",
     "MBC2+BATTERY",
     "0x07 ???",
-    "ROM+RAM 1",
-    "ROM+RAM+BATTERY 1",
+    "ROM+RAM",
+    "ROM+RAM+BATTERY",
     "0x0A ???",
     "MMM01",
     "MMM01+RAM",
     "MMM01+RAM+BATTERY",
     "0x0E ???",
     "MBC3+TIMER+BATTERY",
-    "MBC3+TIMER+RAM+BATTERY 2",
+    "MBC3+TIMER+RAM+BATTERY", // MCB30
     "MBC3",
-    "MBC3+RAM 2",
-    "MBC3+RAM+BATTERY 2",
+    "MBC3+RAM", // MCB30
+    "MBC3+RAM+BATTERY", // MCB30
     "0x14 ???",
     "0x15 ???",
     "0x16 ???",
@@ -154,6 +154,8 @@ Cartridge::Cartridge(const char *file_name){
     }
 
     this->check_sum =  (x & 0xFF) != 0;
+
+    this->mapper = get_mapper((MapperType) this->header->type);
 }
 
 Cartridge::Cartridge(std::string file_name) : Cartridge(file_name.c_str()){

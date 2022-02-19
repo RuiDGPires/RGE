@@ -3,6 +3,7 @@
 #include "../common/defs.hpp"
 #include "cartridge.hpp"
 #include "cpu.hpp"
+#include "ppu.hpp"
 
 #define ROM_SIZE 2000000 // bytes
 #define BOOT_ROM_SIZE 0x0100// bytes
@@ -54,6 +55,7 @@ class Bus{
 #endif
         SharpSM83 *cpu;
         Cartridge *cart;
+        PPU *ppu;
         u8 ram[WRAM_SIZE];
         u8 io[IO_SIZE]; // temporary
         u8 hram[HRAM_SIZE]; // tmp

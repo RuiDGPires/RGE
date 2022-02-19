@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../common/defs.hpp"
+#include "mappers/mappers.hpp"
 #include <vector>
 #include <string>
+#include <memory>
 
 typedef struct {
     u8 entry[4];
@@ -30,6 +32,8 @@ class Cartridge{
         u32 size;
         u8 *data;
         rom_header *header;
+
+        std::shared_ptr<Mapper> mapper;
 
         bool check_sum;
 

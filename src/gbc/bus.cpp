@@ -38,6 +38,11 @@ void Bus::write(u16 addr, u8 data){
         // TODO
     }
 
+    // VRAM
+    else if (addr >= VRAM_BEGIN && addr <= VRAM_END){
+        ppu->vwrite(addr-VRAM_BEGIN, data);
+    }
+
     // WRAM
     else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
         ram[addr-WRAM_BEGIN] = data;
@@ -45,12 +50,12 @@ void Bus::write(u16 addr, u8 data){
 
     // ERAM
     else if (addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END){
-        // TODO
+        ram[addr-ECHO_RAM_BEGIN] = data;
     }
 
     // OAM
     else if (addr >= OAM_BEGIN && addr <= OAM_END){
-        // TODO
+        ppu->oamwrite(addr-OAM_BEGIN, data);
     }
 
     // IO
@@ -80,6 +85,11 @@ u8 Bus::read(u16 addr){
         // TODO
     }
 
+    // VRAM
+    else if (addr >= VRAM_BEGIN && addr <= VRAM_END){
+        return ppu->vread(addr-VRAM_BEGIN);
+    }
+
     // WRAM
     else if (addr >= WRAM_BEGIN && addr <= WRAM_END){
         return ram[addr-WRAM_BEGIN];
@@ -87,12 +97,12 @@ u8 Bus::read(u16 addr){
 
     // ERAM
     else if (addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END){
-        // TODO
+        return ram[addr-ECHO_RAM_BEGIN];
     }
 
     // OAM
     else if (addr >= OAM_BEGIN && addr <= OAM_END){
-        // TODO
+        return ppu->oamread(addr-OAM_BEGIN);
     }
 
     // IO
