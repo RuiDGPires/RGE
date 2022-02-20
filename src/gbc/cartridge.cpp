@@ -169,16 +169,30 @@ Cartridge::~Cartridge(){
 }
 
 bool Cartridge::write(u16 addr, u8 data){
-    return false;
+    u32 new_addr;
+    bool rom = false;
+
+    if (!this->mapper->map_write(addr, &new_addr, data, &rom))
+        return false;
+     
+    if (!rom)
+        this->ram[new_addr] = data;
+    return true;
 }
 
 bool Cartridge::read(u16 addr, u8 *data){
-    if (addr >= ROM0_BEGIN && addr <= ROM1_END){
-        *data = this->rom[addr];
-        return true;
-    }
+    u32 new_addr;
+    bool rom = false;
 
-    return false;
+    if (!this->mapper->map_read(addr, &new_addr, &rom))
+        return false;
+
+    if (rom)
+        *data = this->rom[new_addr];
+    else
+        *data = this->ram[new_addr];
+
+    return true;
 }
 
 bool Cartridge::check(){

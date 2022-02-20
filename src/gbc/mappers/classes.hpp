@@ -5,11 +5,16 @@
 class Mapper{
     protected:
         bool ram_enabled = false;
+        u8 banking_mode;
+        u8 rom_bank_val, ram_bank_val;
+        u8 rom_bank;
+        u8 ram_bank;
+
     public:
         Mapper();
         ~Mapper();
-        virtual u16 map_read(u16 addr) = 0;
-        virtual u16 map_write(u16 addr, u8 val) = 0;
+        virtual bool map_read(u16 addr, u32 *new_addr, bool *rom) = 0;
+        virtual bool map_write(u16 addr, u32 *new_addr, u8 val, bool *rom) = 0;
 };
 
 class MCB0 : public Mapper {
@@ -17,8 +22,8 @@ class MCB0 : public Mapper {
         MCB0();
         ~MCB0();
 
-        u16 map_read(u16 addr) override;
-        u16 map_write(u16 addr, u8 val) override;
+        bool map_read(u16 addr, u32 *new_addr, bool *rom) override;
+        bool map_write(u16 addr, u32 *new_addr, u8 val, bool *rom) override;
 };
 
 class MCB1 : public Mapper {
@@ -26,8 +31,8 @@ class MCB1 : public Mapper {
         MCB1();
         ~MCB1();
 
-        u16 map_read(u16 addr) override;
-        u16 map_write(u16 addr, u8 val) override;
+        bool map_read(u16 addr, u32 *new_addr, bool *rom) override;
+        bool map_write(u16 addr, u32 *new_addr, u8 val, bool *rom) override;
 };
 
 class MCB2 : public Mapper {
@@ -35,8 +40,8 @@ class MCB2 : public Mapper {
         MCB2();
         ~MCB2();
 
-        u16 map_read(u16 addr) override;
-        u16 map_write(u16 addr, u8 val) override;
+        bool map_read(u16 addr, u32 *new_addr, bool *rom) override;
+        bool map_write(u16 addr, u32 *new_addr, u8 val, bool *rom) override;
 };
 
 class MCB3 : public Mapper {
@@ -44,8 +49,8 @@ class MCB3 : public Mapper {
         MCB3();
         ~MCB3();
 
-        u16 map_read(u16 addr) override;
-        u16 map_write(u16 addr, u8 val) override;
+        bool map_read(u16 addr, u32 *new_addr, bool *rom) override;
+        bool map_write(u16 addr, u32 *new_addr, u8 val, bool *rom) override;
 };
 
 class MCB30 : public Mapper {
@@ -53,6 +58,6 @@ class MCB30 : public Mapper {
         MCB30();
         ~MCB30();
 
-        u16 map_read(u16 addr) override;
-        u16 map_write(u16 addr, u8 val) override;
+        bool map_read(u16 addr, u32 *new_addr, bool *rom) override;
+        bool map_write(u16 addr, u32 *new_addr, u8 val, bool *rom) override;
 };
