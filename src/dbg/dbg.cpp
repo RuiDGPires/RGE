@@ -7,6 +7,7 @@
 #include "../gbc/gameboy.hpp"
 #include "../common/assert.hpp"
 #include "confparser.hpp"
+#include "input.hpp"
 
 #include <termios.h>
 #include <unistd.h>
@@ -47,6 +48,8 @@ static ConfParser conf;
 
 static bool changed = false;
 
+static GameBoy gb;
+
 bool check_test(){
     if (test_msg[test_msg.size() - 1])
         test_msg.erase(test_msg.end() - 1, test_msg.end());
@@ -58,7 +61,7 @@ bool check_test(){
     return line == "Passed";
 }
 
-void check_test_char(GameBoy &gb){
+void check_test_char(){
     if (gb.mem_bus.read(0xFF02) == 0x81){
         changed = true;
         test_msg.push_back(gb.mem_bus.read(0xFF01));
@@ -141,16 +144,16 @@ static std::string envolve(std::string str){
     return "(" + str + ")";
 }
 
-static void fetch_rom(Cartridge &cart){
-    rom_str = std::vector(cart.size, std::string("<NONE>"));
-    str_map = std::vector(cart.size, (u32) 0);
+static void fetch_mem(){
+    rom_str = std::vector(IE_END, std::string("<NONE>"));
+    str_map = std::vector(IE_END, (u32) 0);
     SharpSM83::instruction inst;
     SharpSM83 dummy;
 
-    for (u32 i = 0x100, count = 0; i < cart.size; count++){
+    for (u32 i = 0x0, count = 0; i < IE_END; count++){
         std::string str = "";
 
-        inst = dummy.lookup[cart.rom[i]];
+        inst = dummy.lookup[gb.mem_bus.read(i)];
 
         str += inst.str;
 
@@ -164,8 +167,8 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_D16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            u32 val = cart.rom[i++] & 0x00FF;
-            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
+            u32 val = gb.mem_bus.read(i++) & 0x00FF;
+            val |= (((u32) gb.mem_bus.read(i++)) << 8) & 0xFF00;
             append(str, hex(val));
 
         }else if (inst.mode == &a::AM_R_R){
@@ -184,7 +187,7 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_D8){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, hex(cart.rom[i++]));
+            append(str, hex(gb.mem_bus.read(i++)));
 
         }else if (inst.mode == &a::AM_R_MR){
             append(str, decode_reg(inst.reg_1));
@@ -218,29 +221,29 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_A8){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, envolve("0xFF00 + " + hex(cart.rom[i++])));
+            append(str, envolve("0xFF00 + " + hex(gb.mem_bus.read(i++))));
 
         }else if (inst.mode == &a::AM_A8_R){
-            append(str, envolve("0xFF00 + " + hex(cart.rom[i++])));
+            append(str, envolve("0xFF00 + " + hex(gb.mem_bus.read(i++))));
             str.push_back(',');
             append(str, decode_reg(inst.reg_2));
 
         }else if (inst.mode == &a::AM_MHL_SPR){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            append(str, "$SP + " + hex(cart.rom[i++]));
+            append(str, "$SP + " + hex(gb.mem_bus.read(i++)));
 
         }else if (inst.mode == &a::AM_D16){
-            u32 val = cart.rom[i++] & 0x00FF;
-            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
+            u32 val = gb.mem_bus.read(i++) & 0x00FF;
+            val |= (((u32) gb.mem_bus.read(i++)) << 8) & 0xFF00;
             append(str, hex(val));
 
         }else if (inst.mode == &a::AM_D8){
-            append(str, hex(cart.rom[i++]));
+            append(str, hex(gb.mem_bus.read(i++)));
 
         }else if (inst.mode == &a::AM_D16_R){
-            u32 val = cart.rom[i++] & 0x00FF;
-            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
+            u32 val = gb.mem_bus.read(i++) & 0x00FF;
+            val |= (((u32) gb.mem_bus.read(i++)) << 8) & 0xFF00;
             append(str, hex(val));
             str.push_back(',');
             append(str, decode_reg(inst.reg_2));
@@ -248,14 +251,14 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_MR_D8){
             append(str, envolve(decode_reg(inst.reg_1)));
             str.push_back(',');
-            append(str, hex(cart.rom[i++]));
+            append(str, hex(gb.mem_bus.read(i++)));
 
         }else if (inst.mode == &a::AM_MR){
             append(str, envolve(decode_reg(inst.reg_1)));
 
         }else if (inst.mode == &a::AM_A16_R){
-            u32 val = cart.rom[i++] & 0x00FF;
-            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
+            u32 val = gb.mem_bus.read(i++) & 0x00FF;
+            val |= (((u32) gb.mem_bus.read(i++)) << 8) & 0xFF00;
 
             std::string aux = "";
             if (inst.reg_2 == SharpSM83::RT_A)
@@ -267,8 +270,8 @@ static void fetch_rom(Cartridge &cart){
         }else if (inst.mode == &a::AM_R_A16){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
-            u32 val = cart.rom[i++] & 0x00FF;
-            val |= (((u32) cart.rom[i++]) << 8) & 0xFF00;
+            u32 val = gb.mem_bus.read(i++) & 0x00FF;
+            val |= (((u32) gb.mem_bus.read(i++)) << 8) & 0xFF00;
 
             std::string aux = "";
             if (inst.reg_1 == SharpSM83::RT_A)
@@ -287,7 +290,7 @@ u16 regs[6];
 
 static u32 mem_page = WRA0_BEGIN / (MAX_ROWS * ROW_SIZE);
 
-static void print_info(GameBoy &gb){
+static void print_info(){
     if (conf.clear_term)
         system("clear");
 
@@ -308,17 +311,12 @@ static void print_info(GameBoy &gb){
 
     for (int i = -EXTRA_LINES; i <= EXTRA_LINES; i++){
         u32 pc = gb.cpu.regs[PC];
-        if (pc > ROM1_END){
-            std::cout << YELLOW << "PC is outside ROM range\n" << reset;
-            break;
-        }
-
         u32 line = str_map[pc];
 
         if (i == 0){
             std::cout << YELLOW << rom_str[line] << reset;
             std::cout << "\t\t[" << hex(pc) << "]\n";
-        }else if (line + i >= 0 && line + i < gb.slot->size)
+        }else if (line + i >= 0 && line + i < rom_str.size())
             std::cout << rom_str[line + i] << "\n";
         else
             std::cout << "\n";
@@ -331,7 +329,7 @@ static void print_info(GameBoy &gb){
         u32 first = mem_page * MAX_ROWS * ROW_SIZE;
         
         char line_ascii[ROW_SIZE + 1];
-        line_ascii[ROW_SIZE] = '\0';
+       line_ascii[ROW_SIZE] = '\0';
 
         std::cout << get_mem_name(first + j*ROW_SIZE) << " - " << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
@@ -349,32 +347,16 @@ static void print_info(GameBoy &gb){
     }
 end:
 
-	printf("\n IO \n");
-	printf("--------\n");
-
-    for (u32 j = 0; j < 4; j++){
-        u32 first = IO_BEGIN;
-
-        std::cout << hex(first + j*ROW_SIZE) << " | ";
-        for (u32 i = 0; i < ROW_SIZE; i++){
-            std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false, 2) << " ";
-        }
-
-        std::cout << "\n";
-    }
-
     printf("\n RET \n");
 	printf("--------\n");
     
     std::cout << test_msg << std::endl;
 }
 
-#define ARROW_UP 'A'
-#define ARROW_DOWN 'B'
 
-static bool gb_step(GameBoy &gb){
+static bool gb_step(){
     gb.cpu.clock();
-    check_test_char(gb);
+    check_test_char();
 
     bool is_test;
     bool ret = conf.check(gb, &is_test);
@@ -385,62 +367,109 @@ static bool gb_step(GameBoy &gb){
     return ret;
 }
 
-static void run(GameBoy &gb){
+#define CTRL_KEY(k) ((k)  & 0x1f)
+
+static bool ctrl(char c){
+    if (c == 53)
+        return true;
+    return false;
+}
+
+/* I this doens't work and don't know why */
+static __attribute__((unused)) bool shift(char c){
+    if (c == 50)
+        return true;
+    return false;
+}
+
+static void page_inc(u32 n){
+    if (n == 0) return;
+    if ((mem_page + 1) * MAX_ROWS * ROW_SIZE < IE_END)
+        mem_page += n;
+    else
+        page_inc(n-1);
+}
+
+static void page_dec(u32  n){
+    mem_page -= (mem_page > n)? n: mem_page;
+}
+
+bool show_info = conf.info;
+bool prompt = true;
+bool step = true;
+bool to_exit = false;
+
+//**********************************************************************************************
+//------------------
+// KEY PRESS EVENTS
+//------------------
+
+EVENT(K_ARROW_UP){
+    page_dec(1);
+    step = false;
+}
+EVENT(K_ARROW_DOWN){
+    page_inc(1);
+    step = false;
+}
+EVENT(K_CTRL_ARROW_UP){
+    mem_page = 0;
+    step = false;
+}
+EVENT(K_CTRL_ARROW_DOWN){
+    mem_page = (IE_END / (MAX_ROWS * ROW_SIZE));
+    step = false;
+}
+
+EVENT(K_ENTER){
+    bool res = gb_step();
+    prompt = res;
+    show_info = res ? true : conf.info;
+    step = false;
+}
+
+EVENT(K_CTRL_X){
+    to_exit = true;
+}
+
+EVENT(K_CTRL_R){
+    fetch_mem();
+    step = false;
+}
+
+//**********************************************************************************************
+
+
+static void run(){
 	// Pass the control to the VM
 	set_input_mode();
     gb.cpu.running = true;
-    bool show_info = conf.info;
-    bool prompt = true;
 	do {
         if (show_info){
             // Display information
-            print_info(gb);
-            bool step = true;
+            print_info();
+            step = true;
 
-            if (prompt){
-                char c = getchar();
+            if (prompt)
+                wait_input();
 
-                if (c == '\n'){
-                    bool res = gb_step(gb);
-                    prompt = res;
-                    show_info = res ? true: conf.info;
-                    continue;
-                }
-                else if (c == '\033'){ // key pressed{
-                    (void) getchar();
-                    switch (getchar()){
-                        case ARROW_UP:
-                            if ((int)(mem_page - 1) >= 0)
-                                mem_page--;
-                            
-                            step = false;
-                            break;
-                        case ARROW_DOWN:
-                            if (mem_page * MAX_ROWS * ROW_SIZE < IE_END)
-                                mem_page++;
+            if (to_exit)
+                break;
 
-                            step = false;
-                            break;
-                        default:
-                            printf("OTHER\n");
-                            break;
-                    }
-                }
-            }
             if (step){
-                bool b = gb_step(gb);
+                bool b = gb_step();
                 if (!prompt)
                    prompt = b; 
             }
         }else{
-            bool res = gb_step(gb);
+            bool res = gb_step();
             prompt = res;
             show_info = res;
         }
 	}while(gb.cpu.running);
 
     if (!show_info)
-        print_info(gb);
+        print_info();
 
     reset_input_mode();
 }
@@ -449,16 +478,23 @@ static void run(GameBoy &gb){
 #ifndef MAIN
 int main(int argc, char *argv[]){
 	ASSERT(argc >= 2, "Invalid number of arguments");
+    setup_events();
+
+    ENABLE_KEY(K_ARROW_UP);
+    ENABLE_KEY(K_ARROW_DOWN);
+    ENABLE_KEY(K_CTRL_ARROW_UP);
+    ENABLE_KEY(K_CTRL_ARROW_DOWN);
+    ENABLE_KEY(K_ENTER);
+    ENABLE_KEY(K_CTRL_X);
+    ENABLE_KEY(K_CTRL_R);
 
     if (argc == 3)
         conf.parse(argv[2]);
 	
-    GameBoy gb;
-
     gb.load_rom(argv[1]);
-    fetch_rom(*(gb.slot));
+    fetch_mem();
 
-    run(gb);
+    run();
 
     return 0;
 }
