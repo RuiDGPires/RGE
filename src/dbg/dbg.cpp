@@ -134,7 +134,6 @@ static std::string hex(unsigned int val, bool prefix = true, u32 n = 4){
     return str;
 }  
 
-
 static void append(std::string &str, std::string a){
     str.push_back(' ');
     str.append(a);
@@ -329,8 +328,10 @@ static void print_info(){
         u32 first = mem_page * MAX_ROWS * ROW_SIZE;
         
         char line_ascii[ROW_SIZE + 1];
-       line_ascii[ROW_SIZE] = '\0';
+        line_ascii[ROW_SIZE] = '\0';
 
+        if (first + j*ROW_SIZE > IE_END)
+            break;
         std::cout << get_mem_name(first + j*ROW_SIZE) << " - " << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
             if (first + i + j*ROW_SIZE > IE_END)
