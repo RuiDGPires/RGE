@@ -125,7 +125,7 @@ static std::string hex(unsigned int val, bool prefix = true, u32 n = 4){
     char tmp[10];
     sprintf (tmp, "%x", val);
     u8 rest = strlen(tmp) % n != 0? n - (strlen (tmp) % n): 0;
-    std::string str = prefix? std::string ("0x"): "" + std::string (rest, '0');
+    std::string str = (prefix? std::string ("0x"): "") + std::string (rest, '0');
     for (size_t i = 0; i < strlen (tmp); i++){
         if ((i + rest) % n == 0 && i != 0)
             str += " ";
