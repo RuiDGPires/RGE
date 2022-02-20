@@ -66,6 +66,13 @@ void check_test_char(GameBoy &gb){
     }
 }
 
+char ascii_rep(u8 byte){
+    if (byte >= ' ' && byte <= '~')
+        return (char) byte;
+    else
+        return '.';
+}
+
 void reset_input_mode (void)
 {
   tcsetattr (STDIN_FILENO, TCSANOW, &saved_attributes);
@@ -320,16 +327,23 @@ static void print_info(GameBoy &gb){
 	printf("\n MEMORY \n");
 	printf("--------\n");
 
-    for (u32 j = 0; j < MAX_ROWS; j++){
+    for (u32 j = 0; j < MAX_ROWS; j++){ // for each line
         u32 first = mem_page * MAX_ROWS * ROW_SIZE;
+        
+        char line_ascii[ROW_SIZE + 1];
+        line_ascii[ROW_SIZE] = '\0';
 
         std::cout << get_mem_name(first + j*ROW_SIZE) << " - " << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
             if (first + i + j*ROW_SIZE > IE_END)
                 goto end;
 
-            std::cout << hex(gb.mem_bus.read(first + i+j*ROW_SIZE), false, 2) << " ";
+            u8 val = gb.mem_bus.read(first + i + j*ROW_SIZE);
+            std::cout << hex(val, false, 2) << " ";
+            line_ascii[i] = ascii_rep(val);
         }
+
+        std::cout << "\t" << line_ascii;
 
         std::cout << "\n";
     }
