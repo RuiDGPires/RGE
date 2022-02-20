@@ -323,7 +323,7 @@ static void print_info(GameBoy &gb){
     for (u32 j = 0; j < MAX_ROWS; j++){
         u32 first = mem_page * MAX_ROWS * ROW_SIZE;
 
-        std::cout << get_mem_name(first) << " - " << hex(first + j*ROW_SIZE) << " | ";
+        std::cout << get_mem_name(first + j*ROW_SIZE) << " - " << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
             if (first + i + j*ROW_SIZE > IE_END)
                 goto end;
@@ -402,7 +402,7 @@ static void run(GameBoy &gb){
                             step = false;
                             break;
                         case ARROW_DOWN:
-                            if (mem_page + 1 * MAX_ROWS * ROW_SIZE < IE_END)
+                            if (mem_page * MAX_ROWS * ROW_SIZE < IE_END)
                                 mem_page++;
 
                             step = false;
