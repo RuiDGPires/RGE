@@ -6,10 +6,10 @@
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
 #include "../common/assert.hpp"
+#include "screen.hpp"
 #include "confparser.hpp"
 #include "input.hpp"
 
-#include <termios.h>
 #include <unistd.h>
 #include <string>
 #include <sstream>
@@ -37,8 +37,6 @@ static const std::string reg_str[13] = {
 #define BOLD "\e[1;37m"
 #define GREEN "\e[1;32m"
 #define reset "\e[0m"
-
-static struct termios saved_attributes;
 
 static std::vector<std::string> rom_str;
 static std::vector<u32> str_map;
@@ -76,33 +74,6 @@ char ascii_rep(u8 byte){
         return '.';
 }
 
-void reset_input_mode (void)
-{
-  tcsetattr (STDIN_FILENO, TCSANOW, &saved_attributes);
-}
-
-void set_input_mode (void)
-{
-  struct termios tattr;
-
-/* Make sure stdin is a terminal. */
-  if (!isatty (STDIN_FILENO))
-    {
-      fprintf (stderr, "Not a terminal.\n");
-      exit (EXIT_FAILURE);
-    }
-
-/* Save the terminal attributes so we can restore them later. */
-  tcgetattr (STDIN_FILENO, &saved_attributes);
-  atexit (reset_input_mode);
-
-/* Set the funny terminal modes. */
-  tcgetattr (STDIN_FILENO, &tattr);
-  tattr.c_lflag &= ~(ICANON | ECHO);	/* Clear ICANON and ECHO. */
-  tattr.c_cc[VMIN] = 1;
-  tattr.c_cc[VTIME] = 0;
-  tcsetattr (STDIN_FILENO, TCSAFLUSH, &tattr);
-}
 
 static std::string decode_reg(SharpSM83::reg_type reg){
     if (reg == SharpSM83::reg_type::RT_NONE)
@@ -368,21 +339,6 @@ static bool gb_step(){
     return ret;
 }
 
-#define CTRL_KEY(k) ((k)  & 0x1f)
-
-static bool ctrl(char c){
-    if (c == 53)
-        return true;
-    return false;
-}
-
-/* I this doens't work and don't know why */
-static __attribute__((unused)) bool shift(char c){
-    if (c == 50)
-        return true;
-    return false;
-}
-
 static void page_inc(u32 n){
     if (n == 0) return;
     if ((mem_page + 1) * MAX_ROWS * ROW_SIZE < IE_END)
@@ -443,7 +399,6 @@ EVENT(K_CTRL_R){
 
 static void run(){
 	// Pass the control to the VM
-	set_input_mode();
     gb.cpu.running = true;
 	do {
         if (show_info){
@@ -472,13 +427,13 @@ static void run(){
     if (!show_info)
         print_info();
 
-    reset_input_mode();
 }
 
 
 #ifndef MAIN
 int main(int argc, char *argv[]){
 	ASSERT(argc >= 2, "Invalid number of arguments");
+    Screen screen;
     setup_events();
 
     ENABLE_KEY(K_ARROW_UP);
