@@ -8,14 +8,16 @@
 
 class Component {
     public:
+        bool visible = true;
         Component(int x, int y, int width, int height);
         ~Component();
         int x, y, width, height;
         virtual std::vector<std::string> str() = 0;
+        void toggle_visible();
 };
 
 class TextBox : public Component{
-    private:
+    protected:
         std::vector<std::string> lines;
         int current_line;
     public:
@@ -31,8 +33,19 @@ class TextBox : public Component{
         TextBox &begin();
 };
 
+class TitledTextBox : public TextBox {
+    protected:
+        std::string title;
+
+    public:
+        TitledTextBox(std::string, int x, int y, int w, int h);
+        ~TitledTextBox();
+
+        TitledTextBox &set_title(std::string);
+};
+
 class Footer : public Component{
-    private:
+    protected:
         std::string buffer;
     public:
         Footer(int x, int width);

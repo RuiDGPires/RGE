@@ -12,6 +12,10 @@ Component::~Component(){
 
 }
 
+void Component::toggle_visible(){
+    visible = !visible;
+}
+
 TextBox::TextBox(int x, int y, int width, int height) : Component(x, y, width, height){
     ASSERT(width > 2, "Width must be higher than 2");
     ASSERT(height > 2, "Height must be higher than 2");
@@ -78,7 +82,7 @@ std::vector<std::string> TextBox::str(){
             if (j >= width - 2) break;
 
             char c = tmp_lines[i][j];
-            if (c == '\n') {hide = true; c = ' '; continue;}
+            if (c == '\n') {hide = true; c = ' ';}
             line.push_back(c);
         }
         line += BXD_VER;
@@ -114,6 +118,34 @@ TextBox &TextBox::operator<<(const char c){
 
 TextBox &TextBox::begin(){
     current_line = 0;
+    return (*this);
+}
+
+TitledTextBox::TitledTextBox(std::string title, int x, int y, int w, int h) : TextBox(x, y, w, h){
+    this->title = title;
+
+    std::vector<std::string> v;
+    int spaces = (this->width - 2- title.size())/2;
+    if (spaces < 0) spaces = 0;
+
+    v.push_back(std::string(spaces, ' ') + title + std::string(spaces, ' '));
+    v.push_back(std::string(this->width - 2, '-'));
+    
+    v.insert(v.end(), this->lines.begin(), this->lines.end());
+    this->lines = v;
+}
+
+TitledTextBox::~TitledTextBox(){
+
+}
+
+TitledTextBox &TitledTextBox::set_title(std::string title){
+    this->title = title;
+    int spaces = (this->width - 2- title.size())/2;
+    if (spaces < 0) spaces = 0;
+
+    this->lines[0] = std::string(spaces, ' ') + title + std::string(spaces, ' ');
+
     return (*this);
 }
 
