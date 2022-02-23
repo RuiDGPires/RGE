@@ -19,7 +19,7 @@ class Component {
 class TextBox : public Component{
     protected:
         std::vector<std::string> lines;
-        int current_line;
+        int current_line, p; // Used for text input
     public:
         TextBox(int x, int y, int width, int height);
         ~TextBox();
@@ -29,8 +29,7 @@ class TextBox : public Component{
         TextBox &operator<<(std::string);
         TextBox &operator<<(const char *);
         TextBox &operator<<(const char);
-        
-        TextBox &begin();
+        std::string &operator[](int);
 };
 
 class TitledTextBox : public TextBox {

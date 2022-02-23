@@ -116,9 +116,8 @@ TextBox &TextBox::operator<<(const char c){
     return *this;
 }
 
-TextBox &TextBox::begin(){
-    current_line = 0;
-    return (*this);
+std::string &TextBox::operator[](int n){
+    return lines[n];
 }
 
 TitledTextBox::TitledTextBox(std::string title, int x, int y, int w, int h) : TextBox(x, y, w, h){
