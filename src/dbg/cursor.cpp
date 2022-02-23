@@ -21,12 +21,12 @@ void cursor_left(int n){
         std::cout << CURSOR_LEFT;
 }
 void cursor_pos(int x, int y){
-    std::cout << "\033[" << y << ';' << x << 'H';
+    std::cout << "\033[" << y+1 << ';' << x << 'H';
 }
 
 std::string cursor_pos_str(int x, int y){
     std::stringstream s;
-    s << "\033[" << y << ';' << x << 'H';
+    s << "\033[" << y+1 << ';' << x << 'H';
 
     return s.str();
 }

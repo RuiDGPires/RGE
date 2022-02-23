@@ -9,6 +9,7 @@
 #include <csignal>
 
 
+static Screen *_screen_;
 //*********************************
 // TERMIOS MAGIC
 #include <termios.h>
@@ -47,7 +48,7 @@ static void set_input_mode (void){
 //******************
 
 Screen::Screen(){
-    screen = this;
+    _screen_ = this;
     set_input_mode();
     update_term_size();
     std::signal(SIGWINCH, Screen::sig_handler);
@@ -61,7 +62,7 @@ Screen::~Screen(){
 
 void Screen::sig_handler(int sig){
     (void) sig;
-    screen->update_term_size();
+    _screen_->update_term_size();
 }
 
 void Screen::update_term_size(){

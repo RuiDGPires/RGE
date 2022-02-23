@@ -6,8 +6,8 @@ Component::Component(int x, int y, int width, int height){
     this->y = y;
     this->width = width;
     this->height = height;
-
 }
+
 Component::~Component(){
 
 }
@@ -22,7 +22,6 @@ TextBox::TextBox(int x, int y, int width, int height) : Component(x, y, width, h
     this->lines = std::vector<std::string>(height - 2); // -2 because of borders
     current_line = 0;
 }
-
 
 #define BXD_BOTR "┘"
 #define BXD_BOTL "└"
@@ -55,6 +54,23 @@ static void arranje_lines(std::vector<std::string> &vec){
     }
 }
 
+static std::string parse_color(color_c c){
+    switch (c){
+        case BLUE_c:
+            return BLUE_STR;
+        case YELLOW_c:
+            return YELLOW_STR;
+        case GREEN_c:
+            return GREEN_STR;
+        case BOLD_c:
+            return BOLD_STR;
+        case RESET_c:
+            return RESET_STR;
+        default:
+            return "";
+    }
+}
+
 std::vector<std::string> TextBox::str(){
     std::vector<std::string> ret;
     std::vector<std::string> tmp_lines = this->lines;
@@ -71,17 +87,25 @@ std::vector<std::string> TextBox::str(){
     line = "";
 
     for (int i = 0; i < this->height - 2; i++){
+        int compensation = 0;
         line = BXD_VER;
         size_t line_size = tmp_lines[i].size();
         bool hide = false;
-        for (int j = 0; j < this->width - 2; j++){
+        for (int j = 0; j < this->width - 2 + compensation; j++){
             if (j >= line_size || hide){
                 line.push_back(' ');
                 continue;
             }
+            char c = tmp_lines[i][j];
+
+            if (c > INIT_c && c < COUNT_c){
+                line.append(parse_color((color_c) c));
+                compensation++;
+                continue;
+            }
+
             if (j >= width - 2) break;
 
-            char c = tmp_lines[i][j];
             if (c == '\n') {hide = true; c = ' ';}
             line.push_back(c);
         }
@@ -105,9 +129,15 @@ TextBox &TextBox::operator<<(std::string s){
     return *this;
 }
 
+TextBox &TextBox::operator<<(std::vector<std::string> v){
+    this->lines.insert(lines.end(), v.begin(), v.end());
+    return *this;
+}
+
 TextBox &TextBox::operator<<(const char *s){
     return (*this) << std::string(s);
 }
+
 TextBox &TextBox::operator<<(const char c){
     if (c == NL)
         this->current_line++;
@@ -116,12 +146,23 @@ TextBox &TextBox::operator<<(const char c){
     return *this;
 }
 
+TextBox &TextBox::operator<<(color_c c){
+    return (*this) << (char) c;
+}
+
 std::string &TextBox::operator[](int n){
     return lines[n];
 }
 
+TextBox &TextBox::clear(){
+    this->lines.clear();
+    this->lines = std::vector<std::string>(this->height - 2, "");
+    this->current_line = 0;
+    return (*this);
+}
+
 TitledTextBox::TitledTextBox(std::string title, int x, int y, int w, int h) : TextBox(x, y, w, h){
-    this->title = title;
+        this->title = title;
 
     std::vector<std::string> v;
     int spaces = (this->width - 2- title.size())/2;
@@ -132,6 +173,7 @@ TitledTextBox::TitledTextBox(std::string title, int x, int y, int w, int h) : Te
     
     v.insert(v.end(), this->lines.begin(), this->lines.end());
     this->lines = v;
+    this->current_line = 2;
 }
 
 TitledTextBox::~TitledTextBox(){
@@ -145,6 +187,15 @@ TitledTextBox &TitledTextBox::set_title(std::string title){
 
     this->lines[0] = std::string(spaces, ' ') + title + std::string(spaces, ' ');
 
+    return (*this);
+}
+
+TitledTextBox &TitledTextBox::clear(){
+    lines.erase(lines.begin()+2, lines.end());
+    std::vector<std::string> v = std::vector<std::string>(this->height - 4, "");
+    lines.insert(lines.end(), v.begin(), v.end());
+
+    this->current_line = 2;
     return (*this);
 }
 
@@ -170,5 +221,10 @@ Footer &Footer::operator<<(const char *s){
 
 Footer &Footer::operator<<(const char c){
     this->buffer.push_back(c);
+    return (*this);
+}
+
+Footer &Footer::clear(){
+    this->buffer = "";
     return (*this);
 }

@@ -199,11 +199,20 @@ bool Cartridge::check(){
     return check_sum;
 }
 
-void Cartridge::print_info(){
-    printf("Title    : %s\n", this->header->title);
-    printf("Type     : %2.2X (%s)\n", this->header->type, this->type_name());
-    printf("ROM Size : %d KB\n", 32 << this->header->rom_size);
-    printf("RAM Size : %2.2X\n", this->header->ram_size);
-    printf("LIC Code : %2.2X (%s)\n", this->header->lic_code, this->lic_name());
-    printf("ROM Vers : %2.2X\n", this->header->version);
+std::vector<std::string> Cartridge::info(){
+    std::vector<std::string> vec;
+    char buffer[50];
+    sprintf(buffer, "Title    : %s\n", this->header->title);
+    vec.push_back(std::string(buffer));
+    sprintf(buffer, "Type     : %2.2X (%s)\n", this->header->type, this->type_name());
+    vec.push_back(std::string(buffer));
+    sprintf(buffer, "ROM Size : %d KB\n", 32 << this->header->rom_size);
+    vec.push_back(std::string(buffer));
+    sprintf(buffer, "RAM Size : %2.2X\n", this->header->ram_size);
+    vec.push_back(std::string(buffer));
+    sprintf(buffer, "LIC Code : %2.2X (%s)\n", this->header->lic_code, this->lic_name());
+    vec.push_back(std::string(buffer));
+    sprintf(buffer, "ROM Vers : %2.2X\n", this->header->version);
+    vec.push_back(std::string(buffer));
+    return vec;
 }

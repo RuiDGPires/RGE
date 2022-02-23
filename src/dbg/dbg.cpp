@@ -32,12 +32,6 @@ static const std::string reg_str[13] = {
     "C"
 };
 
-#define BLUE "\e[1;36m"
-#define YELLOW "\e[1;33m"
-#define BOLD "\e[1;37m"
-#define GREEN "\e[1;32m"
-#define reset "\e[0m"
-
 static std::vector<std::string> rom_str;
 static std::vector<u32> str_map;
 
@@ -47,6 +41,19 @@ static ConfParser conf;
 static bool changed = false;
 
 static GameBoy gb;
+
+//---------------------------
+// Screen and it's components
+//---------------------------
+
+Screen screen;
+
+TitledTextBox txt_regs("Registers", 0, 0, 20, 12), 
+              txt_code("Code", 0, 12, 25, 12), 
+              txt_mem("Memory", 0, 24, 100, 20),
+              txt_cart("Cartridge", 36, 0, 12, 12);
+TextBox txt_result(0, 36, 70, 9);
+Footer footer(0, screen.term_w);
 
 bool check_test(){
     if (test_msg[test_msg.size() - 1])
@@ -261,40 +268,34 @@ u16 regs[6];
 static u32 mem_page = WRA0_BEGIN / (MAX_ROWS * ROW_SIZE);
 
 static void print_info(){
-    if (conf.clear_term)
-        system("clear");
-
-    printf(" CART\n");
-    printf("------\n");
-    gb.slot->print_info();
+    // CART
+    txt_cart.clear() << gb.slot->info();
     
-
-	printf("\n REGS \n");
-	printf("--------\n");
+    // REGS
+    txt_regs.clear();
 	for (u32 i = 0; i < 6; i++){
-		printf("[%s]: %s%s\n%s", (reg_str[i*2+1] + reg_str[i*2+2]).c_str(), gb.cpu.regs[i] != regs[i] ? GREEN : "", hex(gb.cpu.regs[i]).c_str(), reset);
+        txt_regs << '[' << reg_str[i*2+1] + reg_str[i*2+2] << ']' << ": " << (gb.cpu.regs[i] != regs[i] ? GREEN_c : RESET_c) << hex(gb.cpu.regs[i]) << RESET_c << NL;
+
 		regs[i] = gb.cpu.regs[i];
 	}	
 
-	printf("\n CODE \n");
-	printf("--------\n");
-
+    // CODE
+    txt_code.clear();
     for (int i = -EXTRA_LINES; i <= EXTRA_LINES; i++){
         u32 pc = gb.cpu.regs[PC];
         u32 line = str_map[pc];
 
         if (i == 0){
-            std::cout << YELLOW << rom_str[line] << reset;
-            std::cout << "\t\t[" << hex(pc) << "]\n";
+            txt_code << YELLOW_c << rom_str[line] << RESET_c;
+            txt_code << "  [" << hex(pc) << "]" << NL;
         }else if (line + i >= 0 && line + i < rom_str.size())
-            std::cout << rom_str[line + i] << "\n";
+            txt_code << rom_str[line + i] << NL;
         else
-            std::cout << "\n";
+            txt_code << NL;
     }
 
-	printf("\n MEMORY \n");
-	printf("--------\n");
-
+    // MEMORY
+    txt_mem.clear();
     for (u32 j = 0; j < MAX_ROWS; j++){ // for each line
         u32 first = mem_page * MAX_ROWS * ROW_SIZE;
         
@@ -303,26 +304,26 @@ static void print_info(){
 
         if (first + j*ROW_SIZE > IE_END)
             break;
-        std::cout << get_mem_name(first + j*ROW_SIZE) << " - " << hex(first + j*ROW_SIZE) << " | ";
+
+        txt_mem << get_mem_name(first + j*ROW_SIZE) << " - " << hex(first + j*ROW_SIZE) << " | ";
         for (u32 i = 0; i < ROW_SIZE; i++){
             if (first + i + j*ROW_SIZE > IE_END)
                 goto end;
 
             u8 val = gb.mem_bus.read(first + i + j*ROW_SIZE);
-            std::cout << hex(val, false, 2) << " ";
+            txt_mem << hex(val, false, 2) << " ";
             line_ascii[i] = ascii_rep(val);
         }
 
-        std::cout << "\t" << line_ascii;
+        txt_mem << "   " << line_ascii;
 
-        std::cout << "\n";
+        txt_mem << NL;
     }
 end:
 
-    printf("\n RET \n");
-	printf("--------\n");
-    
-    std::cout << test_msg << std::endl;
+    txt_result.clear() << test_msg << NL;
+
+    screen.refresh();
 }
 
 
@@ -351,7 +352,7 @@ static void page_dec(u32  n){
     mem_page -= (mem_page > n)? n: mem_page;
 }
 
-bool show_info = conf.info;
+bool show_info;
 bool prompt = true;
 bool step = true;
 bool to_exit = false;
@@ -429,11 +430,9 @@ static void run(){
 
 }
 
-
 #ifndef MAIN
 int main(int argc, char *argv[]){
 	ASSERT(argc >= 2, "Invalid number of arguments");
-    Screen screen;
     setup_events();
 
     ENABLE_KEY(K_ARROW_UP);
@@ -444,12 +443,17 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_CTRL_X);
     ENABLE_KEY(K_CTRL_R);
 
+    screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << footer;
+
     if (argc == 3)
         conf.parse(argv[2]);
 	
+    show_info = conf.info;
+    
     gb.load_rom(argv[1]);
     fetch_mem();
 
+    screen.refresh();
     run();
 
     return 0;

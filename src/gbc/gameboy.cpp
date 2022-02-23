@@ -42,5 +42,8 @@ void GameBoy::turn_off(){
 }
 
 void GameBoy::print_cartridge_info(){
-    this->slot->print_info();
+    std::vector<std::string> info = this->slot->info();
+
+    for (size_t i = 0; i < info.size(); i++)
+        std::cout << info[i] << '\n';
 }

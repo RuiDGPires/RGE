@@ -51,5 +51,5 @@ class Cartridge{
 
         bool check();
 
-        void print_info();
+        std::vector<std::string>info();
 };

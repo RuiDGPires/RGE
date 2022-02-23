@@ -9,15 +9,13 @@
 #include <vector>
 #include <memory>
 
-
 class Screen{
     private:
         std::string buffer, display;
         std::vector<Component *> components;
 
-        int term_w, term_h;
-
     public:
+        int term_w, term_h;
         Screen();
         ~Screen();
 
@@ -30,4 +28,3 @@ class Screen{
         Screen &operator<<(Component &);
 };
 
-static Screen *screen;
