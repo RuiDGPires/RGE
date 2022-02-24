@@ -26,6 +26,7 @@ enum color_c {
 class Component {
     public:
         bool visible = true;
+        bool centered = false;
         Component(int x, int y, int width, int height);
         ~Component();
         int x, y, width, height;

@@ -42,17 +42,21 @@ static bool changed = false;
 
 static GameBoy gb;
 
+#define MAX_ROWS 16 
+#define EXTRA_LINES 7 
+#define ROW_SIZE 16
+
 //---------------------------
 // Screen and it's components
 //---------------------------
 
 Screen screen;
 
-TitledTextBox txt_regs("Registers", 0, 0, 20, 12), 
-              txt_code("Code", 0, 12, 25, 12), 
-              txt_mem("Memory", 0, 24, 100, 20),
-              txt_cart("Cartridge", 36, 0, 12, 12);
-TextBox txt_result(0, 36, 70, 9);
+TitledTextBox txt_regs("Registers", 0, 0, 27, MAX_ROWS+4), 
+              txt_code("Code", 0, MAX_ROWS + 5, 27, MAX_ROWS+4), 
+              txt_mem("Memory", 28, MAX_ROWS + 5, 88, MAX_ROWS+4),
+              txt_cart("Cartridge", 28, 0, 88, MAX_ROWS+4);
+TextBox txt_result(0, 40, 50, 9);
 Footer footer(0, screen.term_w);
 
 bool check_test(){
@@ -87,7 +91,6 @@ static std::string decode_reg(SharpSM83::reg_type reg){
         return reg_str[0];
 
     u8 order = (reg >> 16);
-    
 
     std::string str = "";
 
@@ -261,15 +264,9 @@ static void fetch_mem(){
 }
 
 u16 regs[6];
-#define MAX_ROWS 10
-#define EXTRA_LINES 3
-#define ROW_SIZE 16
-
 static u32 mem_page = WRA0_BEGIN / (MAX_ROWS * ROW_SIZE);
 
 static void print_info(){
-    // CART
-    txt_cart.clear() << gb.slot->info();
     
     // REGS
     txt_regs.clear();
@@ -395,6 +392,10 @@ EVENT(K_CTRL_R){
     step = false;
 }
 
+EVENT(K_ESC){
+    to_exit = true;
+}
+
 //**********************************************************************************************
 
 
@@ -442,7 +443,9 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_ENTER);
     ENABLE_KEY(K_CTRL_X);
     ENABLE_KEY(K_CTRL_R);
+    ENABLE_KEY(K_ESC);
 
+    txt_result.centered = true;
     screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << footer;
 
     if (argc == 3)
@@ -451,6 +454,10 @@ int main(int argc, char *argv[]){
     show_info = conf.info;
     
     gb.load_rom(argv[1]);
+
+    txt_cart.clear() << gb.slot->info();
+
+    footer << "Input file: " << argv[1];
     fetch_mem();
 
     screen.refresh();

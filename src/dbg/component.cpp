@@ -89,7 +89,7 @@ std::vector<std::string> TextBox::str(){
     for (int i = 0; i < this->height - 2; i++){
         int compensation = 0;
         line = BXD_VER;
-        size_t line_size = tmp_lines[i].size();
+        int line_size = tmp_lines[i].size();
         bool hide = false;
         for (int j = 0; j < this->width - 2 + compensation; j++){
             if (j >= line_size || hide){

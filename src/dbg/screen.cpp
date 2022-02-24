@@ -79,7 +79,14 @@ void Screen::refresh(){
     std::cout << "\033[2J"; // Clear screen
     for (int i = 0; i < components.size(); i++){
         if (!(components[i]->visible)) continue;
-        int x = components[i]->x, y = components[i]->y;
+
+        int x;
+        if (components[i]->centered)
+            x = term_w/2 - components[i]->width/2;
+        else
+            x = components[i]->x;
+
+        int y = components[i]->y;
 
         std::vector<std::string> lines = components[i]->str();
 
