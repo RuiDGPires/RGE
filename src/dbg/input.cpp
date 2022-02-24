@@ -2,6 +2,9 @@
 #include "../common/defs.hpp"
 #include <stdio.h>
 #include <map>
+#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
 
 std::map<Key, void (*)(void)> key_map;
 
@@ -25,6 +28,21 @@ static bool special(char c){
             return true;
 
     return false;
+}
+
+static char get_esc(){
+    int flags = fcntl(STDIN_FILENO, F_GETFL);
+
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
+    char c = 0;
+    c = getchar();
+
+    fcntl(STDIN_FILENO, F_SETFL, flags & ~O_NONBLOCK);
+
+    if (c == (char) EOF)
+        c = 0;
+    return c;
 }
 
 static Key get_key(){
@@ -68,8 +86,11 @@ static Key get_key(){
     if (c >= ('A' & 0x1F) && c <= ('Z' & 0x1F))
         return (Key) (c - ('A' & 0x1F) + (u32) K_CTRL_A);
 
-    if (c == '\033'){ // Arrows
-        if (getchar() == 91){
+    if (c == '\033'){
+        c = get_esc();
+        if (c == 0)
+            return K_ESC;
+        else if (c == 91){
             c = getchar();
             if (c == ARROW_UP)
                 return K_ARROW_UP;
