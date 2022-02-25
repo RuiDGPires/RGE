@@ -32,6 +32,7 @@ class Component {
         int x, y, width, height;
         virtual std::vector<std::string> str() = 0;
         void toggle_visible();
+
 };
 
 class TextBox : public Component{

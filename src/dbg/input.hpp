@@ -45,7 +45,7 @@ enum Key{
 
 void setup_events();
 void wait_input();
+Key get_key();
 
 void bind_key(Key key, void (*f)(void));
-void writing_mode_enable(void (*f)(void));
-void writing_mode_disable();
+

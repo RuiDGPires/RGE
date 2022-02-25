@@ -45,7 +45,7 @@ static char get_esc(){
     return c;
 }
 
-static Key get_key(){
+Key get_key(){
     char c = getchar();
     switch (c){
         case '\n':
