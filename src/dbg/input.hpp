@@ -75,6 +75,6 @@ enum Key{
 void setup_events();
 void wait_input();
 Key get_key();
+char key_to_ascii(Key);
 
 void bind_key(Key key, void (*f)(void));
-
