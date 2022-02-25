@@ -32,7 +32,8 @@ static const std::string reg_str[13] = {
     "C"
 };
 
-static std::string writing_mode(std::string &);
+static std::string writing_mode();
+static void execute_command(std::string);
 
 static std::vector<std::string> rom_str;
 static std::vector<u32> str_map;
@@ -58,7 +59,9 @@ TitledTextBox txt_regs("Registers", 0, 0, 27, MAX_ROWS+4),
               txt_code("Code", 0, MAX_ROWS + 5, 27, MAX_ROWS+4), 
               txt_mem("Memory", 28, MAX_ROWS + 5, 88, MAX_ROWS+4),
               txt_cart("Cartridge", 28, 0, 88, MAX_ROWS+4);
-TextBox txt_result(0, 40, 50, 9);
+TextBox txt_result(0, 41, 50, 9);
+ScrollingTextBox console(27+88+2,0, 40, 20);
+
 Footer footer(0, screen.term_w);
 
 bool check_test(){
@@ -368,6 +371,7 @@ EVENT(K_ARROW_DOWN){
     page_inc(1);
     step = false;
 }
+
 EVENT(K_CTRL_ARROW_UP){
     mem_page = 0;
     step = false;
@@ -397,8 +401,13 @@ EVENT(K_ESC){
     to_exit = true;
 }
 
-//**********************************************************************************************
+EVENT(K_CLN){
+    std::string command = writing_mode();
+    //if (command != "")
+     //   execute_command(command);
+}
 
+//**********************************************************************************************
 
 static void run(){
 	// Pass the control to the VM
@@ -419,7 +428,7 @@ static void run(){
                 bool b = gb_step();
                 if (!prompt)
                    prompt = b; 
-            }
+        }
         }else{
             bool res = gb_step();
             prompt = res;
@@ -446,7 +455,7 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_ESC);
 
     txt_result.centered = true;
-    screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << footer;
+    screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << footer << console;
 
     if (argc == 3)
         conf.parse(argv[2]);
@@ -464,4 +473,31 @@ int main(int argc, char *argv[]){
     run();
 
     return 0;
+}
+
+static std::string writing_mode(){
+    std::string text = "", footer_back = footer.str()[0];
+
+    footer.clear() << ":";
+    while(1){
+        Key key = get_key();
+        
+        char c = key_to_ascii(key);
+        if (c)
+            text.push_back(c);
+        else switch (key){
+            case K_ESC:
+                footer.clear() << footer_back;
+                return "";
+            case K_BCKSPACE:
+                text.pop_back();
+                break;
+            default:
+                break;
+        }
+        footer.clear() << ":"  + text;
+    }
+
+    footer.clear() << footer_back;
+    return text; 
 }
