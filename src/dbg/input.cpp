@@ -49,7 +49,7 @@ Key get_key(){
     char c = getchar();
 
     if (c >= ' ' && c <= '~')
-        return (Key)(c - ' ');
+        return (Key)(c - ' ' + K_SPACE);
 
     if (c >= ('A' & 0x1F) && c <= ('Z' & 0x1F))
         return (Key) (c - ('A' & 0x1F) + (u32) K_CTRL_A);
@@ -85,6 +85,11 @@ Key get_key(){
         }
     }
     return K_NONE;
+}
+
+char key_to_ascii(Key key){
+    if (key >= K_SPACE && key <= K_TIL)
+        return (char) (key - K_SPACE) + ' ';
 }
 
 void wait_input(){
