@@ -57,10 +57,10 @@ Screen screen;
 
 TitledTextBox txt_regs("Registers", 0, 0, 27, MAX_ROWS+4), 
               txt_code("Code", 0, MAX_ROWS + 5, 27, MAX_ROWS+4), 
-              txt_mem("Memory", 28, MAX_ROWS + 5, 88, MAX_ROWS+4),
-              txt_cart("Cartridge", 28, 0, 88, MAX_ROWS+4);
+              txt_mem("Memory", 28, MAX_ROWS + 5, 87, MAX_ROWS+4),
+              txt_cart("Cartridge", 28, 0, 87, MAX_ROWS+4);
 TextBox txt_result(0, 41, 50, 9);
-ScrollingTextBox console(27+88+2,0, 40, 20);
+ScrollingTextBox console(27+87+2, 0, 40, MAX_ROWS*2+9);
 
 Footer footer(0, screen.term_w);
 
@@ -363,29 +363,30 @@ bool to_exit = false;
 // KEY PRESS EVENTS
 //------------------
 
+EVENT(K_SPACE){
+    step = true;
+}
+
 EVENT(K_ARROW_UP){
     page_dec(1);
-    step = false;
 }
+
 EVENT(K_ARROW_DOWN){
     page_inc(1);
-    step = false;
 }
 
 EVENT(K_CTRL_ARROW_UP){
     mem_page = 0;
-    step = false;
 }
+
 EVENT(K_CTRL_ARROW_DOWN){
     mem_page = (IE_END / (MAX_ROWS * ROW_SIZE));
-    step = false;
 }
 
 EVENT(K_ENTER){
     bool res = gb_step();
     prompt = res;
     show_info = res ? true : conf.info;
-    step = false;
 }
 
 EVENT(K_CTRL_X){
@@ -394,17 +395,16 @@ EVENT(K_CTRL_X){
 
 EVENT(K_CTRL_R){
     fetch_mem();
-    step = false;
-}
-
-EVENT(K_ESC){
-    to_exit = true;
 }
 
 EVENT(K_CLN){
     std::string command = writing_mode();
     //if (command != "")
      //   execute_command(command);
+}
+
+EVENT(K_BCKSPACE){
+    console << "\nBackspace pressed";
 }
 
 //**********************************************************************************************
@@ -416,7 +416,7 @@ static void run(){
         if (show_info){
             // Display information
             print_info();
-            step = true;
+            step = false;
 
             if (prompt)
                 wait_input();
@@ -445,6 +445,7 @@ int main(int argc, char *argv[]){
 	ASSERT(argc >= 2, "Invalid number of arguments");
     setup_events();
 
+    ENABLE_KEY(K_SPACE);
     ENABLE_KEY(K_ARROW_UP);
     ENABLE_KEY(K_ARROW_DOWN);
     ENABLE_KEY(K_CTRL_ARROW_UP);
@@ -452,7 +453,8 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_ENTER);
     ENABLE_KEY(K_CTRL_X);
     ENABLE_KEY(K_CTRL_R);
-    ENABLE_KEY(K_ESC);
+    ENABLE_KEY(K_CLN);
+    ENABLE_KEY(K_BCKSPACE);
 
     txt_result.centered = true;
     screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << footer << console;
@@ -476,9 +478,12 @@ int main(int argc, char *argv[]){
 }
 
 static std::string writing_mode(){
-    std::string text = "", footer_back = footer.str()[0];
+    std::vector<std::string> footer_vec = footer.str();
+
+    std::string text = "", footer_back = footer_vec.empty() ? "": footer_vec[0];
 
     footer.clear() << ":";
+    screen.refresh();
     while(1){
         Key key = get_key();
         
@@ -487,17 +492,22 @@ static std::string writing_mode(){
             text.push_back(c);
         else switch (key){
             case K_ESC:
-                footer.clear() << footer_back;
-                return "";
+                text = "";
+            case K_ENTER:
+                goto _wm_end;
             case K_BCKSPACE:
-                text.pop_back();
+                if (!text.empty())
+                    text.pop_back();
                 break;
             default:
                 break;
         }
         footer.clear() << ":"  + text;
+        screen.refresh();
     }
 
+_wm_end:
     footer.clear() << footer_back;
+    screen.refresh();
     return text; 
 }
