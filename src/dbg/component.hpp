@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 
 #define NL 1 
 
@@ -64,6 +65,22 @@ class TitledTextBox : public TextBox {
 
         TitledTextBox &set_title(std::string);
         TitledTextBox &clear();
+};
+
+class ScrollingTextBox : public Component{
+    protected:
+        std::list<std::string> lines;
+    public:
+        ScrollingTextBox(int x, int y, int width, int height);
+        ~ScrollingTextBox();
+
+        ScrollingTextBox &operator<<(std::string);
+        ScrollingTextBox &operator<<(const char *);
+        ScrollingTextBox &operator<<(const char);
+        ScrollingTextBox &operator<<(color_c);
+
+        std::vector<std::string> str() override;
+        ScrollingTextBox &clear();
 };
 
 class Footer : public Component{

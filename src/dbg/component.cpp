@@ -199,6 +199,126 @@ TitledTextBox &TitledTextBox::clear(){
     return (*this);
 }
 
+ScrollingTextBox::ScrollingTextBox(int x, int y, int width, int height) : Component(x, y, width, height){
+    ASSERT(width > 2, "Width must be higher than 2");
+    ASSERT(height > 2, "Height must be higher than 2");
+    this->lines = std::list<std::string>(this->height - 2);
+}
+
+ScrollingTextBox::~ScrollingTextBox(){
+
+}
+
+ScrollingTextBox &ScrollingTextBox::clear(){
+    this->lines = std::list<std::string>(this->height - 2);
+    return (*this);
+}
+
+ScrollingTextBox &ScrollingTextBox::operator<<(std::string s){
+    std::string line;
+
+    if (lines.size() > 0){
+        line = lines.front(); 
+        lines.pop_front();
+    }
+
+    for (char c : s){
+        if (c == '\n' || line.size() > this->width - 2){
+            this->lines.push_front(line);
+            line = "";
+        }
+        if (c != '\n') line.push_back(c);
+    }
+    this->lines.push_front(line);
+   
+   if (this->lines.size() > this->height - 2)
+       this->lines.resize(this->height-2);
+
+    return (*this);
+}
+
+ScrollingTextBox &ScrollingTextBox::operator<<(const char *s){
+    return (*this) << std::string(s);
+}
+
+ScrollingTextBox &ScrollingTextBox::operator<<(const char c){
+    std::string line;
+
+    if (lines.size() > 0){
+        line = lines.front(); 
+        lines.pop_front();
+    }
+
+
+    if (c == '\n' || line.size() > this->width - 2){
+        this->lines.push_front(line);
+        line = "";
+        if (c != '\n') line.push_back(c);
+    }
+
+    this->lines.push_front(line);
+   
+    if (this->lines.size() > this->height - 2)
+        this->lines.resize(this->height-2);
+
+    return (*this);
+}
+
+ScrollingTextBox &ScrollingTextBox::operator<<(color_c c){
+    return (*this) << (char) c;
+}
+
+std::vector<std::string> ScrollingTextBox::str(){
+    std::vector<std::string> ret;
+    std::vector<std::string> tmp_lines(lines.begin(), lines.end());
+
+    std::string line = "";
+    line += BXD_TOPL;
+    for (int i = 0; i < this->width - 2; i++)
+        line += BXD_HOR;
+    line += BXD_TOPR;
+
+    ret.push_back(line);
+    line = "";
+
+    for (int i = this->height - 3; i >= 0; i--){
+        int compensation = 0;
+        line = BXD_VER;
+        int line_size = tmp_lines[i].size();
+        bool hide = false;
+        for (int j = 0; j < this->width - 2 + compensation; j++){
+            if (j >= line_size || hide){
+                line.push_back(' ');
+                continue;
+            }
+            char c = tmp_lines[i][j];
+
+            if (c > INIT_c && c < COUNT_c){
+                line.append(parse_color((color_c) c));
+                compensation++;
+                continue;
+            }
+
+            if (j >= width - 2) break;
+
+            if (c == '\n') {hide = true; c = ' ';}
+            line.push_back(c);
+        }
+        line += BXD_VER;
+        ret.push_back(line);
+    }
+
+    //-----------
+    // BOX LIMITS
+    line = BXD_BOTL;
+    for (int i = 0; i < this->width - 2; i++)
+        line += BXD_HOR;
+    line += BXD_BOTR;
+    ret.push_back(line);
+    //-----------
+    return ret;
+}
+
 Footer::Footer(int x, int width) : Component(x, -1, width, 1){
 
 };
