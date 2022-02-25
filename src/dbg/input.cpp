@@ -57,10 +57,12 @@ Key get_key(){
     if (c >= ('A' & 0x1F) && c <= ('Z' & 0x1F))
         return (Key) (c - ('A' & 0x1F) + (u32) K_CTRL_A);
 
-    if (c == 8)
+    if (c == 127)
         return K_BCKSPACE;
 
     if (c == '\033'){
+        if (c == 127)
+            return K_DEL;
         c = get_esc();
         if (c == 0)
             return K_ESC;
