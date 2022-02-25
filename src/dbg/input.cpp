@@ -47,42 +47,10 @@ static char get_esc(){
 
 Key get_key(){
     char c = getchar();
-    switch (c){
-        case '\n':
-            return K_ENTER;
-        case ' ':
-            return K_SPACE;
-        case ',':
-            return K_COMMA;
-        case '.':
-            return K_DOT;
-        case ';':
-            return K_SEMICLN;
-        case ':':
-            return K_CLN;
-        case '&':
-            return K_AND;
-        case '|':
-            return K_BAR;
-        case '%':
-            return K_PERC;
-        case '#':
-            return K_CARD;
-        case '$':
-            return K_DOLLAR;
-        case '!':
-            return K_EXC;
-        case '?':
-            return K_QUE;
-    }
 
-    if (c >= '0' && c <= '9')
-        return (Key)(c - '0' + (u32) K_0);
+    if (c >= ' ' && c <= '~')
+        return (Key)(c - ' ');
 
-    if (c >= 'a' && c <= 'z')
-        return (Key) (c - 'a' + (u32) K_A);
-    if (c >= 'A' && c <= 'Z')
-        return (Key) (c - 'A' + (u32) K_SHFT_A);
     if (c >= ('A' & 0x1F) && c <= ('Z' & 0x1F))
         return (Key) (c - ('A' & 0x1F) + (u32) K_CTRL_A);
 
