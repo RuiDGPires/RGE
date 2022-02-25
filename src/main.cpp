@@ -403,8 +403,8 @@ EVENT(K_CLN){
      //   execute_command(command);
 }
 
-EVENT(K_BCKSPACE){
-    console << "\nBackspace pressed";
+EVENT(K_DEL){
+    console << "\nDelete pressed";
 }
 
 //**********************************************************************************************
@@ -454,7 +454,7 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_CTRL_X);
     ENABLE_KEY(K_CTRL_R);
     ENABLE_KEY(K_CLN);
-    ENABLE_KEY(K_BCKSPACE);
+    ENABLE_KEY(K_DEL);
 
     txt_result.centered = true;
     screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << footer << console;
@@ -477,32 +477,66 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
+static std::string put_cursor(std::string &s, u32 cursor){
+    const std::string invert_colors = "\033[7m";
+
+    u32 size = s.size();
+    if (cursor >= size)
+        return s + invert_colors + " " + RESET_STR;
+    else if (cursor == size -1)
+        return s.substr(0, cursor) + invert_colors + s[cursor] + RESET_STR;
+    else
+        return s.substr(0, cursor) + invert_colors + s[cursor] + RESET_STR + s.substr(cursor + 1, size - cursor - 1);
+
+    return "";
+}
+
 static std::string writing_mode(){
     std::vector<std::string> footer_vec = footer.str();
 
     std::string text = "", footer_back = footer_vec.empty() ? "": footer_vec[0];
 
-    footer.clear() << ":";
+    u32 cursor = 0;
+
+    footer.clear() << ":" + put_cursor(text, cursor);
     screen.refresh();
+
     while(1){
         Key key = get_key();
         
         char c = key_to_ascii(key);
-        if (c)
-            text.push_back(c);
+        if (c){
+            text.insert(text.begin()+cursor, c);
+            cursor++;
+        }
         else switch (key){
             case K_ESC:
                 text = "";
             case K_ENTER:
                 goto _wm_end;
+            case K_ARROW_LEFT:
+                if (cursor > 0)
+                    cursor--;
+                break;
+            case K_ARROW_RIGHT:
+                if (cursor < text.size())
+                    cursor++;
+                break;
             case K_BCKSPACE:
-                if (!text.empty())
-                    text.pop_back();
+                if (cursor > 0){
+                    text.erase(text.begin()+cursor-1);
+                    cursor--;
+                }
+                break;
+            case K_DEL:
+                if (cursor < text.size()){
+                    text.erase(text.begin()+cursor);
+                }
                 break;
             default:
                 break;
         }
-        footer.clear() << ":"  + text;
+        footer.clear() << ":" + put_cursor(text, cursor);
         screen.refresh();
     }
 
