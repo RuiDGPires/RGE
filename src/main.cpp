@@ -399,8 +399,8 @@ EVENT(K_CTRL_R){
 
 EVENT(K_CLN){
     std::string command = writing_mode();
-    //if (command != "")
-     //   execute_command(command);
+    if (command != "")
+        execute_command(command);
 }
 
 EVENT(K_DEL){
@@ -477,6 +477,11 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
+//---------------------------------------------------------
+//***************
+// WRITING MODE
+//***************
+
 static std::string put_cursor(std::string &s, u32 cursor){
     const std::string invert_colors = "\033[7m";
 
@@ -544,4 +549,14 @@ _wm_end:
     footer.clear() << footer_back;
     screen.refresh();
     return text; 
+}
+
+//---------------------------------------------------------
+//***************
+// COMMANDS
+//***************
+
+static void execute_command(std::string command){
+    if (command == "q")
+        to_exit = true;
 }
