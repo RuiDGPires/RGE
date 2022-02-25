@@ -90,6 +90,7 @@ Key get_key(){
 char key_to_ascii(Key key){
     if (key >= K_SPACE && key <= K_TIL)
         return (char) (key - K_SPACE) + ' ';
+    else return 0;
 }
 
 void wait_input(){
