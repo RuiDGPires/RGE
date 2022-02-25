@@ -61,13 +61,14 @@ Key get_key(){
         return K_BCKSPACE;
 
     if (c == '\033'){
-        if (c == 127)
-            return K_DEL;
         c = get_esc();
         if (c == 0)
             return K_ESC;
         else if (c == 91){
             c = getchar();
+            if (c == 51)
+                if (getchar() == 126)
+                    return K_DEL;
             if (c == ARROW_UP)
                 return K_ARROW_UP;
             if (c == ARROW_DOWN)
@@ -92,6 +93,7 @@ Key get_key(){
             }
         }
     }
+
     return K_NONE;
 }
 
