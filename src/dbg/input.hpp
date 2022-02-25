@@ -67,6 +67,7 @@ enum Key{
     K_ENTER,
 
     K_ESC,
+    K_BCKSPACE,
 
     K_COUNT, // DO NOT CHAGNE
     K_NONE,

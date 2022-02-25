@@ -48,11 +48,17 @@ static char get_esc(){
 Key get_key(){
     char c = getchar();
 
+    if (c == '\n')
+        return K_ENTER;
+
     if (c >= ' ' && c <= '~')
         return (Key)(c - ' ' + K_SPACE);
 
     if (c >= ('A' & 0x1F) && c <= ('Z' & 0x1F))
         return (Key) (c - ('A' & 0x1F) + (u32) K_CTRL_A);
+
+    if (c == 8)
+        return K_BCKSPACE;
 
     if (c == '\033'){
         c = get_esc();
