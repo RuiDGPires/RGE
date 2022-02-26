@@ -83,7 +83,7 @@ void SharpSM83::clock(){
 }
 
 void SharpSM83::reset(){
-    this->regs[0] = 0x11;
+    this->regs[0] = 0x1100;
     set_flags(1, 0, 0, 0);
 
     for (int i = 1; i < 6; i++)
