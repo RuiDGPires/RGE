@@ -564,6 +564,16 @@ bool command_disable_breakpoint(std::vector<std::string> argv){
     return conf.disable_rule(atoi(argv[0].c_str()));
 }
 
+bool command_reset(std::vector<std::string> argv){
+    if (argv.size() != 0) return false;
+    gb.cpu.reset();
+    gb.cpu.running = true;
+    fetch_mem();
+
+    console << "\nCPU reseted";
+    return true;
+}
+
 static void execute_command(std::string command){
     console << "\n" << GREEN_c << "CMD$" << RESET_c << command;
     if (conf.parse_line(command))
@@ -587,5 +597,6 @@ static void execute_command(std::string command){
         COMMAND(command_enable_breakpoint, "enable")
         COMMAND(command_disable_breakpoint, "disable")
         COMMAND2(command_quit, "q", "exit")
+        COMMAND(command_reset, "reset")
     } 
 }
