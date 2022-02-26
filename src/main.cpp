@@ -33,18 +33,20 @@ static GameBoy gb;
 #define EXTRA_LINES 7 
 #define ROW_SIZE 16
 
+#define FIRST_WIDTH 40
+
 //---------------------------
 // Screen and it's components
 //---------------------------
 
 Screen screen;
 
-TitledTextBox txt_regs("Registers", 0, 0, 27, MAX_ROWS+4), 
-              txt_code("Code", 0, MAX_ROWS + 5, 27, MAX_ROWS+4), 
-              txt_mem("Memory", 28, MAX_ROWS + 5, 87, MAX_ROWS+4),
-              txt_cart("Cartridge", 28, 0, 87, MAX_ROWS+4);
+TitledTextBox txt_regs("Registers", 0, 0, FIRST_WIDTH, MAX_ROWS+4), 
+              txt_code("Code", 0, MAX_ROWS + 5, FIRST_WIDTH, MAX_ROWS+4), 
+              txt_mem("Memory", FIRST_WIDTH + 1, MAX_ROWS + 5, 87, MAX_ROWS+4),
+              txt_cart("Cartridge", FIRST_WIDTH + 1, 0, 87, MAX_ROWS+4);
 TextBox txt_result(0, 41, 50, 9);
-ScrollingTextBox console(27+87+2, 0, 40, MAX_ROWS*2+9);
+ScrollingTextBox console(FIRST_WIDTH+87+2, 0, 40, MAX_ROWS*2+9);
 
 Footer footer(0, screen.term_w);
 
@@ -89,6 +91,9 @@ static void fetch_mem(){
         std::string str = "";
 
         inst = dummy.lookup[gb.mem_bus.read(i)];
+
+
+        str += "[" + hex(i, true, 4) + "] ";
 
         str += inst.str;
 
@@ -238,8 +243,7 @@ static void print_info(){
         u32 line = str_map[pc];
 
         if (i == 0){
-            txt_code << YELLOW_c << rom_str[line] << RESET_c;
-            txt_code << "  [" << hex(pc) << "]" << NL;
+            txt_code << YELLOW_c << rom_str[line] << RESET_c << NL;
         }else if (line + i >= 0 && line + i < rom_str.size())
             txt_code << rom_str[line + i] << NL;
         else
@@ -335,9 +339,9 @@ EVENT(K_CTRL_ARROW_DOWN){
 }
 
 EVENT(K_ENTER){
-    bool res = gb_step();
-    prompt = res;
-    show_info = res ? true : conf.info;
+    do{
+        gb.cpu.clock();
+    }while(!conf.check(gb, NULL));
 }
 
 EVENT(K_CTRL_X){
@@ -356,6 +360,24 @@ EVENT(K_CLN){
 
 EVENT(K_DEL){
     console << "\nDelete pressed";
+}
+
+EVENT(K_N){
+    SharpSM83::instruction inst;
+
+    u16 pc = gb.cpu.regs[PC];
+    inst = gb.cpu.lookup[gb.mem_bus.read(pc)];
+
+        
+    std::string inst_name(inst.str);
+
+    if (inst_name != "CALL")
+        step = true;
+    else{
+        do{
+            gb.cpu.clock();
+        }while(gb.cpu.regs[PC] != pc + 3 && !conf.check(gb, NULL));
+    }
 }
 
 //**********************************************************************************************
@@ -404,6 +426,7 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_ENTER);
     ENABLE_KEY(K_CTRL_X);
     ENABLE_KEY(K_CTRL_R);
+    ENABLE_KEY(K_N);
     ENABLE_KEY(K_CLN);
     ENABLE_KEY(K_DEL);
 
