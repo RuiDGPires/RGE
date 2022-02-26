@@ -508,17 +508,17 @@ _wm_end:
 //***************
 
 static void execute_command(std::string command){
-    console << "\n" << GREEN_c << "CMD$" << RESET_c << command << "\n";
+    console << "\n" << GREEN_c << "CMD$" << RESET_c << command;
     if (conf.parse_line(command))
         return;
     else if (command == "q")
         to_exit = true;
     else {
         if (command == "l")
-            console << "Enabled Breakpoints:\n" << conf.list_rules();
+            console << "\nEnabled Breakpoints:\n" << conf.list_rules();
         else if (command == "clear")
             console.clear();
         else
-            console << "Unkown Command";
+            console << "\nUnkown Command";
     } 
 }
