@@ -341,6 +341,7 @@ EVENT(K_CTRL_ARROW_DOWN){
 EVENT(K_ENTER){
     do{
         gb.cpu.clock();
+        if (get_key(true) == K_ENTER) break;
     }while(!conf.check(gb, NULL));
 }
 
