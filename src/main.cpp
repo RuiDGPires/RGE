@@ -443,6 +443,7 @@ int main(int argc, char *argv[]){
 
     txt_cart.clear() << gb.slot->info();
 
+
     footer << "Input file: " << argv[1];
     fetch_mem();
 
@@ -533,9 +534,10 @@ _wm_end:
 
 #define ARGV_ argv
 #define CMD_ cmd
+#define HLP_ hlp
 #define UNK_CMD console << "\nUnkown Command"
-#define COMMAND(func, str) if (CMD_ == str) {if (!func(ARGV_)) UNK_CMD;}
-#define COMMAND2(func, str1, str2) if (CMD_ == str1 || CMD_ == str2) {if (!func(ARGV_)) UNK_CMD;}
+#define COMMAND(func, help, str) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str) {if (!func(ARGV_)) UNK_CMD;}}
+#define COMMAND2(func, help, str1, str2) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str1 + " | " + str2 + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str1 || CMD_ == str2 ) {if (!func(ARGV_)) UNK_CMD;}}
 
 bool command_quit(std::vector<std::string> argv){
     if (argv.size() != 0) return false;
@@ -593,11 +595,18 @@ static void execute_command(std::string command){
             argv.push_back(arg);
         }
 
-        COMMAND(command_clear, "clear")
-        COMMAND2(command_list, "l", "list")
-        COMMAND(command_enable_breakpoint, "enable")
-        COMMAND(command_disable_breakpoint, "disable")
-        COMMAND2(command_quit, "q", "exit")
-        COMMAND(command_reset, "reset")
+        std::vector<std::string> hlp;
+
+        COMMAND(command_clear, "Clears the console" , "clear")
+        COMMAND2(command_list, "Lists breakpoints", "l", "list")
+        COMMAND(command_enable_breakpoint, "Enable breakpoint of ID (see list)", "enable")
+        COMMAND(command_disable_breakpoint, "Disable breakpoint of ID (see list)", "disable")
+        COMMAND2(command_quit, "Exits the debugger", "q", "exit")
+        COMMAND(command_reset, "Resets the CPU and ROM", "reset")
+
+        if (cmd == "h" || cmd == "help"){
+            console << hlp;
+            return;
+        }
     } 
 }
