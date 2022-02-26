@@ -2,35 +2,19 @@
 #define DEBUG
 #endif
 
+#include "common/assert.hpp"
 #include "gbc/mem_map.hpp"
 #include "gbc/cpu.hpp"
 #include "gbc/gameboy.hpp"
-#include "common/assert.hpp"
 #include "dbg/screen.hpp"
 #include "dbg/confparser.hpp"
 #include "dbg/input.hpp"
+#include "dbg/disassembly.hpp"
 
 #include <unistd.h>
 #include <string>
 #include <sstream>
-#include <string.h>
 #include <vector>
-
-static const std::string reg_str[13] = {
-    "<NONE>",
-    "A",
-    "F",
-    "B",
-    "C",
-    "D",
-    "E",
-    "H",
-    "L",
-    "S",
-    "P",
-    "P",
-    "C"
-};
 
 static std::string writing_mode();
 static void execute_command(std::string);
@@ -90,42 +74,9 @@ char ascii_rep(u8 byte){
         return '.';
 }
 
-static std::string decode_reg(SharpSM83::reg_type reg){
-    if (reg == SharpSM83::reg_type::RT_NONE)
-        return reg_str[0];
-
-    u8 order = (reg >> 16);
-
-    std::string str = "";
-
-    if (reg & 0xFF00)
-        str += reg_str[order*2 + 1];
-    if (reg & 0x00FF)
-        str += reg_str[order*2 + 2];
-
-    return str;
-}
-
-static std::string hex(unsigned int val, bool prefix = true, u32 n = 4){
-    char tmp[10];
-    sprintf (tmp, "%x", val);
-    u8 rest = strlen(tmp) % n != 0? n - (strlen (tmp) % n): 0;
-    std::string str = (prefix? std::string ("0x"): "") + std::string (rest, '0');
-    for (size_t i = 0; i < strlen (tmp); i++){
-        if ((i + rest) % n == 0 && i != 0)
-            str += " ";
-        str += tmp[i];
-    }
-    return str;
-}  
-
 static void append(std::string &str, std::string a){
     str.push_back(' ');
     str.append(a);
-}
-
-static std::string envolve(std::string str){
-    return "(" + str + ")";
 }
 
 static void fetch_mem(){
@@ -557,6 +508,17 @@ _wm_end:
 //***************
 
 static void execute_command(std::string command){
-    if (command == "q")
+    console << "\n" << GREEN_c << "CMD$" << RESET_c << command << "\n";
+    if (conf.parse_line(command))
+        return;
+    else if (command == "q")
         to_exit = true;
+    else {
+        if (command == "l")
+            console << "Enabled Breakpoints:\n" << conf.list_rules();
+        else if (command == "clear")
+            console.clear();
+        else
+            console << "Unkown Command";
+    } 
 }
