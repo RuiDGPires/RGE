@@ -1,28 +1,12 @@
 #pragma once
 
-#define BLUE_STR "\e[1;36m"
-#define YELLOW_STR "\e[1;33m"
-#define BOLD_STR "\e[1;37m"
-#define GREEN_STR "\e[1;32m"
-#define RESET_STR "\e[0m"
-
+#include "../common/defs.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <list>
 
 #define NL 1 
-
-enum color_c {
-    INIT_c = 1,
-    BLUE_c,
-    YELLOW_c,
-    BOLD_c,
-    GREEN_c,
-    RESET_c,
-
-    COUNT_c,
-};
 
 class Component {
     public:

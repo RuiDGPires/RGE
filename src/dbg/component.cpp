@@ -1,5 +1,6 @@
 #include "component.hpp"
 #include "../common/assert.hpp"
+#include "../common/defs.hpp"
 
 Component::Component(int x, int y, int width, int height){
     this->x = x;
@@ -71,6 +72,8 @@ static std::string parse_color(color_c c){
             return GREEN_STR;
         case BOLD_c:
             return BOLD_STR;
+        case GRAY_c:
+            return GRAY_STR;
         case RESET_c:
             return RESET_STR;
         default:

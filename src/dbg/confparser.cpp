@@ -136,6 +136,8 @@ void CompositeRule::append(SimpleRule r){
 }
 
 bool CompositeRule::check(GameBoy &gb){
+    if (!enabled) return false;
+
     for (SimpleRule rule : this->rules)
         if (!rule.check(gb))
             return false;
@@ -355,13 +357,28 @@ void ConfParser::print_info(){
 }
 
 std::string ConfParser::list_rules(){
-    std::string ret = "";
+    std::stringstream ret("");
 
     size_t size = rules.size();
     for (size_t i = 0; i < size; i++){
-        ret += rules[i].str();
-        if (i < size - 1) ret += "\n";
+        ret << '[' << i << "] ";
+
+        if (rules[i].enabled)
+            ret << rules[i].str();
+        else
+            ret << (char) GRAY_c << rules[i].str() << (char) RESET_c;
+
+        if (i < size - 1) ret << '\n';
     }
     
-    return ret;
+    return ret.str();
+}
+
+bool ConfParser::enable_rule(int i){
+    this->rules[i].enabled = true;
+    return true;
+}
+bool ConfParser::disable_rule(int i){
+    this->rules[i].enabled = false;
+    return true;
 }
