@@ -48,8 +48,15 @@ static void arranje_lines(std::vector<std::string> &vec){
             if (c == '\n') {writing += 1; p = 0; continue;}
 
 
-            if (writing)
-                vec[i+writing][p++] = c;
+            if (writing && writing + i < size){
+                size_t line_size = vec[i+writing].size();
+
+                if (p < line_size)
+                    vec[i+writing][p] = c;
+                else
+                    vec[i+writing].push_back(c);
+                p++;
+            }
         }
     }
 }
@@ -104,7 +111,7 @@ std::vector<std::string> TextBox::str(){
                 continue;
             }
 
-            if (j >= width - 2) break;
+            if (j >= width - 2 + compensation) break;
 
             if (c == '\n') {hide = true; c = ' ';}
             line.push_back(c);
@@ -249,7 +256,7 @@ ScrollingTextBox &ScrollingTextBox::operator<<(const char c){
         lines.pop_front();
     }
 
-
+    // THIS HAS SOME ISSUES WHEN COLORS ARE INVOLVED...
     if (c == '\n' || line.size() > this->width - 2){
         this->lines.push_front(line);
         line = "";
@@ -265,7 +272,8 @@ ScrollingTextBox &ScrollingTextBox::operator<<(const char c){
 }
 
 ScrollingTextBox &ScrollingTextBox::operator<<(color_c c){
-    return (*this) << (char) c;
+    lines.front().push_back(c);
+    return (*this);
 }
 
 std::vector<std::string> ScrollingTextBox::str(){
@@ -285,9 +293,8 @@ std::vector<std::string> ScrollingTextBox::str(){
         int compensation = 0;
         line = BXD_VER;
         int line_size = tmp_lines[i].size();
-        bool hide = false;
         for (int j = 0; j < this->width - 2 + compensation; j++){
-            if (j >= line_size || hide){
+            if (j >= line_size){
                 line.push_back(' ');
                 continue;
             }
@@ -299,9 +306,8 @@ std::vector<std::string> ScrollingTextBox::str(){
                 continue;
             }
 
-            if (j >= width - 2) break;
+            if (j >= width - 2 + compensation) break;
 
-            if (c == '\n') {hide = true; c = ' ';}
             line.push_back(c);
         }
         line += BXD_VER;

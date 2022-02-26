@@ -21,6 +21,7 @@ class Rule{
             ADDR
         };
         virtual bool check(GameBoy &gb) = 0;
+        virtual std::string str() = 0;
 };
 
 class SimpleRule : public Rule{
@@ -35,6 +36,7 @@ class SimpleRule : public Rule{
         SimpleRule(u32 a, val_type ta, operand op, u32 b, val_type tb);
         ~SimpleRule();
         bool check(GameBoy &gb) override;
+        std::string str() override;
 };
 
 class CompositeRule : public Rule{
@@ -49,20 +51,25 @@ class CompositeRule : public Rule{
         ~CompositeRule();
         void append(SimpleRule r);
         bool check(GameBoy &gb) override;
+        std::string str() override;
 };
 
 class ConfParser{
     private:
         std::vector<CompositeRule> rules;
-        std::pair<u32, Rule::val_type> parse_token(std::string, size_t line);
+        std::pair<u32, Rule::val_type> parse_token(std::string);
+
+        bool is_test = false;
     public:
         bool clear_term = false;
         bool info = false;
         ConfParser();
         ~ConfParser();
 
+        bool parse_line(std::string);
         void parse(const char *);
         bool check(GameBoy &gb, bool *test = NULL);
 
         void print_info();
+        std::string list_rules();
 };
