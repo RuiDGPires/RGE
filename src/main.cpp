@@ -507,18 +507,62 @@ _wm_end:
 // COMMANDS
 //***************
 
+#define ARGV_ argv
+#define CMD_ cmd
+#define UNK_CMD console << "\nUnkown Command"
+#define COMMAND(func, str) if (CMD_ == str) {if (!func(ARGV_)) UNK_CMD;}
+#define COMMAND2(func, str1, str2) if (CMD_ == str1 || CMD_ == str2) {if (!func(ARGV_)) UNK_CMD;}
+
+bool command_quit(std::vector<std::string> argv){
+    if (argv.size() != 0) return false;
+    to_exit = true;
+    return true;
+}
+
+bool command_clear(std::vector<std::string> argv){
+    if (argv.size() != 0) return false;
+    console.clear();
+    return true;
+}
+
+bool command_list(std::vector<std::string> argv){
+    if (argv.size() != 0) return false;
+    console << "\nEnabled Breakpoints:\n" << conf.list_rules();
+    return true;
+}
+
+bool command_enable_breakpoint(std::vector<std::string> argv){
+    if (argv.size() != 1) return false;
+    return conf.enable_rule(atoi(argv[0].c_str()));
+}
+
+bool command_disable_breakpoint(std::vector<std::string> argv){
+    if (argv.size() != 1) return false;
+    return conf.disable_rule(atoi(argv[0].c_str()));
+}
+
 static void execute_command(std::string command){
     console << "\n" << GREEN_c << "CMD$" << RESET_c << command;
     if (conf.parse_line(command))
         return;
-    else if (command == "q")
-        to_exit = true;
     else {
-        if (command == "l")
-            console << "\nEnabled Breakpoints:\n" << conf.list_rules();
-        else if (command == "clear")
-            console.clear();
-        else
-            console << "\nUnkown Command";
+        std::stringstream stream(command);
+
+        std::string cmd;
+        std::vector<std::string> argv;
+        stream >> cmd;
+
+        while(1){
+            std::string arg = "";
+            stream >> arg;
+            if (arg == "") break;
+            argv.push_back(arg);
+        }
+
+        COMMAND(command_clear, "clear")
+        COMMAND2(command_list, "l", "list")
+        COMMAND(command_enable_breakpoint, "enable")
+        COMMAND(command_disable_breakpoint, "disable")
+        COMMAND2(command_quit, "q", "exit")
     } 
 }
