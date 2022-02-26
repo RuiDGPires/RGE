@@ -45,8 +45,16 @@ static char get_esc(){
     return c;
 }
 
-Key get_key(){
-    char c = getchar();
+Key get_key(bool non_block){
+    int flags = fcntl(STDIN_FILENO, F_GETFL);
+    
+    if (non_block)
+        fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
+    char c = 0;
+
+    c = getchar();
+    
 
     if (c == '\n')
         return K_ENTER;
@@ -94,6 +102,8 @@ Key get_key(){
         }
     }
 
+    if (non_block)
+        fcntl(STDIN_FILENO, F_SETFL, flags & ~O_NONBLOCK);
     return K_NONE;
 }
 
