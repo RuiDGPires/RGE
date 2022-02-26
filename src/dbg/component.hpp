@@ -59,6 +59,7 @@ class ScrollingTextBox : public Component{
         ~ScrollingTextBox();
 
         ScrollingTextBox &operator<<(std::string);
+        ScrollingTextBox &operator<<(std::vector<std::string>);
         ScrollingTextBox &operator<<(const char *);
         ScrollingTextBox &operator<<(const char);
         ScrollingTextBox &operator<<(color_c);

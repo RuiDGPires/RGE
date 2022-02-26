@@ -251,6 +251,13 @@ ScrollingTextBox &ScrollingTextBox::operator<<(const char *s){
     return (*this) << std::string(s);
 }
 
+ScrollingTextBox &ScrollingTextBox::operator<<(std::vector<std::string> v){
+    size_t size = v.size();
+    for (size_t i = 0; i < size; i++)
+        (*this) << "\n" << v[i];
+    return (*this);
+}
+
 ScrollingTextBox &ScrollingTextBox::operator<<(const char c){
     std::string line;
 
