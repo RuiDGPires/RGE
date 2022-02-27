@@ -7,7 +7,30 @@ Graphics are not yet implemented but I will be using SDL2 for game graphics and 
 
 Check the progress on [tests](testing.md).
 
-# Example
+## Using
+
+Only tested in a Linux system with the terminal emulator Konsole.
+To test, clone the repository and run
+
+```bash
+make
+```
+
+Find a ROM and run it with
+
+```bash
+./gameboy PATH_TO_ROM
+```
+
+### Key controls
+
+- CTRL+X    | Close the program
+- SPACEBAR  | Perform one step on the CPU
+- N         | Perform one step on the CPU and jump over CALLS
+- CTRL+R    | Refresh the code representation from memory
+- :         | Enter command entering mode / ESC to exit
+
+## Example
 
 ![Example](images/sample.png)
 
