@@ -3,3 +3,6 @@ gameboy
 roms/*
 *.txt
 *.bmp
+sdl/**
+test.sh
+*.conf
