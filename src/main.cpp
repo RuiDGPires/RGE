@@ -536,8 +536,8 @@ _wm_end:
 #define CMD_ cmd
 #define HLP_ hlp
 #define UNK_CMD console << "\nUnkown Command"
-#define COMMAND(func, help, str) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str) {if (!func(ARGV_)) UNK_CMD;}}
-#define COMMAND2(func, help, str1, str2) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str1 + " | " + str2 + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str1 || CMD_ == str2 ) {if (!func(ARGV_)) UNK_CMD;}}
+#define COMMAND(func, help, str) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str) {if (!func(ARGV_)) UNK_CMD; else return;}}
+#define COMMAND2(func, help, str1, str2) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str1 + " | " + str2 + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str1 || CMD_ == str2 ) {if (!func(ARGV_)) UNK_CMD;else return;}}
 
 bool command_quit(std::vector<std::string> argv){
     if (argv.size() != 0) return false;
@@ -638,5 +638,7 @@ static void execute_command(std::string command){
             console << hlp;
             return;
         }
+
+        UNK_CMD;
     } 
 }
