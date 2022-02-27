@@ -41,12 +41,12 @@ static GameBoy gb;
 
 Screen screen;
 
-TitledTextBox txt_regs("Registers", 0, 0, FIRST_WIDTH, MAX_ROWS+4), 
-              txt_code("Code", 0, MAX_ROWS + 5, FIRST_WIDTH, MAX_ROWS+4), 
-              txt_mem("Memory", FIRST_WIDTH + 1, MAX_ROWS + 5, 87, MAX_ROWS+4),
-              txt_cart("Cartridge", FIRST_WIDTH + 1, 0, 87, MAX_ROWS+4);
+TitledTextBox txt_regs("Registers", 0, 0, FIRST_WIDTH, MAX_ROWS+2), 
+              txt_code("Code", 0, MAX_ROWS + 2, FIRST_WIDTH, MAX_ROWS+2), 
+              txt_mem("Memory", FIRST_WIDTH + 1, MAX_ROWS + 2, 87, MAX_ROWS+2),
+              txt_cart("Cartridge", FIRST_WIDTH + 1, 0, 87, MAX_ROWS+2);
 TextBox txt_result(0, 41, 50, 9);
-ScrollingTextBox console(FIRST_WIDTH+87+2, 0, 40, MAX_ROWS*2+9);
+ScrollingTextBox console(FIRST_WIDTH+87+2, 0, 40, MAX_ROWS*2+4);
 
 Footer footer(0, screen.term_w);
 
@@ -577,6 +577,24 @@ bool command_reset(std::vector<std::string> argv){
     return true;
 }
 
+static bool is_hex(std::string s){
+    if (s[0] != '0') return false;
+    if (s[1] != 'x') return false;
+    s.erase(0,2);
+
+    for (char c : s)
+        if (!((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || (c >= '0' && c <= '9'))) return false;
+
+    return true;
+}
+
+static bool is_int(std::string s){
+    for (char c : s)
+        if (!(c >= '0' && c <= '9')) return false;
+
+    return true;
+}
+
 static void execute_command(std::string command){
     console << "\n" << GREEN_c << "CMD$" << RESET_c << command;
     if (conf.parse_line(command))
@@ -585,6 +603,7 @@ static void execute_command(std::string command){
         std::stringstream stream(command);
 
         std::string cmd;
+
         std::vector<std::string> argv;
         stream >> cmd;
 
@@ -593,6 +612,17 @@ static void execute_command(std::string command){
             stream >> arg;
             if (arg == "") break;
             argv.push_back(arg);
+        }
+
+        if (is_hex(cmd)){
+            cmd.erase(0, 2);
+            mem_page = (stoi(cmd, NULL, 16) / (MAX_ROWS * ROW_SIZE));
+            return;
+        }
+
+        if (is_int(cmd)){
+            mem_page = (stoi(cmd) / (MAX_ROWS * ROW_SIZE));
+            return;
         }
 
         std::vector<std::string> hlp;
