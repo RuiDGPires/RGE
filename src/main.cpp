@@ -447,7 +447,7 @@ int main(int argc, char *argv[]){
         }
     }
 	
-    show_info = conf.info;
+    show_info = !conf.no_info;
     
     gb.load_rom(argv[1]);
 

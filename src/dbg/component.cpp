@@ -48,7 +48,6 @@ static void arranje_lines(std::vector<std::string> &vec){
             char &c = vec[i][j];
             if (c == '\n') {writing += 1; p = 0; continue;}
 
-
             if (writing && writing + i < size){
                 size_t line_size = vec[i+writing].size();
 

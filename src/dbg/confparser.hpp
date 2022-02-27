@@ -62,8 +62,7 @@ class ConfParser{
 
         bool is_test = false;
     public:
-        bool clear_term = false;
-        bool info = false;
+        bool no_info = false;
         ConfParser();
         ~ConfParser();
 

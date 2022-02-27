@@ -232,8 +232,7 @@ void ConfParser::parse_line(std::string line){
 
     if (line[0] == '$'){ // setting
         line.erase(line.begin());
-        SETFROMLINE("CLEARTERM", clear_term);
-        SETFROMLINE("INFO", info);
+        SETFROMLINE("NOINFO", no_info);
 
         ASSERT(false, "Invalid setting: %s\n", line.c_str());
     }
@@ -309,8 +308,7 @@ bool ConfParser::check(GameBoy &gb, bool *test){
 #define PRINT_BOOL(var) printf("%s: %s\n", #var, var? "True": "False")
 
 void ConfParser::print_info(){
-    PRINT_BOOL(clear_term);
-    PRINT_BOOL(info);
+    PRINT_BOOL(no_info);
 }
 
 std::string ConfParser::list_rules(){
