@@ -165,49 +165,6 @@ ConfParser::~ConfParser(){
 
 }
 
-static SharpSM83::reg_type parse_reg(std::string token){
-    for (size_t i= 0; i < token.size(); i++)
-        token[i] = toupper(token[i]);
-
-    if (token == "A")
-        return SharpSM83::RT_A;
-    else if (token == "F")
-        return SharpSM83::RT_F;
-    else if (token == "B")
-        return SharpSM83::RT_B;
-    else if (token == "C")
-        return SharpSM83::RT_C;
-    else if (token == "D")
-        return SharpSM83::RT_D;
-    else if (token == "E")
-        return SharpSM83::RT_E;
-    else if (token == "H")
-        return SharpSM83::RT_H;
-    else if (token == "L")
-        return SharpSM83::RT_L;
-    else if (token == "AF")
-        return SharpSM83::RT_AF;
-    else if (token == "BC")
-        return SharpSM83::RT_BC;
-    else if (token == "DE")
-        return SharpSM83::RT_BC;
-    else if (token == "HL")
-        return SharpSM83::RT_HL;
-    else if (token == "SP")
-        return SharpSM83::RT_SP;
-    else if (token == "PC")
-        return SharpSM83::RT_PC;
-
-    return SharpSM83::RT_NONE;
-}
-
-static bool is_number(const std::string &str){
-    for (char const &c : str) {
-        if (std::isdigit(c) == 0) return false;
-    }
-    return true;
-}
-
 std::pair<u32, Rule::val_type> ConfParser::parse_token(std::string token){
     u32 val;
     Rule::val_type t;
@@ -237,7 +194,7 @@ std::pair<u32, Rule::val_type> ConfParser::parse_token(std::string token){
         if (is_hex){
             val = stoi(token, 0, 16);
         }else{
-            ASSERT(is_number(token), "Invalid token (%s)\n", token.c_str());
+            ASSERT(is_int(token), "Invalid token (%s)\n", token.c_str());
             val = stoi(token, 0, 10);
         }
         
