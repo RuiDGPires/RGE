@@ -140,7 +140,8 @@ TextBox &TextBox::operator<<(std::string s){
 }
 
 TextBox &TextBox::operator<<(std::vector<std::string> v){
-    this->lines.insert(lines.end(), v.begin(), v.end());
+    for (std::string s : v)
+        *this << s << NL;
     return *this;
 }
 

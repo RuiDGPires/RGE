@@ -202,17 +202,17 @@ bool Cartridge::check(){
 std::vector<std::string> Cartridge::info(){
     std::vector<std::string> vec;
     char buffer[50];
-    sprintf(buffer, "Title    : %s\n", this->header->title);
+    sprintf(buffer, "Title    : %s", this->header->title);
     vec.push_back(std::string(buffer));
-    sprintf(buffer, "Type     : %2.2X (%s)\n", this->header->type, this->type_name());
+    sprintf(buffer, "Type     : %2.2X (%s)", this->header->type, this->type_name());
     vec.push_back(std::string(buffer));
-    sprintf(buffer, "ROM Size : %d KB\n", 32 << this->header->rom_size);
+    sprintf(buffer, "ROM Size : %d KB", 32 << this->header->rom_size);
     vec.push_back(std::string(buffer));
-    sprintf(buffer, "RAM Size : %2.2X\n", this->header->ram_size);
+    sprintf(buffer, "RAM Size : %2.2X", this->header->ram_size);
     vec.push_back(std::string(buffer));
-    sprintf(buffer, "LIC Code : %2.2X (%s)\n", this->header->lic_code, this->lic_name());
+    sprintf(buffer, "LIC Code : %2.2X (%s)", this->header->lic_code, this->lic_name());
     vec.push_back(std::string(buffer));
-    sprintf(buffer, "ROM Vers : %2.2X\n", this->header->version);
+    sprintf(buffer, "ROM Vers : %2.2X", this->header->version);
     vec.push_back(std::string(buffer));
     return vec;
 }
