@@ -399,16 +399,6 @@ bool SharpSM83::IT_RETI(){
     return this->IT_RET();
 }
 
-bool SharpSM83::IT_LDH(){
-    if (fetch_info.inst.reg_1 == RT_A) {
-        write_reg(fetch_info.inst.reg_1, this->read(0xFF00 | fetch_info.data));
-    } else {
-        this->write(fetch_info.dest, fetch_info.data);
-    }
-
-    return false;
-}
-
 bool SharpSM83::IT_DI(){
     this->IME = false;
     return false;

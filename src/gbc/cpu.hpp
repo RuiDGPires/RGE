@@ -86,7 +86,6 @@ class SharpSM83{
         bool IT_CB();
         bool IT_CALL();
         bool IT_RETI();
-        bool IT_LDH();
         bool IT_DI();
         bool IT_EI();
         bool IT_RST();
@@ -380,7 +379,7 @@ class SharpSM83{
             {8, "SBC", &a::IT_SBC, &a::AM_R_D8, RT_A},
             {16, "RST", &a::IT_RST, &a::AM_IMP, RT_NONE, RT_NONE, CT_NONE, 0, 0x18},
             
-            {12, "LDH", &a::IT_LDH, &a::AM_A8_R, RT_NONE, RT_A},
+            {12, "LDH", &a::IT_LD, &a::AM_A8_R, RT_NONE, RT_A},
             {12, "POP", &a::IT_POP, &a::AM_R, RT_HL},
             {8, "LD", &a::IT_LD, &a::AM_MR_R, RT_C, RT_A},
             {0, "---", &a::IT_NONE},
@@ -397,7 +396,7 @@ class SharpSM83{
             {8, "XOR", &a::IT_XOR, &a::AM_R_D8, RT_A},
             {16, "RST", &a::IT_RST, &a::AM_IMP, RT_NONE, RT_NONE, CT_NONE, 0, 0x28},
             
-            {12, "LDH", &a::IT_LDH, &a::AM_R_A8, RT_A},
+            {12, "LDH", &a::IT_LD, &a::AM_R_A8, RT_A},
             {12, "POP", &a::IT_POP, &a::AM_R, RT_AF},
             {8, "LD", &a::IT_LD, &a::AM_R_MR, RT_A, RT_C},
             {4, "DI", &a::IT_DI, &a::AM_IMP},
