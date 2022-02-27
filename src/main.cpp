@@ -598,26 +598,49 @@ static bool command_remove_breakpoint(std::vector<std::string> argv){
     return true;
 }
 
-static bool is_hex(std::string s){
-    if (s[0] != '0') return false;
-    if (s[1] != 'x') return false;
-    s.erase(0,2);
+static bool command_print(std::vector<std::string> argv){
+    if (argv.size() != 1) return false;
+    std::string tok = argv[0];
 
-    for (char c : s)
-        if (!((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || (c >= '0' && c <= '9'))) return false;
+    size_t size = tok.size();
+    
+    u32 val;
+    bool is_mem = false;
 
-    return true;
-}
+    if (tok[0] == '('){
+        if (tok[size - 1] != ')') return false;
 
-static bool is_int(std::string s){
-    for (char c : s)
-        if (!(c >= '0' && c <= '9')) return false;
+        is_mem = true;
+        tok.erase(0, 1);
+        tok.pop_back();
+        size -= 2;
+    }
+    
+    SharpSM83::reg_type rt = parse_reg(tok);
 
+    if (rt != SharpSM83::RT_NONE){
+        val = gb.cpu.read_reg(rt);
+    }else{
+        bool is_hex;
+        if (size > 2)
+            if (tok[0] == '0' && tok[1] == 'x'){
+                tok.erase(0, 2);
+                is_hex = true;
+            }
+        if (is_hex)
+            val = stoi(tok, 0, 16);
+        else
+            val = stoi(tok, 0, 10);
+    }
+
+    if (is_mem) val = gb.mem_bus.read((u16) val);
+
+    console << "\n" << hex(val);
     return true;
 }
 
 static void execute_command(std::string command){
-    console << "\n" << GREEN_c << "CMD$" << RESET_c << command;
+    console << "\n" << GREEN_c << "$ " << RESET_c << command;
     std::stringstream stream(command);
 
     std::string cmd;
@@ -653,6 +676,7 @@ static void execute_command(std::string command){
     COMMAND(command_disable_breakpoint, "Disable breakpoint of ID (see list)", "disable")
     COMMAND2(command_quit, "Exits the debugger", "q", "exit")
     COMMAND(command_reset, "Resets the CPU and ROM", "reset")
+    COMMAND2(command_print, "Prints a value to the console", "p", "print")
 
     if (cmd == "h" || cmd == "help"){
         console << hlp;
