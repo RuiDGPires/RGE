@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <fstream>
 
 static std::string writing_mode();
 static void execute_command(std::string);
@@ -34,7 +35,7 @@ static GameBoy gb;
 #define ROW_SIZE 16
 
 #define FIRST_WIDTH 40
-
+#define SECOND_WIDTH 87
 //---------------------------
 // Screen and it's components
 //---------------------------
@@ -43,8 +44,9 @@ Screen screen;
 
 TitledTextBox txt_regs("Registers", 0, 0, FIRST_WIDTH, MAX_ROWS+2), 
               txt_code("Code", 0, MAX_ROWS + 2, FIRST_WIDTH, MAX_ROWS+2), 
-              txt_mem("Memory", FIRST_WIDTH + 1, MAX_ROWS + 2, 87, MAX_ROWS+2),
-              txt_cart("Cartridge", FIRST_WIDTH + 1, 0, 87, MAX_ROWS+2);
+              txt_mem("Memory", FIRST_WIDTH + 1, MAX_ROWS + 2, SECOND_WIDTH, MAX_ROWS+2),
+              txt_cart("Cartridge", FIRST_WIDTH + 1, 0, SECOND_WIDTH/2 + 1, MAX_ROWS+2),
+              txt_conf("Configuration", FIRST_WIDTH + SECOND_WIDTH/2 + 2, 0, SECOND_WIDTH/2, MAX_ROWS+2);
 TextBox txt_result(0, 41, 50, 9);
 ScrollingTextBox console(FIRST_WIDTH+87+2, 0, 40, MAX_ROWS*2+4);
 
@@ -432,10 +434,18 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_DEL);
 
     txt_result.centered = true;
-    screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << footer << console;
+    screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << txt_conf << footer << console;
 
-    if (argc == 3)
+    if (argc == 3){
         conf.parse(argv[2]);
+
+        txt_conf.set_title("Conf (" + std::string(argv[2]) + ")");
+        // Configuration file display
+        std::ifstream fs(argv[2]);
+        for (std::string line; std::getline(fs, line); ){
+            txt_conf << line << NL;
+        }
+    }
 	
     show_info = conf.info;
     
@@ -446,6 +456,8 @@ int main(int argc, char *argv[]){
 
     footer << "Input file: " << argv[1];
     fetch_mem();
+
+
 
     screen.refresh();
     run();
