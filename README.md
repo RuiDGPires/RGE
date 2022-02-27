@@ -5,6 +5,8 @@ Includes a full TUI debugger.
 
 Graphics are not yet implemented but I will be using SDL2 for game graphics and sound.
 
+Check the progress on [tests](testing.md).
+
 # Example
 
 ![Example](images/sample.png)

@@ -6,7 +6,7 @@
 
 tests marked with "(loop)" get stuck in an infinite loop
 
-- [ ] 01-special.gb
+- [x] 01-special.gb
 - [ ] 02-interrupts.gb
 - [ ] 03-op sp, hl.gb (loop) 
 - [x] 04-op r, imm.gb
