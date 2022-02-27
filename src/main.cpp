@@ -559,13 +559,27 @@ static bool command_list(std::vector<std::string> argv){
 
 static bool command_enable_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
-    conf.enable_rule(atoi(argv[0].c_str()));
+
+    if (argv[0] == "-a"){
+        conf.enable_rule(-1);
+        console << "\nAll breakpoints enabled";
+    }else{
+        conf.enable_rule(stoi(argv[0]));
+        console << "\nBreakpoint enabled";
+    }
     return true;
 }
 
 static bool command_disable_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
-    conf.disable_rule(atoi(argv[0].c_str()));
+
+    if (argv[0] == "-a"){
+        conf.disable_rule(-1);
+        console << "\nAll breakpoints disabled";
+    }else{
+        conf.disable_rule(stoi(argv[0]));
+        console << "\nBreakpoint disabled";
+    }
     return true;
 }
 
@@ -593,8 +607,14 @@ static bool command_add_breakpoint(std::vector<std::string> argv){
 
 static bool command_remove_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
-    conf.remove_rule(stoi(argv[0]));
-    console << "\nBreakpoint removed";
+
+    if (argv[0] == "-a"){
+        conf.remove_rule(-1);
+        console << "\nAll breakpoints removed";
+    }else{
+        conf.remove_rule(stoi(argv[0]));
+        console << "\nBreakpoint removed";
+    }
     return true;
 }
 
@@ -672,8 +692,8 @@ static void execute_command(std::string command){
     COMMAND2(command_add_breakpoint, "Add a breakpoint" , "b", "break")
     COMMAND2(command_remove_breakpoint, "Removes a breakpoint", "rm", "remove")
     COMMAND2(command_list, "Lists breakpoints", "l", "list")
-    COMMAND(command_enable_breakpoint, "Enable breakpoint of ID (see list)", "enable")
-    COMMAND(command_disable_breakpoint, "Disable breakpoint of ID (see list)", "disable")
+    COMMAND2(command_enable_breakpoint, "Enable breakpoint of ID (see list)", "enable", "e")
+    COMMAND2(command_disable_breakpoint, "Disable breakpoint of ID (see list)", "disable", "d")
     COMMAND2(command_quit, "Exits the debugger", "q", "exit")
     COMMAND(command_reset, "Resets the CPU and ROM", "reset")
     COMMAND2(command_print, "Prints a value to the console", "p", "print")

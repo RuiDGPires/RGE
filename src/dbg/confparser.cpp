@@ -332,13 +332,24 @@ std::string ConfParser::list_rules(){
 }
 
 void ConfParser::remove_rule(int i){
-    this->rules.erase(rules.begin() + i);
+    if (i == -1) 
+        this->rules.clear();
+    else
+        this->rules.erase(rules.begin() + i);
 }
 
 void ConfParser::enable_rule(int i){
-    this->rules[i].enabled = true;
+    if (i == -1)
+        for (size_t i = 0; i < rules.size(); i++)
+            this->rules[i].enabled = true;
+    else
+        this->rules[i].enabled = true;
 }
 
 void ConfParser::disable_rule(int i){
-    this->rules[i].enabled = false;
+    if (i == -1)
+        for (size_t i = 0; i < rules.size(); i++)
+            this->rules[i].enabled = false;
+    else
+        this->rules[i].enabled = false;
 }
