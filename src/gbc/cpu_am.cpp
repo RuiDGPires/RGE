@@ -28,6 +28,8 @@ void SharpSM83::AM_MR_R(){
 void SharpSM83::AM_R(){
     fetch_info.data = this->read_reg(fetch_info.inst.reg_1);
     fetch_info.dest = fetch_info.inst.reg_1;
+
+    fetch_info.is_16_bit = (fetch_info.inst.reg_1 & 0xFF) && (fetch_info.inst.reg_1 & 0xFF00);
 }
 void SharpSM83::AM_R_A8(){
     fetch_info.data = (this->read(regs[PC]++)) | 0xFF00;
