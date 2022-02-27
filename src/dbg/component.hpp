@@ -47,8 +47,8 @@ class TitledTextBox : public TextBox {
         TitledTextBox(std::string, int x, int y, int w, int h);
         ~TitledTextBox();
 
+        std::vector<std::string> str();
         TitledTextBox &set_title(std::string);
-        TitledTextBox &clear();
 };
 
 class ScrollingTextBox : public Component{

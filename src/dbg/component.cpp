@@ -172,18 +172,7 @@ TextBox &TextBox::clear(){
 }
 
 TitledTextBox::TitledTextBox(std::string title, int x, int y, int w, int h) : TextBox(x, y, w, h){
-        this->title = title;
-
-    std::vector<std::string> v;
-    int spaces = (this->width - 2- title.size())/2;
-    if (spaces < 0) spaces = 0;
-
-    v.push_back(std::string(spaces, ' ') + title + std::string(spaces, ' '));
-    v.push_back(std::string(this->width - 2, '-'));
-    
-    v.insert(v.end(), this->lines.begin(), this->lines.end());
-    this->lines = v;
-    this->current_line = 2;
+    this->set_title(title);
 }
 
 TitledTextBox::~TitledTextBox(){
@@ -192,21 +181,30 @@ TitledTextBox::~TitledTextBox(){
 
 TitledTextBox &TitledTextBox::set_title(std::string title){
     this->title = title;
-    int spaces = (this->width - 2- title.size())/2;
-    if (spaces < 0) spaces = 0;
-
-    this->lines[0] = std::string(spaces, ' ') + title + std::string(spaces, ' ');
-
     return (*this);
 }
 
-TitledTextBox &TitledTextBox::clear(){
-    lines.erase(lines.begin()+2, lines.end());
-    std::vector<std::string> v = std::vector<std::string>(this->height - 4, "");
-    lines.insert(lines.end(), v.begin(), v.end());
+std::vector<std::string> TitledTextBox::str(){
+    std::vector<std::string> ret = TextBox::str();
 
-    this->current_line = 2;
-    return (*this);
+    size_t size = this->title.size();
+    int begin = (this->width - 2 - size)/2;
+
+    int hor_line_size = std::string().size();
+
+    std::string line = "";
+    line += BXD_TOPL;
+    for (int i = 0; i < this->width - 2; i++)
+        if (i >= begin && i < begin+size)
+            line += title[i-begin];
+        else
+            line += BXD_HOR;
+    line += BXD_TOPR;
+
+    for (size_t i = 0; i < size; i++)
+        ret[0] = line; 
+
+    return ret;
 }
 
 ScrollingTextBox::ScrollingTextBox(int x, int y, int width, int height) : Component(x, y, width, height){
