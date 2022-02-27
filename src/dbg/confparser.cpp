@@ -8,7 +8,7 @@
 #define SETTING(tok, s, var){\
     if (tok == s){\
        var = true; \
-        return true; \
+        return; \
     }\
 }
 
@@ -266,12 +266,12 @@ static Rule::operand parse_op(std::string token){
 
 
 #define SETFROMLINE(s, var) SETTING(line, s, var)
-bool ConfParser::parse_line(std::string line){
+void ConfParser::parse_line(std::string line){
     std::string command;
 
-    if (line == "") return false;
+    if (line == "") return;
     if (line[0] == '#') // comment
-        return true;
+        return;
 
     if (line[0] == '$'){ // setting
         line.erase(line.begin());
@@ -286,7 +286,7 @@ bool ConfParser::parse_line(std::string line){
         if (line == "test")
             is_test = true;
         else ASSERT(false, "Invalid decorator: %s\n", line.c_str());
-        return true;
+        return;
     }
 
     std::stringstream line_stream(line);
@@ -317,10 +317,10 @@ bool ConfParser::parse_line(std::string line){
             line_stream >> tok4;
         }while(tok4 == "&&");
         this->rules.push_back(rule);
-        return true;
+        return;
     }
     
-    return false;
+    return;
 }
 
 void ConfParser::parse(const char *file_name){
@@ -374,11 +374,14 @@ std::string ConfParser::list_rules(){
     return ret.str();
 }
 
-bool ConfParser::enable_rule(int i){
-    this->rules[i].enabled = true;
-    return true;
+void ConfParser::remove_rule(int i){
+    this->rules.erase(rules.begin() + i);
 }
-bool ConfParser::disable_rule(int i){
+
+void ConfParser::enable_rule(int i){
+    this->rules[i].enabled = true;
+}
+
+void ConfParser::disable_rule(int i){
     this->rules[i].enabled = false;
-    return true;
 }

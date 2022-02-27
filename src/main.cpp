@@ -539,41 +539,62 @@ _wm_end:
 #define COMMAND(func, help, str) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str) {if (!func(ARGV_)) UNK_CMD; else return;}}
 #define COMMAND2(func, help, str1, str2) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str1 + " | " + str2 + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str1 || CMD_ == str2 ) {if (!func(ARGV_)) UNK_CMD;else return;}}
 
-bool command_quit(std::vector<std::string> argv){
+static bool command_quit(std::vector<std::string> argv){
     if (argv.size() != 0) return false;
     to_exit = true;
     return true;
 }
 
-bool command_clear(std::vector<std::string> argv){
+static bool command_clear(std::vector<std::string> argv){
     if (argv.size() != 0) return false;
     console.clear();
     return true;
 }
 
-bool command_list(std::vector<std::string> argv){
+static bool command_list(std::vector<std::string> argv){
     if (argv.size() != 0) return false;
     console << "\nEnabled Breakpoints:\n" << conf.list_rules();
     return true;
 }
 
-bool command_enable_breakpoint(std::vector<std::string> argv){
+static bool command_enable_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
-    return conf.enable_rule(atoi(argv[0].c_str()));
+    conf.enable_rule(atoi(argv[0].c_str()));
+    return true;
 }
 
-bool command_disable_breakpoint(std::vector<std::string> argv){
+static bool command_disable_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
-    return conf.disable_rule(atoi(argv[0].c_str()));
+    conf.disable_rule(atoi(argv[0].c_str()));
+    return true;
 }
 
-bool command_reset(std::vector<std::string> argv){
+static bool command_reset(std::vector<std::string> argv){
     if (argv.size() != 0) return false;
     gb.cpu.reset();
     gb.cpu.running = true;
     fetch_mem();
 
     console << "\nCPU reseted";
+    return true;
+}
+
+static bool command_add_breakpoint(std::vector<std::string> argv){
+    if (argv.size() == 0) return false;
+    std::string str = "b ";
+    for (std::string s : argv)
+        str += s + " ";
+
+    conf.parse_line(str);
+    
+    console << "\nBreakpoint added";
+    return true;
+}
+
+static bool command_remove_breakpoint(std::vector<std::string> argv){
+    if (argv.size() != 1) return false;
+    conf.remove_rule(stoi(argv[0]));
+    console << "\nBreakpoint removed";
     return true;
 }
 
@@ -597,48 +618,46 @@ static bool is_int(std::string s){
 
 static void execute_command(std::string command){
     console << "\n" << GREEN_c << "CMD$" << RESET_c << command;
-    if (conf.parse_line(command))
+    std::stringstream stream(command);
+
+    std::string cmd;
+
+    std::vector<std::string> argv;
+    stream >> cmd;
+
+    while(1){
+        std::string arg = "";
+        stream >> arg;
+        if (arg == "") break;
+        argv.push_back(arg);
+    }
+
+    if (is_hex(cmd)){
+        cmd.erase(0, 2);
+        mem_page = (stoi(cmd, NULL, 16) / (MAX_ROWS * ROW_SIZE));
         return;
-    else {
-        std::stringstream stream(command);
+    }
 
-        std::string cmd;
+    if (is_int(cmd)){
+        mem_page = (stoi(cmd) / (MAX_ROWS * ROW_SIZE));
+        return;
+    }
 
-        std::vector<std::string> argv;
-        stream >> cmd;
+    std::vector<std::string> hlp;
 
-        while(1){
-            std::string arg = "";
-            stream >> arg;
-            if (arg == "") break;
-            argv.push_back(arg);
-        }
+    COMMAND(command_clear, "Clears the console" , "clear")
+    COMMAND2(command_add_breakpoint, "Add a breakpoint" , "b", "break")
+    COMMAND2(command_remove_breakpoint, "Removes a breakpoint", "rm", "remove")
+    COMMAND2(command_list, "Lists breakpoints", "l", "list")
+    COMMAND(command_enable_breakpoint, "Enable breakpoint of ID (see list)", "enable")
+    COMMAND(command_disable_breakpoint, "Disable breakpoint of ID (see list)", "disable")
+    COMMAND2(command_quit, "Exits the debugger", "q", "exit")
+    COMMAND(command_reset, "Resets the CPU and ROM", "reset")
 
-        if (is_hex(cmd)){
-            cmd.erase(0, 2);
-            mem_page = (stoi(cmd, NULL, 16) / (MAX_ROWS * ROW_SIZE));
-            return;
-        }
+    if (cmd == "h" || cmd == "help"){
+        console << hlp;
+        return;
+    }
 
-        if (is_int(cmd)){
-            mem_page = (stoi(cmd) / (MAX_ROWS * ROW_SIZE));
-            return;
-        }
-
-        std::vector<std::string> hlp;
-
-        COMMAND(command_clear, "Clears the console" , "clear")
-        COMMAND2(command_list, "Lists breakpoints", "l", "list")
-        COMMAND(command_enable_breakpoint, "Enable breakpoint of ID (see list)", "enable")
-        COMMAND(command_disable_breakpoint, "Disable breakpoint of ID (see list)", "disable")
-        COMMAND2(command_quit, "Exits the debugger", "q", "exit")
-        COMMAND(command_reset, "Resets the CPU and ROM", "reset")
-
-        if (cmd == "h" || cmd == "help"){
-            console << hlp;
-            return;
-        }
-
-        UNK_CMD;
-    } 
+    UNK_CMD;
 }

@@ -67,12 +67,13 @@ class ConfParser{
         ConfParser();
         ~ConfParser();
 
-        bool parse_line(std::string);
+        void parse_line(std::string);
         void parse(const char *);
         bool check(GameBoy &gb, bool *test = NULL);
 
-        bool enable_rule(int);
-        bool disable_rule(int);
+        void remove_rule(int);
+        void enable_rule(int);
+        void disable_rule(int);
 
         void print_info();
         std::string list_rules();
