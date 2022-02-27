@@ -1,6 +1,9 @@
 # RGE - Rui's Gameboy Emulator
 
 A Gameboy Color emulator, under development.
+Includes a full TUI debugger.
+
+Graphics are not yet implemented but I will be using SDL2 for game graphics and sound.
 
 # Example
 
