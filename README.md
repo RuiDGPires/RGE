@@ -1,4 +1,4 @@
-# AGE - Another Gameboy Emulator
+# RGE - Rui's Gameboy Emulator
 
 A Gameboy Color emulator, under development.
 
@@ -7,3 +7,5 @@ A Gameboy Color emulator, under development.
 https://github.com/rockytriton/LLD_gbemu
 
 https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
+
+https://gbdev.io/pandocs/
