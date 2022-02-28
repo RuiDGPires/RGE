@@ -9,7 +9,7 @@ Check the progress on [tests](testing.md).
 
 ## Table of contents
 1. [Using](#Using)
-2. [Key controls](#Key controls)
+2. [Key controls](#Key)
 3. [Documentation](#Documentation)
 4. [Screenshots](#Screenshots)
 5. [References](#References)
