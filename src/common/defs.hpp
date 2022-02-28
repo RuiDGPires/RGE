@@ -1,3 +1,7 @@
+/*********************************************//**
+ * \file defs.hpp
+ * \brief General definitions
+ ************************************************/
 #pragma once
 #include <stdint.h>
 

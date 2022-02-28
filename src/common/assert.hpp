@@ -1,3 +1,7 @@
+/*********************************************//**
+ * \file assert.hpp
+ * \brief Assert Macro
+ ************************************************/
 #pragma once
 
 #include <iostream>

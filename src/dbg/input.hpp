@@ -1,15 +1,28 @@
+/*********************************************//**
+ * \file input.hpp
+ * \brief Input system
+ ************************************************/
 #pragma once
 #include <vector>
 
+/**
+ * Describe the function that will be called when key is pressed.
+ * Key needs to be enabled for this to work
+ * \see ENABLE_KEY
+ */
 #define EVENT(key) void ON_##key()
 
+/**
+ * Enable the action of key.
+ * It's event needs to be decribed.
+ * \see EVENT
+ * \see bind_key
+ */
 #define ENABLE_KEY(key) bind_key(key, ON_##key)
 
-enum special_flg{
-    FLG_CTRL = 1 << 31,
-    FLG_SHFT = 1 << 30,
-};
-
+/**
+ * Key codes
+ */
 enum Key{
     K_ARROW_UP = 0,
     K_ARROW_DOWN,
@@ -73,9 +86,30 @@ enum Key{
     K_NONE,
 };
 
+/**
+ * Clears all key events, should be used at the beggining of the main function
+ */
 void setup_events();
+/**
+ * Waits for keyboard input and executes corresponding event, if defined and enabled
+ */
 void wait_input();
+/**
+ * Waits for keyboard input and returns the pressed key
+ * \param non_block If set to true, skips if stdin is empty
+ * \return keycode of the pressed key, K_NONE if stdin was empty and non_block was set
+ */
 Key get_key(bool non_block = false);
-char key_to_ascii(Key);
+/**
+ * if key is a letter, number of symbol, returns it's ascii character code, else, returns 0
+ * \param key
+ * \return ascii character if key is letter, number or symbol, 0 otherwise
+ */
+char key_to_ascii(Key key);
 
+/**
+ * Bind key to corresponding action when pressed.
+ * \param key keycode of key that will execute the function
+ * \param f function that will be executed when key is pressed
+ */
 void bind_key(Key key, void (*f)(void));

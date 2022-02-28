@@ -105,11 +105,6 @@ void Screen::refresh(){
     fflush(stdout);
 }
 
-Screen &Screen::operator<<(std::string s){
-    this->buffer.append(s);
-    return (*this);
-}
-
 Screen &Screen::operator<<(Component &comp){
     this->components.push_back(&comp);
     return (*this);
