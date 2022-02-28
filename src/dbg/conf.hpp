@@ -149,7 +149,7 @@ class Conf{
         bool is_test = false;
     public:
         /**
-         * Saves the NOINFO setting was read
+         * Saves if the NOINFO setting was read
          */
         bool no_info = false;
         /**
@@ -163,12 +163,12 @@ class Conf{
          * \brief Parse a line of configuration
          * \param line line to be parsed
          */
-        void parse_line(std::string);
+        void parse_line(std::string line);
         /**
          * \brief Parse configuration file
          * \param file_name configuration file path
          */
-        void parse(const char *);
+        void parse(const char *file_name);
         /**
          * \brief Check if any breakpoint was reached
          * \param gb Gameboy being emulated
@@ -181,20 +181,20 @@ class Conf{
          * \brief Removes a breakpoint from the list
          * \param id breakpoint id
          */
-        void remove_breakpoint(int);
+        void remove_breakpoint(int id);
         /**
          * If breakpoint is already enabled, does nothing
          * \brief Enable a breakpoint
          * \param id breakpoint id
          */
-        void enable_breakpoint(int);
+        void enable_breakpoint(int id);
         /**
          * Disables a breakpoint, but doesn't remove it.
          * If breakpoint is already disabled, does nothing
          * \brief Disable a breakpoint
          * \param id breakpoint id
          */
-        void disable_breakpoint(int);
+        void disable_breakpoint(int id);
 
         /**
          * \brief List breakpoints
