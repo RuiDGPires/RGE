@@ -1,3 +1,7 @@
+/*********************************************//**
+ * \file confparser.hpp
+ * \brief Configuration parser and breakpoint checker
+ ************************************************/
 #pragma once
 
 #ifndef DEBUG
@@ -9,22 +13,43 @@
 #include "../gbc/cpu.hpp"
 #include "../gbc/gameboy.hpp"
 
-class Rule{
+/*********************************************//**
+ * \brief Base class for breakpoints
+ ************************************************/
+class Breakpoint{
     public:
+        /**
+         * Operand of comparison between values
+         */
         enum operand{
             EQ, GT, LS, LE, GE, NE, NONE,
         };
+
+        /**
+         * Types of values to be compared
+         */
         enum val_type{
             REG,
             MREG,
             NUM,
             ADDR
         };
+
+        /**
+         * Check if breakpoint condition is met
+         */
         virtual bool check(GameBoy &gb) = 0;
+
+        /**
+         * Get string representation of breakpoint 
+         */
         virtual std::string str() = 0;
 };
 
-class SimpleRule : public Rule{
+/*********************************************//**
+ * \brief Base class for rules (breakpoints)
+ ************************************************/
+class SimpleBreakpoint : public Breakpoint{
     private:
         operand op;
         u32 val_a, val_b;
@@ -33,32 +58,32 @@ class SimpleRule : public Rule{
         u16 get_val(GameBoy &gb, u32 val, val_type t);
         
     public:
-        SimpleRule(u32 a, val_type ta, operand op, u32 b, val_type tb);
-        ~SimpleRule();
+        SimpleBreakpoint(u32 a, val_type ta, operand op, u32 b, val_type tb);
+        ~SimpleBreakpoint();
         bool check(GameBoy &gb) override;
         std::string str() override;
 };
 
-class CompositeRule : public Rule{
+class CompositeBreakpoint : public Breakpoint{
     private:
-        std::vector<SimpleRule> rules;
+        std::vector<SimpleBreakpoint> rules;
     public:
         bool enabled = true;
         bool test = false;
-        CompositeRule();
-        CompositeRule(bool test);
-        CompositeRule(SimpleRule r);
-        CompositeRule(std::vector<SimpleRule> v);
-        ~CompositeRule();
-        void append(SimpleRule r);
+        CompositeBreakpoint();
+        CompositeBreakpoint(bool test);
+        CompositeBreakpoint(SimpleBreakpoint r);
+        CompositeBreakpoint(std::vector<SimpleBreakpoint> v);
+        ~CompositeBreakpoint();
+        void append(SimpleBreakpoint r);
         bool check(GameBoy &gb) override;
         std::string str() override;
 };
 
 class ConfParser{
     private:
-        std::vector<CompositeRule> rules;
-        std::pair<u32, Rule::val_type> parse_token(std::string);
+        std::vector<CompositeBreakpoint> rules;
+        std::pair<u32, Breakpoint::val_type> parse_token(std::string);
 
         bool is_test = false;
     public:
@@ -70,10 +95,10 @@ class ConfParser{
         void parse(const char *);
         bool check(GameBoy &gb, bool *test = NULL);
 
-        void remove_rule(int);
-        void enable_rule(int);
-        void disable_rule(int);
+        void remove_breakpoint(int);
+        void enable_breakpoint(int);
+        void disable_breakpoint(int);
 
         void print_info();
-        std::string list_rules();
+        std::string list_breakpoints();
 };

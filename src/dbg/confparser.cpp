@@ -12,7 +12,7 @@
     }\
 }
 
-bool SimpleRule::compare(u16 a, u16 b){
+bool SimpleBreakpoint::compare(u16 a, u16 b){
     switch (this->op){
         case EQ:
             return a == b;
@@ -31,7 +31,7 @@ bool SimpleRule::compare(u16 a, u16 b){
     }
 }
 
-SimpleRule::SimpleRule(u32 a, val_type ta, operand op, u32 b, val_type tb){
+SimpleBreakpoint::SimpleBreakpoint(u32 a, val_type ta, operand op, u32 b, val_type tb){
     this->val_a = a;
     this->val_b = b;
 
@@ -41,11 +41,11 @@ SimpleRule::SimpleRule(u32 a, val_type ta, operand op, u32 b, val_type tb){
     this->op = op;
 }
 
-SimpleRule::~SimpleRule(){
+SimpleBreakpoint::~SimpleBreakpoint(){
 
 }
 
-u16 SimpleRule::get_val(GameBoy &gb, u32 val,  val_type t){
+u16 SimpleBreakpoint::get_val(GameBoy &gb, u32 val,  val_type t){
     switch (t){
         case REG:
             return gb.cpu.read_reg((SharpSM83::reg_type) val);
@@ -60,26 +60,26 @@ u16 SimpleRule::get_val(GameBoy &gb, u32 val,  val_type t){
     }
 }
 
-bool SimpleRule::check(GameBoy &gb){
+bool SimpleBreakpoint::check(GameBoy &gb){
     return this->compare(get_val(gb, val_a, ta), get_val(gb, val_b, tb));
 }
 
-static std::string rule_val_to_str(u32 val, Rule::val_type type){
+static std::string rule_val_to_str(u32 val, Breakpoint::val_type type){
     switch (type){
-        case Rule::REG:
+        case Breakpoint::REG:
             return decode_reg((SharpSM83::reg_type) val);
-        case Rule::MREG:
+        case Breakpoint::MREG:
             return envolve(decode_reg((SharpSM83::reg_type) val));
-        case Rule::NUM:
+        case Breakpoint::NUM:
             return hex(val);
-        case Rule::ADDR:
+        case Breakpoint::ADDR:
             return envolve(hex(val));
         default:
             return "";
     }
 }
 
-std::string SimpleRule::str(){
+std::string SimpleBreakpoint::str(){
     std::string ret = "";
 
     ret += rule_val_to_str(val_a, ta);
@@ -113,39 +113,39 @@ std::string SimpleRule::str(){
     return ret;
 }
 
-CompositeRule::CompositeRule(){
+CompositeBreakpoint::CompositeBreakpoint(){
 
 }
 
-CompositeRule::CompositeRule(bool test){
+CompositeBreakpoint::CompositeBreakpoint(bool test){
     this->test = test;
 }
 
-CompositeRule::CompositeRule(SimpleRule r){
+CompositeBreakpoint::CompositeBreakpoint(SimpleBreakpoint r){
     this->rules.push_back(r);
 }
-CompositeRule::CompositeRule(std::vector<SimpleRule> v){
+CompositeBreakpoint::CompositeBreakpoint(std::vector<SimpleBreakpoint> v){
     this->rules = v;
 }
-CompositeRule::~CompositeRule(){
+CompositeBreakpoint::~CompositeBreakpoint(){
 
 }
 
-void CompositeRule::append(SimpleRule r){
+void CompositeBreakpoint::append(SimpleBreakpoint r){
     this->rules.push_back(r);
 }
 
-bool CompositeRule::check(GameBoy &gb){
+bool CompositeBreakpoint::check(GameBoy &gb){
     if (!enabled) return false;
 
-    for (SimpleRule rule : this->rules)
+    for (SimpleBreakpoint rule : this->rules)
         if (!rule.check(gb))
             return false;
 
     return true;
 }
 
-std::string CompositeRule::str(){
+std::string CompositeBreakpoint::str(){
     size_t size = rules.size();
     std::string ret = "";
 
@@ -165,9 +165,9 @@ ConfParser::~ConfParser(){
 
 }
 
-std::pair<u32, Rule::val_type> ConfParser::parse_token(std::string token){
+std::pair<u32, Breakpoint::val_type> ConfParser::parse_token(std::string token){
     u32 val;
-    Rule::val_type t;
+    Breakpoint::val_type t;
 
     size_t size = token.size();
     bool is_mem = false;
@@ -184,7 +184,7 @@ std::pair<u32, Rule::val_type> ConfParser::parse_token(std::string token){
     SharpSM83::reg_type rt = parse_reg(token);
     if (rt != SharpSM83::RT_NONE){
         val = (u32) rt;
-        t = is_mem ? Rule::MREG: Rule::REG;
+        t = is_mem ? Breakpoint::MREG: Breakpoint::REG;
     }else{
         if (size > 2)
             if (token[0] == '0' && token[1] == 'x'){
@@ -198,27 +198,27 @@ std::pair<u32, Rule::val_type> ConfParser::parse_token(std::string token){
             val = stoi(token, 0, 10);
         }
         
-        t = is_mem ? Rule::ADDR: Rule::NUM;
+        t = is_mem ? Breakpoint::ADDR: Breakpoint::NUM;
     }
 
-    return std::pair<u32, Rule::val_type>(val, t);
+    return std::pair<u32, Breakpoint::val_type>(val, t);
 }
 
-static Rule::operand parse_op(std::string token){
+static Breakpoint::operand parse_op(std::string token){
     if (token == "==")
-        return Rule::EQ;
+        return Breakpoint::EQ;
     else if (token == ">=")
-        return Rule::GE;
+        return Breakpoint::GE;
     else if (token == "<=")
-        return Rule::LE;
+        return Breakpoint::LE;
     else if (token == ">")
-        return Rule::GT;
+        return Breakpoint::GT;
     else if (token == "<")
-        return Rule::LS;
+        return Breakpoint::LS;
     else if (token == "!=")
-        return Rule::NE;
+        return Breakpoint::NE;
 
-    return Rule::NONE;
+    return Breakpoint::NONE;
 }
 
 
@@ -249,7 +249,7 @@ void ConfParser::parse_line(std::string line){
     line_stream >> command;
     if (command == "b" || command == "break"){
         std::string tok1, tok2, tok3, tok4;
-        CompositeRule rule;
+        CompositeBreakpoint rule;
 
         rule.test = is_test;
         is_test = false;
@@ -260,14 +260,14 @@ void ConfParser::parse_line(std::string line){
             line_stream >> tok3;
 
 
-            std::pair<u32, Rule::val_type> a, b;
+            std::pair<u32, Breakpoint::val_type> a, b;
             a = parse_token(tok1);
             b = parse_token(tok3);
 
-            Rule::operand op = parse_op(tok2);
-            ASSERT(op != Rule::NONE, "Invalid operand");
+            Breakpoint::operand op = parse_op(tok2);
+            ASSERT(op != Breakpoint::NONE, "Invalid operand");
              
-            rule.append(SimpleRule(a.first, a.second, op, b.first, b.second));
+            rule.append(SimpleBreakpoint(a.first, a.second, op, b.first, b.second));
 
             tok4 = "";
             line_stream >> tok4;
@@ -311,7 +311,7 @@ void ConfParser::print_info(){
     PRINT_BOOL(no_info);
 }
 
-std::string ConfParser::list_rules(){
+std::string ConfParser::list_breakpoints(){
     std::stringstream ret("");
 
     size_t size = rules.size();
@@ -329,14 +329,14 @@ std::string ConfParser::list_rules(){
     return ret.str();
 }
 
-void ConfParser::remove_rule(int i){
+void ConfParser::remove_breakpoint(int i){
     if (i == -1) 
         this->rules.clear();
     else
         this->rules.erase(rules.begin() + i);
 }
 
-void ConfParser::enable_rule(int i){
+void ConfParser::enable_breakpoint(int i){
     if (i == -1)
         for (size_t i = 0; i < rules.size(); i++)
             this->rules[i].enabled = true;
@@ -344,7 +344,7 @@ void ConfParser::enable_rule(int i){
         this->rules[i].enabled = true;
 }
 
-void ConfParser::disable_rule(int i){
+void ConfParser::disable_breakpoint(int i){
     if (i == -1)
         for (size_t i = 0; i < rules.size(); i++)
             this->rules[i].enabled = false;

@@ -434,7 +434,7 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_DEL);
 
     txt_result.centered = true;
-    console.docking = CDOCK_RIGHT;
+    console.docking = Component::CDOCK_RIGHT;
     screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << txt_conf << footer << console;
 
     if (argc == 3){
@@ -566,7 +566,7 @@ static bool command_clear(std::vector<std::string> argv){
 
 static bool command_list(std::vector<std::string> argv){
     if (argv.size() != 0) return false;
-    console << "\nEnabled Breakpoints:\n" << conf.list_rules();
+    console << "\nEnabled Breakpoints:\n" << conf.list_breakpoints();
     return true;
 }
 
@@ -574,10 +574,10 @@ static bool command_enable_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
 
     if (argv[0] == "-a"){
-        conf.enable_rule(-1);
+        conf.enable_breakpoint(-1);
         console << "\nAll breakpoints enabled";
     }else{
-        conf.enable_rule(stoi(argv[0]));
+        conf.enable_breakpoint(stoi(argv[0]));
         console << "\nBreakpoint enabled";
     }
     return true;
@@ -587,10 +587,10 @@ static bool command_disable_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
 
     if (argv[0] == "-a"){
-        conf.disable_rule(-1);
+        conf.disable_breakpoint(-1);
         console << "\nAll breakpoints disabled";
     }else{
-        conf.disable_rule(stoi(argv[0]));
+        conf.disable_breakpoint(stoi(argv[0]));
         console << "\nBreakpoint disabled";
     }
     return true;
@@ -622,10 +622,10 @@ static bool command_remove_breakpoint(std::vector<std::string> argv){
     if (argv.size() != 1) return false;
 
     if (argv[0] == "-a"){
-        conf.remove_rule(-1);
+        conf.remove_breakpoint(-1);
         console << "\nAll breakpoints removed";
     }else{
-        conf.remove_rule(stoi(argv[0]));
+        conf.remove_breakpoint(stoi(argv[0]));
         console << "\nBreakpoint removed";
     }
     return true;
