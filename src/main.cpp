@@ -434,6 +434,7 @@ int main(int argc, char *argv[]){
     ENABLE_KEY(K_DEL);
 
     txt_result.centered = true;
+    console.docking = CDOCK_RIGHT;
     screen << txt_regs << txt_code << txt_mem << txt_result << txt_cart << txt_conf << footer << console;
 
     if (argc == 3){

@@ -1,3 +1,26 @@
+/*------------------------------------
+ * Components to display tui graphics
+ * To be used in conjunction with screen.hpp
+ * --------------
+ *  Component
+ *   /\   /\
+ *   ||   ||
+ *   ||  TextBox - Empty Box with borders. Lines larger than the width don't break to lower lines
+ *   ||   /\
+ *   ||   ||
+ *   ||  TitledTextBox - A TextBox with title
+ *   |\_____
+ *   | ____ \
+ *   ||    ||
+ *   ||  ScrollingTextBox - A scrolling 
+ *   ||
+ *   Footer
+ */
+/*********************************************//**
+ * \file component.hpp
+ * \brief Component class and it's inheritors description
+ ************************************************/
+
 #pragma once
 
 #include "../common/defs.hpp"
@@ -6,16 +29,75 @@
 #include <vector>
 #include <list>
 
+/*********************************************//**
+ * \def NL
+ * \brief NL is used for Textboxes to now when to break line, standard \n overwrites lower lines
+ ************************************************/
 #define NL 1 
 
+
+/*********************************************//**
+ * \brief Base class for tui graphics on screen
+ ************************************************/
 class Component {
     public:
+        /**
+         * \brief Enum to describe a components docking
+         * TODO 
+         */
+        enum CompDock{
+            CDOCK_NONE,
+            CDOCK_UP,
+            CDOCK_DOWN,
+            CDOCK_RIGHT,
+            CDOCK_LEFT,
+        };
+        /**
+         * Describes the visibility of the component
+         */
         bool visible = true;
+
+        /**
+         * Describes if the component is centered on screen
+         * This overrides the x position on component
+         */
         bool centered = false;
+
+        /**
+         * Describe component's docking 
+         * TODO
+         */
+        CompDock docking = CDOCK_NONE;
+
+        /**
+         * \brief Constructor
+         * \param x The x coordinate of the top left corner of the component
+         * \param y The y coordinate of the top left corner of the component
+         * \param width The width of the component
+         * \param height The height of the component
+         */
         Component(int x, int y, int width, int height);
+        /**
+         * \brief Destructor
+         */
         ~Component();
+
+        /**
+         * Basic properties of the component
+         */
         int x, y, width, height;
+
+        /**
+         * Visual representation of the component, to be called when the screen is refreshed
+         * \return Vector of strings, each element of the vector is a line on screen
+         *
+         * \brief Visual Representation
+         */
         virtual std::vector<std::string> str() = 0;
+
+        /**
+         * \brief Toggle visibility
+         */
         void toggle_visible();
 
 };

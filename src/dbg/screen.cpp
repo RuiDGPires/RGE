@@ -86,6 +86,9 @@ void Screen::refresh(){
         else
             x = components[i]->x;
 
+        if (components[i]->docking == CDOCK_RIGHT)
+            components[i]->width = term_w - components[i]->x; 
+
         int y = components[i]->y;
 
         std::vector<std::string> lines = components[i]->str();
