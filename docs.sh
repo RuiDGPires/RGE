@@ -1,3 +1,3 @@
 #!/bin/sh
 
-firefox docs/html/index.html &
+firefox doc/html/index.html &
