@@ -121,24 +121,18 @@ CompositeBreakpoint::CompositeBreakpoint(bool test){
     this->test = test;
 }
 
-CompositeBreakpoint::CompositeBreakpoint(SimpleBreakpoint r){
-    this->rules.push_back(r);
-}
-CompositeBreakpoint::CompositeBreakpoint(std::vector<SimpleBreakpoint> v){
-    this->rules = v;
-}
 CompositeBreakpoint::~CompositeBreakpoint(){
 
 }
 
 void CompositeBreakpoint::append(SimpleBreakpoint r){
-    this->rules.push_back(r);
+    this->breakpoints.push_back(r);
 }
 
 bool CompositeBreakpoint::check(GameBoy &gb){
     if (!enabled) return false;
 
-    for (SimpleBreakpoint rule : this->rules)
+    for (SimpleBreakpoint rule : this->breakpoints)
         if (!rule.check(gb))
             return false;
 
@@ -146,11 +140,11 @@ bool CompositeBreakpoint::check(GameBoy &gb){
 }
 
 std::string CompositeBreakpoint::str(){
-    size_t size = rules.size();
+    size_t size = breakpoints.size();
     std::string ret = "";
 
     for (size_t i = 0; i < size; i++){
-        ret += rules[i].str();
+        ret += breakpoints[i].str();
         if (i < size - 1) ret += " && ";
     }
 
@@ -272,7 +266,7 @@ void ConfParser::parse_line(std::string line){
             tok4 = "";
             line_stream >> tok4;
         }while(tok4 == "&&");
-        this->rules.push_back(rule);
+        this->breakpoints.push_back(rule);
         return;
     }
     
@@ -292,11 +286,11 @@ bool ConfParser::check(GameBoy &gb, bool *test){
     if (test != NULL)
         *test = false;
 
-    size_t size = rules.size();
+    size_t size = breakpoints.size();
 
     for (size_t i = 0; i < size; i++){
-        if (rules[i].check(gb)){
-            if (rules[i].test && test != NULL)
+        if (breakpoints[i].check(gb)){
+            if (breakpoints[i].test && test != NULL)
                 *test = true;
             return true;
         }
@@ -314,14 +308,14 @@ void ConfParser::print_info(){
 std::string ConfParser::list_breakpoints(){
     std::stringstream ret("");
 
-    size_t size = rules.size();
+    size_t size = breakpoints.size();
     for (size_t i = 0; i < size; i++){
         ret << '[' << i << "] ";
 
-        if (rules[i].enabled)
-            ret << rules[i].str();
+        if (breakpoints[i].enabled)
+            ret << breakpoints[i].str();
         else
-            ret << (char) GRAY_c << rules[i].str() << (char) RESET_c;
+            ret << (char) GRAY_c << breakpoints[i].str() << (char) RESET_c;
 
         if (i < size - 1) ret << '\n';
     }
@@ -331,23 +325,23 @@ std::string ConfParser::list_breakpoints(){
 
 void ConfParser::remove_breakpoint(int i){
     if (i == -1) 
-        this->rules.clear();
+        this->breakpoints.clear();
     else
-        this->rules.erase(rules.begin() + i);
+        this->breakpoints.erase(breakpoints.begin() + i);
 }
 
 void ConfParser::enable_breakpoint(int i){
     if (i == -1)
-        for (size_t i = 0; i < rules.size(); i++)
-            this->rules[i].enabled = true;
+        for (size_t i = 0; i < breakpoints.size(); i++)
+            this->breakpoints[i].enabled = true;
     else
-        this->rules[i].enabled = true;
+        this->breakpoints[i].enabled = true;
 }
 
 void ConfParser::disable_breakpoint(int i){
     if (i == -1)
-        for (size_t i = 0; i < rules.size(); i++)
-            this->rules[i].enabled = false;
+        for (size_t i = 0; i < breakpoints.size(); i++)
+            this->breakpoints[i].enabled = false;
     else
-        this->rules[i].enabled = false;
+        this->breakpoints[i].enabled = false;
 }
