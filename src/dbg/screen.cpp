@@ -74,7 +74,6 @@ void Screen::update_term_size(){
     this->refresh();
 }
 
-// \e[2K\r\e[1A (delete line; move cursor to the start of the line; move cursor up one line).
 void Screen::refresh(){
     std::cout << "\033[2J"; // Clear screen
     for (int i = 0; i < components.size(); i++){
