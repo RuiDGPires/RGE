@@ -35,7 +35,7 @@ Find a ROM and run it with
 | :--: | :-- |
 | CTRL+X    | Close the program |
 | SPACEBAR  | Perform one step on the CPU |
-| N         | Perform one step on the CPU and jump over CALLS |
+| N         | Perform one step on the CPU and jump over CALL |
 | CTRL+R    | Refresh the code representation from memory |
 | :         | Enter command entering mode / ESC to exit |
 | ARROW_UP  | Go back  one memory page on the display |
