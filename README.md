@@ -7,6 +7,13 @@ Graphics are not yet implemented but I will be using SDL2 for game graphics and 
 
 Check the progress on [tests](testing.md).
 
+## Table of contents
+1. [Using](#Using)
+2. [Key controls](#Key controls)
+3. [Documentation](#Documentation)
+4. [Screenshots](#Screenshots)
+5. [Other references](#Other references)
+
 ## Using
 
 Only tested in a Linux system with the terminal emulator Konsole.
@@ -22,7 +29,7 @@ Find a ROM and run it with
 ./gameboy PATH_TO_ROM
 ```
 
-### Key controls
+## Key controls
 
 | Keys | Behaviour |
 | :--: | :-- |
@@ -53,7 +60,11 @@ Then, open doc/html/index.html with your prefered internet browser.
 
 ![Example](images/sample.png)
 
-## Other references
+## References
+
+(reference/F14_GameboyColor.pdf)
+(reference/Game Box Programming Manual.pdf)
+(gbctr.pdf)
 
 https://github.com/rockytriton/LLD_gbemu
 
