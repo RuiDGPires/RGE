@@ -63,7 +63,9 @@ Then, open doc/html/index.html with your prefered internet browser.
 ## References
 
 [F14_GameboyColor.pdf](reference/F14_GameboyColor.pdf)
+
 [Game Boy Programming Manual.pdf](reference/Game_Boy_Programming_Manual.pdf)
+
 [gbctr.pdf](gbctr.pdf)
 
 https://github.com/rockytriton/LLD_gbemu
