@@ -1,5 +1,5 @@
 cpu_instrs/**
-docs/**
+doc/**
 gameboy
 roms/*
 *.txt

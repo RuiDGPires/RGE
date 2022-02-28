@@ -11,7 +11,7 @@ $(TARGET): $(C_FILES) $(H_FILES)
 clean:
 	rm $(TARGET)
 
-docs: $(C_FILES) $(H_FILES)
+doc: $(C_FILES) $(H_FILES)
 	doxygen doxygen.conf
 
 run: $(TARGET)
