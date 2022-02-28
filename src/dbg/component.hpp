@@ -1,22 +1,6 @@
-/*------------------------------------
+/*********************************************//**
  * Components to display tui graphics
  * To be used in conjunction with screen.hpp
- * --------------
- *  Component
- *   /\   /\
- *   ||   ||
- *   ||  TextBox - Empty Box with borders. Lines larger than the width don't break to lower lines
- *   ||   /\
- *   ||   ||
- *   ||  TitledTextBox - A TextBox with title
- *   |\_____
- *   | ____ \
- *   ||    ||
- *   ||  ScrollingTextBox - A scrolling 
- *   ||
- *   Footer
- */
-/*********************************************//**
  * \file component.hpp
  * \brief Component class and it's inheritors description
  ************************************************/
@@ -31,7 +15,7 @@
 
 /*********************************************//**
  * \def NL
- * \brief NL is used for Textboxes to now when to break line, standard \n overwrites lower lines
+ * \brief Used for Textboxes to now when to break line, standard '\\n' overwrites lower lines
  ************************************************/
 #define NL 1 
 
@@ -43,7 +27,7 @@ class Component {
     public:
         /**
          * \brief Enum to describe a components docking
-         * TODO 
+         * \todo implement docking 
          */
         enum CompDock{
             CDOCK_NONE,
@@ -65,7 +49,6 @@ class Component {
 
         /**
          * Describe component's docking 
-         * TODO
          */
         CompDock docking = CDOCK_NONE;
 
@@ -88,7 +71,7 @@ class Component {
         int x, y, width, height;
 
         /**
-         * Visual representation of the component, to be called when the screen is refreshed
+         * Called when the screen is refreshed
          * \return Vector of strings, each element of the vector is a line on screen
          *
          * \brief Visual Representation
@@ -102,30 +85,79 @@ class Component {
 
 };
 
+/*********************************************//**
+ * \brief Box with text and border
+ ************************************************/
 class TextBox : public Component{
     protected:
+        /**
+         * Vector of lines to be printed
+         */
         std::vector<std::string> lines;
-        int current_line, p; // Used for text input
+        /**
+         * Used to overwrite lines
+         */
+        int current_line, p; 
     public:
+        /**
+         * \brief Constructor
+         * \see Component
+         */
         TextBox(int x, int y, int width, int height);
+        /**
+         * \brief Deconstructor
+         */
         ~TextBox();
 
         std::vector<std::string> str() override;
+
+        /**
+         * Joins a string to the current working line, any '\\n' character will overwrite the line below. To move to a line under without overwriting, use NL
+         * \see NL
+         */
         TextBox &operator<<(std::string);
+        /**
+         * Appends a whole vector of lines
+         * \see operator<<(std::string)
+         */
         TextBox &operator<<(std::vector<std::string>);
+        /**
+         * \see operator<<(std::string)
+         */
         TextBox &operator<<(const char *);
+        /**
+         * Append a character to the current working line
+         * \see operator<<(std::string)
+         */
         TextBox &operator<<(const char);
+        /**
+         * Append a color code to the line. Use this instead of ansi color codes
+         * \see operator<<(const char)
+         */
         TextBox &operator<<(color_c);
+        /**
+         * Access a line
+         */
         std::string &operator[](int);
 
+        /**
+         * Clears all text from textbox, resets the working line
+         */
         TextBox &clear();
 };
 
+/*********************************************//**
+ * \brief Textbox with title
+ ************************************************/
 class TitledTextBox : public TextBox {
     protected:
         std::string title;
 
     public:
+        /**
+         * \brief Constructor
+         * \see TextBox
+         */
         TitledTextBox(std::string, int x, int y, int w, int h);
         ~TitledTextBox();
 
@@ -135,31 +167,84 @@ class TitledTextBox : public TextBox {
 
 class ScrollingTextBox : public Component{
     protected:
+        /**
+         * Vector of lines to be printed
+         */
         std::list<std::string> lines;
     public:
+        /**
+         * \brief Constructor
+         * \see Component
+         */
         ScrollingTextBox(int x, int y, int width, int height);
+        /**
+         * \brief Destructor
+         */
         ~ScrollingTextBox();
 
+        /**
+         * Joins a string to the current working line, to print a new line, start it with '\\n'
+         */
         ScrollingTextBox &operator<<(std::string);
+        /**
+         * Appends a whole vector of lines
+         * \see operator<<(std::string)
+         */
         ScrollingTextBox &operator<<(std::vector<std::string>);
+        /**
+         * \see operator<<(std::string)
+         */
         ScrollingTextBox &operator<<(const char *);
+        /**
+         * Append a character to the current working line
+         * \see operator<<(std::string)
+         */
         ScrollingTextBox &operator<<(const char);
+        /**
+         * Append a color code to the line. Use this instead of ansi color codes
+         * \see operator<<(const char)
+         */
         ScrollingTextBox &operator<<(color_c);
 
         std::vector<std::string> str() override;
+
+        /**
+         * Clears all text.
+         */
         ScrollingTextBox &clear();
 };
 
 class Footer : public Component{
     protected:
+        /**
+         * Text to be printed
+         */
         std::string buffer;
     public:
+        /**
+         * y is fixed to the lowest line on screen. Height is fixed to 1
+         * \brief Constructor
+         * \see Component
+         */
         Footer(int x, int width);
         ~Footer();
 
         std::vector<std::string> str() override;
+        /**
+         * Joins a string to the footer. '\\n' are not recomended
+         */
         Footer &operator<<(std::string);
+        /**
+         * \see operator<<(std::string)
+         */
         Footer &operator<<(const char *);
+        /**
+         * Appends a character to the footer string
+         * \see operator<<(std::string)
+         */
         Footer &operator<<(const char);
+        /**
+         * Clears the text
+         */
         Footer &clear();
 };
