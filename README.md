@@ -12,7 +12,7 @@ Check the progress on [tests](testing.md).
 2. [Key controls](#Key controls)
 3. [Documentation](#Documentation)
 4. [Screenshots](#Screenshots)
-5. [Other references](#Other references)
+5. [References](#References)
 
 ## Using
 
