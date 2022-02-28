@@ -1,5 +1,5 @@
 /*********************************************//**
- * \file confparser.hpp
+ * \file conf.hpp
  * \brief Configuration parser and breakpoint checker
  ************************************************/
 #pragma once
@@ -128,7 +128,7 @@ class CompositeBreakpoint : public Breakpoint{
         std::string str() override;
 };
 
-class ConfParser{
+class Conf{
     private:
         /**
          * \brief Breakpoint vector
@@ -148,18 +148,58 @@ class ConfParser{
          */
         bool is_test = false;
     public:
+        /**
+         * Saves the NOINFO setting was read
+         */
         bool no_info = false;
-        ConfParser();
-        ~ConfParser();
+        /**
+         * \brief Constructor
+         */
+        Conf();
+        ~Conf();
 
+        /**
+         * May add a new breakpoint
+         * \brief Parse a line of configuration
+         * \param line line to be parsed
+         */
         void parse_line(std::string);
+        /**
+         * \brief Parse configuration file
+         * \param file_name configuration file path
+         */
         void parse(const char *);
+        /**
+         * \brief Check if any breakpoint was reached
+         * \param gb Gameboy being emulated
+         * \param test Set to true if any test breakpoint was reached. Nothing is done if passed value is NULL
+         * \return return if a breakpoint was reached
+         */
         bool check(GameBoy &gb, bool *test = NULL);
 
+        /**
+         * \brief Removes a breakpoint from the list
+         * \param id breakpoint id
+         */
         void remove_breakpoint(int);
+        /**
+         * If breakpoint is already enabled, does nothing
+         * \brief Enable a breakpoint
+         * \param id breakpoint id
+         */
         void enable_breakpoint(int);
+        /**
+         * Disables a breakpoint, but doesn't remove it.
+         * If breakpoint is already disabled, does nothing
+         * \brief Disable a breakpoint
+         * \param id breakpoint id
+         */
         void disable_breakpoint(int);
 
-        void print_info();
+        /**
+         * \brief List breakpoints
+         * \return String with all breakpoints separated by '\\n' and color coded using the color_c codes
+         * \see color_c
+         */
         std::string list_breakpoints();
 };

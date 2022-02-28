@@ -1,4 +1,4 @@
-#include "confparser.hpp"
+#include "conf.hpp"
 #include "disassembly.hpp"
 #include "../common/assert.hpp"
 #include <fstream>
@@ -151,15 +151,15 @@ std::string CompositeBreakpoint::str(){
     return ret;
 }
 
-ConfParser::ConfParser(){
+Conf::Conf(){
 
 }
 
-ConfParser::~ConfParser(){
+Conf::~Conf(){
 
 }
 
-std::pair<u32, Breakpoint::val_type> ConfParser::parse_token(std::string token){
+std::pair<u32, Breakpoint::val_type> Conf::parse_token(std::string token){
     u32 val;
     Breakpoint::val_type t;
 
@@ -217,7 +217,7 @@ static Breakpoint::operand parse_op(std::string token){
 
 
 #define SETFROMLINE(s, var) SETTING(line, s, var)
-void ConfParser::parse_line(std::string line){
+void Conf::parse_line(std::string line){
     std::string command;
 
     if (line == "") return;
@@ -273,7 +273,7 @@ void ConfParser::parse_line(std::string line){
     return;
 }
 
-void ConfParser::parse(const char *file_name){
+void Conf::parse(const char *file_name){
     std::ifstream file(file_name);
 
     ASSERT(file, "Unable to open file: %s\n", file_name);
@@ -282,7 +282,7 @@ void ConfParser::parse(const char *file_name){
         parse_line(line);
 }
 
-bool ConfParser::check(GameBoy &gb, bool *test){
+bool Conf::check(GameBoy &gb, bool *test){
     if (test != NULL)
         *test = false;
 
@@ -299,13 +299,7 @@ bool ConfParser::check(GameBoy &gb, bool *test){
     return false;
 }
 
-#define PRINT_BOOL(var) printf("%s: %s\n", #var, var? "True": "False")
-
-void ConfParser::print_info(){
-    PRINT_BOOL(no_info);
-}
-
-std::string ConfParser::list_breakpoints(){
+std::string Conf::list_breakpoints(){
     std::stringstream ret("");
 
     size_t size = breakpoints.size();
@@ -323,14 +317,14 @@ std::string ConfParser::list_breakpoints(){
     return ret.str();
 }
 
-void ConfParser::remove_breakpoint(int i){
+void Conf::remove_breakpoint(int i){
     if (i == -1) 
         this->breakpoints.clear();
     else
         this->breakpoints.erase(breakpoints.begin() + i);
 }
 
-void ConfParser::enable_breakpoint(int i){
+void Conf::enable_breakpoint(int i){
     if (i == -1)
         for (size_t i = 0; i < breakpoints.size(); i++)
             this->breakpoints[i].enabled = true;
@@ -338,7 +332,7 @@ void ConfParser::enable_breakpoint(int i){
         this->breakpoints[i].enabled = true;
 }
 
-void ConfParser::disable_breakpoint(int i){
+void Conf::disable_breakpoint(int i){
     if (i == -1)
         for (size_t i = 0; i < breakpoints.size(); i++)
             this->breakpoints[i].enabled = false;

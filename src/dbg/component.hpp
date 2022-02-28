@@ -166,7 +166,7 @@ class TitledTextBox : public TextBox {
 };
 
 class ScrollingTextBox : public Component{
-    protected:
+        protected:
         /**
          * Vector of lines to be printed
          */

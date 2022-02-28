@@ -8,6 +8,12 @@
 #define RESET_STR "\e[0m"
 #define GRAY_STR "\e[1;90m"
 
+/**
+ * This codes are to be used when printing information on Components
+ * \todo Move this to the debug folder only
+ * \brief Color codes
+ * \see Component
+ */
 enum color_c {
     INIT_c = 1,
     BLUE_c,

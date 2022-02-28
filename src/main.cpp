@@ -7,7 +7,7 @@
 #include "gbc/cpu.hpp"
 #include "gbc/gameboy.hpp"
 #include "dbg/screen.hpp"
-#include "dbg/confparser.hpp"
+#include "dbg/conf.hpp"
 #include "dbg/input.hpp"
 #include "dbg/disassembly.hpp"
 
@@ -24,7 +24,7 @@ static std::vector<std::string> rom_str;
 static std::vector<u32> str_map;
 
 static std::string test_msg = "";
-static ConfParser conf;
+static Conf conf;
 
 static bool changed = false;
 
