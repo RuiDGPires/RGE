@@ -5,4 +5,4 @@ roms/*
 *.bmp
 sdl/**
 test.sh
-*.conf
+test.conf
