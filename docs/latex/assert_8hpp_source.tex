@@ -1,0 +1,19 @@
+\hypertarget{assert_8hpp_source}{}\doxysection{assert.\+hpp}
+\label{assert_8hpp_source}\index{src/common/assert.hpp@{src/common/assert.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 }
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <iostream>}}
+\DoxyCodeLine{4 }
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#define ASSERT(expr, ...) \(\backslash\)}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{    do\{\(\backslash\)}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{        if (!(expr))\{\(\backslash\)}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{            fflush(stdout);\(\backslash\)}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{            fprintf(stderr, "{}Fatal Error: "{}});\(\backslash\)}
+\DoxyCodeLine{10             fprintf(stderr, \_\_VA\_ARGS\_\_);\(\backslash\)}
+\DoxyCodeLine{11             exit(1);\(\backslash\)}
+\DoxyCodeLine{12         \}\(\backslash\)}
+\DoxyCodeLine{13     \}while(0)}
+
+\end{DoxyCode}

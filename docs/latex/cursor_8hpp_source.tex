@@ -1,0 +1,23 @@
+\hypertarget{cursor_8hpp_source}{}\doxysection{cursor.\+hpp}
+\label{cursor_8hpp_source}\index{src/dbg/cursor.hpp@{src/dbg/cursor.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 }
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{4 }
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#define CURSOR\_UP "{}\(\backslash\)033[1A"{}}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#define CURSOR\_DOWN "{}\(\backslash\)033[1B"{}}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define CURSOR\_RIGHT "{}\(\backslash\)033[1C"{}}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#define CURSOR\_LEFT "{}\(\backslash\)033[1D"{}}}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 }
+\DoxyCodeLine{11 std::string cursor\_pos\_str(\textcolor{keywordtype}{int} x, \textcolor{keywordtype}{int} y);}
+\DoxyCodeLine{12 }
+\DoxyCodeLine{13 \textcolor{keywordtype}{void} cursor\_up(\textcolor{keywordtype}{int} n = 1);}
+\DoxyCodeLine{14 \textcolor{keywordtype}{void} cursor\_down(\textcolor{keywordtype}{int} n = 1);}
+\DoxyCodeLine{15 \textcolor{keywordtype}{void} cursor\_left(\textcolor{keywordtype}{int} n = 1);}
+\DoxyCodeLine{16 \textcolor{keywordtype}{void} cursor\_right(\textcolor{keywordtype}{int} n = 1);}
+\DoxyCodeLine{17 \textcolor{keywordtype}{void} cursor\_pos(\textcolor{keywordtype}{int} x, \textcolor{keywordtype}{int} y);}
+
+\end{DoxyCode}

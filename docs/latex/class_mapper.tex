@@ -1,0 +1,44 @@
+\hypertarget{class_mapper}{}\doxysection{Mapper Class Reference}
+\label{class_mapper}\index{Mapper@{Mapper}}
+Inheritance diagram for Mapper\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_mapper}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_mapper_aec569e8f5711cb225bf65d65f138ad4c}\label{class_mapper_aec569e8f5711cb225bf65d65f138ad4c}} 
+virtual bool {\bfseries map\+\_\+read} (u16 addr, u32 $\ast$new\+\_\+addr, bool $\ast$rom)=0
+\item 
+\mbox{\Hypertarget{class_mapper_a9ca6c1989e1a3405abd4e7ab67c64e19}\label{class_mapper_a9ca6c1989e1a3405abd4e7ab67c64e19}} 
+virtual bool {\bfseries map\+\_\+write} (u16 addr, u32 $\ast$new\+\_\+addr, u8 val, bool $\ast$rom)=0
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_mapper_a6011ce53e8b234e1f9a5d56376d4f0bb}\label{class_mapper_a6011ce53e8b234e1f9a5d56376d4f0bb}} 
+bool {\bfseries ram\+\_\+enabled} = false
+\item 
+\mbox{\Hypertarget{class_mapper_a43a54cb6a3e645fafefd0d8af21f4333}\label{class_mapper_a43a54cb6a3e645fafefd0d8af21f4333}} 
+u8 {\bfseries banking\+\_\+mode}
+\item 
+\mbox{\Hypertarget{class_mapper_a82d53952e901ffcdd4ad949768a02432}\label{class_mapper_a82d53952e901ffcdd4ad949768a02432}} 
+u8 {\bfseries rom\+\_\+bank\+\_\+val}
+\item 
+\mbox{\Hypertarget{class_mapper_a084ff8573bdd4ef804d560fba7d29718}\label{class_mapper_a084ff8573bdd4ef804d560fba7d29718}} 
+u8 {\bfseries ram\+\_\+bank\+\_\+val}
+\item 
+\mbox{\Hypertarget{class_mapper_ac53b59384f91df7c21eed251251ddf9d}\label{class_mapper_ac53b59384f91df7c21eed251251ddf9d}} 
+u8 {\bfseries rom\+\_\+bank}
+\item 
+\mbox{\Hypertarget{class_mapper_ae8f2a6e96f7630230c69007d27aacbc5}\label{class_mapper_ae8f2a6e96f7630230c69007d27aacbc5}} 
+u8 {\bfseries ram\+\_\+bank}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/gbc/mappers/classes.\+hpp\item 
+src/gbc/mappers/classes.\+cpp\end{DoxyCompactItemize}

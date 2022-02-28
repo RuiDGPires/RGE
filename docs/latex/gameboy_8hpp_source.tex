@@ -1,0 +1,31 @@
+\hypertarget{gameboy_8hpp_source}{}\doxysection{gameboy.\+hpp}
+\label{gameboy_8hpp_source}\index{src/gbc/gameboy.hpp@{src/gbc/gameboy.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 }
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include "{}bus.hpp"{}}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include "{}cpu.hpp"{}}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{keyword}{class }\mbox{\hyperlink{class_game_boy}{GameBoy}}\{}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#ifndef DEBUG}}
+\DoxyCodeLine{8     \textcolor{keyword}{private}:}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{10     \textcolor{keyword}{public}:}
+\DoxyCodeLine{11 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{12         \mbox{\hyperlink{class_sharp_s_m83}{SharpSM83}} cpu;}
+\DoxyCodeLine{13         \mbox{\hyperlink{class_bus}{Bus}} mem\_bus;}
+\DoxyCodeLine{14         \mbox{\hyperlink{class_cartridge}{Cartridge}} *slot = NULL;}
+\DoxyCodeLine{15 }
+\DoxyCodeLine{16     \textcolor{keyword}{public}:}
+\DoxyCodeLine{17         \mbox{\hyperlink{class_game_boy}{GameBoy}}();}
+\DoxyCodeLine{18         \mbox{\hyperlink{class_game_boy}{\string~GameBoy}}();}
+\DoxyCodeLine{19 }
+\DoxyCodeLine{20         \textcolor{keywordtype}{void} load\_rom(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *);}
+\DoxyCodeLine{21         \textcolor{keywordtype}{void} turn\_on();}
+\DoxyCodeLine{22         \textcolor{keywordtype}{void} turn\_off();}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24         \textcolor{keywordtype}{void} print\_cartridge\_info();}
+\DoxyCodeLine{25 \};}
+
+\end{DoxyCode}

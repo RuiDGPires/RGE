@@ -1,0 +1,61 @@
+\hypertarget{mem__map_8hpp_source}{}\doxysection{mem\+\_\+map.\+hpp}
+\label{mem__map_8hpp_source}\index{src/gbc/mem\_map.hpp@{src/gbc/mem\_map.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include "{}../common/defs.hpp"{}}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{comment}{// 0000 3FFF    16 KiB ROM bank 00  From cartridge, usually a fixed bank}}
+\DoxyCodeLine{5 \textcolor{comment}{// 4000 7FFF    16 KiB ROM Bank 01\string~NN   From cartridge, switchable bank via mapper (if any)}}
+\DoxyCodeLine{6 \textcolor{comment}{// 8000 9FFF    8 KiB Video RAM (VRAM)  In CGB mode, switchable bank 0/1}}
+\DoxyCodeLine{7 \textcolor{comment}{// A000 BFFF    8 KiB External RAM  From cartridge, switchable bank if any}}
+\DoxyCodeLine{8 \textcolor{comment}{// C000 CFFF    4 KiB Work RAM (WRAM)   }}
+\DoxyCodeLine{9 \textcolor{comment}{// D000 DFFF    4 KiB Work RAM (WRAM)   In CGB mode, switchable bank 1\string~7}}
+\DoxyCodeLine{10 \textcolor{comment}{// E000 FDFF    Mirror of C000\string~DDFF (ECHO RAM)  Nintendo says use of this area is prohibited.}}
+\DoxyCodeLine{11 \textcolor{comment}{// FE00 FE9F    Sprite attribute table (OAM)    }}
+\DoxyCodeLine{12 \textcolor{comment}{// FEA0 FEFF    Not Usable  Nintendo says use of this area is prohibited}}
+\DoxyCodeLine{13 \textcolor{comment}{// FF00 FF7F    I/O Registers   }}
+\DoxyCodeLine{14 \textcolor{comment}{// FF80 FFFE    High RAM (HRAM) }}
+\DoxyCodeLine{15 \textcolor{comment}{// FFFF FFFF    Interrupt Enable register (IE)  }}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17 \textcolor{preprocessor}{\#define ROM0\_BEGIN 0x0000   }}
+\DoxyCodeLine{18 \textcolor{preprocessor}{\#define ROM0\_END 0x3FFF}}
+\DoxyCodeLine{19 }
+\DoxyCodeLine{20 \textcolor{preprocessor}{\#define ROM1\_BEGIN 0x4000}}
+\DoxyCodeLine{21 \textcolor{preprocessor}{\#define ROM1\_END 0x7FFF}}
+\DoxyCodeLine{22 }
+\DoxyCodeLine{23 \textcolor{preprocessor}{\#define VRA\_BEGIN 0x8000}}
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#define VRA\_END 0x9FFF}}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 \textcolor{preprocessor}{\#define SRA\_BEGIN 0xA000}}
+\DoxyCodeLine{27 \textcolor{preprocessor}{\#define SRA\_END 0xBFFF}}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29 \textcolor{preprocessor}{\#define WRA0\_BEGIN 0xC000}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{\#define WRA0\_END 0xCFFF}}
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32 \textcolor{preprocessor}{\#define WRA1\_BEGIN 0xD000}}
+\DoxyCodeLine{33 \textcolor{preprocessor}{\#define WRA1\_END 0xDFFF}}
+\DoxyCodeLine{34 }
+\DoxyCodeLine{35 \textcolor{preprocessor}{\#define ECH\_BEGIN 0xE000}}
+\DoxyCodeLine{36 \textcolor{preprocessor}{\#define ECH\_END 0xFDFF}}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38 \textcolor{preprocessor}{\#define OAM\_BEGIN 0xFE00}}
+\DoxyCodeLine{39 \textcolor{preprocessor}{\#define OAM\_END 0xFE9F}}
+\DoxyCodeLine{40 }
+\DoxyCodeLine{41 \textcolor{preprocessor}{\#define IO\_BEGIN 0xFF00}}
+\DoxyCodeLine{42 \textcolor{preprocessor}{\#define IO\_END 0xFF7F}}
+\DoxyCodeLine{43 }
+\DoxyCodeLine{44 \textcolor{preprocessor}{\#define HRA\_BEGIN 0xFF80}}
+\DoxyCodeLine{45 \textcolor{preprocessor}{\#define HRA\_END 0xFFFE}}
+\DoxyCodeLine{46 }
+\DoxyCodeLine{47 \textcolor{preprocessor}{\#define IE\_BEGIN 0xFFFF}}
+\DoxyCodeLine{48 \textcolor{preprocessor}{\#define IE\_END 0xFFFF}}
+\DoxyCodeLine{49 }
+\DoxyCodeLine{50 \textcolor{preprocessor}{\#define WRA0\_SIZE WRA0\_END -\/ WRA0\_BEGIN + 1}}
+\DoxyCodeLine{51 \textcolor{preprocessor}{\#define WRA1\_SIZE WRA1\_END -\/ WRA1\_BEGIN + 1}}
+\DoxyCodeLine{52 \textcolor{preprocessor}{\#define HRA\_SIZE HRA\_END -\/ HRA\_BEGIN + 1}}
+\DoxyCodeLine{53 \textcolor{preprocessor}{\#define IO\_SIZE IO\_END -\/ IO\_BEGIN + 1}}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55 \textcolor{keyword}{const} \textcolor{keywordtype}{char} *get\_mem\_name(u16 addr);}
+
+\end{DoxyCode}

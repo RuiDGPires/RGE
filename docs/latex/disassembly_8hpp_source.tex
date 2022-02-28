@@ -1,0 +1,37 @@
+\hypertarget{disassembly_8hpp_source}{}\doxysection{disassembly.\+hpp}
+\label{disassembly_8hpp_source}\index{src/dbg/disassembly.hpp@{src/dbg/disassembly.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#ifndef DEBUG}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#define DEBUG}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include "{}../gbc/cpu.hpp"{}}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include "{}../common/defs.hpp"{}}}
+\DoxyCodeLine{7 }
+\DoxyCodeLine{8 \textcolor{keyword}{const} std::string reg\_str[13] = \{}
+\DoxyCodeLine{9     \textcolor{stringliteral}{"{}<NONE>"{}},}
+\DoxyCodeLine{10     \textcolor{stringliteral}{"{}A"{}},}
+\DoxyCodeLine{11     \textcolor{stringliteral}{"{}F"{}},}
+\DoxyCodeLine{12     \textcolor{stringliteral}{"{}B"{}},}
+\DoxyCodeLine{13     \textcolor{stringliteral}{"{}C"{}},}
+\DoxyCodeLine{14     \textcolor{stringliteral}{"{}D"{}},}
+\DoxyCodeLine{15     \textcolor{stringliteral}{"{}E"{}},}
+\DoxyCodeLine{16     \textcolor{stringliteral}{"{}H"{}},}
+\DoxyCodeLine{17     \textcolor{stringliteral}{"{}L"{}},}
+\DoxyCodeLine{18     \textcolor{stringliteral}{"{}S"{}},}
+\DoxyCodeLine{19     \textcolor{stringliteral}{"{}P"{}},}
+\DoxyCodeLine{20     \textcolor{stringliteral}{"{}P"{}},}
+\DoxyCodeLine{21     \textcolor{stringliteral}{"{}C"{}}}
+\DoxyCodeLine{22 \};}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 std::string decode\_reg(SharpSM83::reg\_type reg);}
+\DoxyCodeLine{26 std::string hex(u32 val, \textcolor{keywordtype}{bool} prefix = \textcolor{keyword}{true}, u32 n = 4);}
+\DoxyCodeLine{27 std::string envolve(std::string str);}
+\DoxyCodeLine{28 SharpSM83::reg\_type parse\_reg(std::string token);}
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30 \textcolor{keywordtype}{bool} is\_hex(std::string s);}
+\DoxyCodeLine{31 \textcolor{keywordtype}{bool} is\_int(std::string s);}
+
+\end{DoxyCode}

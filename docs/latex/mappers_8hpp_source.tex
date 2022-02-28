@@ -1,0 +1,61 @@
+\hypertarget{mappers_8hpp_source}{}\doxysection{mappers.\+hpp}
+\label{mappers_8hpp_source}\index{src/gbc/mappers/mappers.hpp@{src/gbc/mappers/mappers.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include "{}../../common/defs.hpp"{}}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include "{}classes.hpp"{}}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <memory>}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{keyword}{enum} MapperType\{}
+\DoxyCodeLine{7     MT\_ROM\_ONLY = 0,}
+\DoxyCodeLine{8     MT\_MBC1,}
+\DoxyCodeLine{9     MT\_MBC1\_RAM,}
+\DoxyCodeLine{10     MT\_MBC1\_RAM\_BATTERY,}
+\DoxyCodeLine{11 }
+\DoxyCodeLine{12     MT\_UNK0,}
+\DoxyCodeLine{13 }
+\DoxyCodeLine{14     MT\_MBC2,}
+\DoxyCodeLine{15     MT\_MBC2\_BATTERY,}
+\DoxyCodeLine{16     MT\_ROM\_RAM,}
+\DoxyCodeLine{17     MT\_ROM\_RAM\_BATTERY,}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19     MT\_UNK1,}
+\DoxyCodeLine{20 }
+\DoxyCodeLine{21     MT\_MMM01,}
+\DoxyCodeLine{22     MT\_MMM01\_RAM,}
+\DoxyCodeLine{23     MT\_MMM01\_RAM\_BATTERY,}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25     MT\_UNK2,}
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27     MT\_MBC3\_TIMER\_BATTERY,}
+\DoxyCodeLine{28     MT\_MBC3\_TIMER\_RAM\_BATTERY, \textcolor{comment}{// MCB0}}
+\DoxyCodeLine{29     MT\_MBC3,}
+\DoxyCodeLine{30     MT\_MBC3\_RAM, \textcolor{comment}{// MCB0}}
+\DoxyCodeLine{31     MT\_MBC3\_RAM\_BATTERY, \textcolor{comment}{// MCB0}}
+\DoxyCodeLine{32 }
+\DoxyCodeLine{33     MT\_UNK3,}
+\DoxyCodeLine{34     MT\_UNK4,}
+\DoxyCodeLine{35     MT\_UNK5,}
+\DoxyCodeLine{36     MT\_UNK6,}
+\DoxyCodeLine{37     MT\_UNK7,}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39     MT\_MBC5,}
+\DoxyCodeLine{40     MT\_MBC5\_RAM,}
+\DoxyCodeLine{41     MT\_MBC5\_RAM\_BATTERY,}
+\DoxyCodeLine{42     MT\_MBC5\_RUMBLE,}
+\DoxyCodeLine{43     MT\_MBC5\_RUMBLE\_RAM,}
+\DoxyCodeLine{44     MT\_MBC5\_RUMBLE\_RAM\_BATTERY,}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46     MT\_UNK8,}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48     MT\_MBC6,}
+\DoxyCodeLine{49 }
+\DoxyCodeLine{50     MT\_UNK9,}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52     MT\_MBC7\_SENSOR\_RUMBLE\_RAM\_BATTERY,}
+\DoxyCodeLine{53 \};}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55 std::shared\_ptr<Mapper> get\_mapper(MapperType \textcolor{keywordtype}{id});}
+
+\end{DoxyCode}

@@ -1,0 +1,25 @@
+\hypertarget{lcd_8hpp_source}{}\doxysection{lcd.\+hpp}
+\label{lcd_8hpp_source}\index{src/gbc/lcd.hpp@{src/gbc/lcd.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <SDL2/SDL.h>}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#define DISPLAY\_WIDTH 160}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#define DISPLAY\_HEIGHT 144}}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 \textcolor{keyword}{class }\mbox{\hyperlink{class_l_c_d}{LCD}}\{}
+\DoxyCodeLine{8     \textcolor{keyword}{private}:}
+\DoxyCodeLine{9         \textcolor{keywordtype}{int} pixel\_size;}
+\DoxyCodeLine{10         \textcolor{keywordtype}{int} window\_width, window\_height;}
+\DoxyCodeLine{11 }
+\DoxyCodeLine{12         SDL\_Window *win = NULL;}
+\DoxyCodeLine{13         SDL\_Renderer *ren = NULL;}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15     \textcolor{keyword}{public}:}
+\DoxyCodeLine{16         \mbox{\hyperlink{class_l_c_d}{LCD}}();}
+\DoxyCodeLine{17         \mbox{\hyperlink{class_l_c_d}{LCD}}(\textcolor{keywordtype}{int});}
+\DoxyCodeLine{18         \mbox{\hyperlink{class_l_c_d}{\string~LCD}}();}
+\DoxyCodeLine{19 \};}
+
+\end{DoxyCode}

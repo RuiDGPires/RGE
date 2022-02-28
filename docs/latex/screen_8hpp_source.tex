@@ -1,0 +1,36 @@
+\hypertarget{screen_8hpp_source}{}\doxysection{screen.\+hpp}
+\label{screen_8hpp_source}\index{src/dbg/screen.hpp@{src/dbg/screen.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{//********************************************}}
+\DoxyCodeLine{2 \textcolor{comment}{// ONLY ONE SCREEN MAY BE UP AT A GIVEN TIME}}
+\DoxyCodeLine{3 \textcolor{comment}{//********************************************}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{component_8hpp}{component.hpp}}"{}}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <iostream>}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include <vector>}}
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#include <memory>}}
+\DoxyCodeLine{11 }
+\DoxyCodeLine{12 \textcolor{keyword}{class }\mbox{\hyperlink{class_screen}{Screen}}\{}
+\DoxyCodeLine{13     \textcolor{keyword}{private}:}
+\DoxyCodeLine{14         std::string buffer, display;}
+\DoxyCodeLine{15         std::vector<Component *> components;}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17     \textcolor{keyword}{public}:}
+\DoxyCodeLine{18         \textcolor{keywordtype}{int} term\_w, term\_h;}
+\DoxyCodeLine{19         \mbox{\hyperlink{class_screen}{Screen}}();}
+\DoxyCodeLine{20         \mbox{\hyperlink{class_screen}{\string~Screen}}();}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22         \textcolor{keywordtype}{void} update\_term\_size();}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24         \textcolor{keyword}{static} \textcolor{keywordtype}{void} sig\_handler(\textcolor{keywordtype}{int} signum);}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26         \textcolor{keywordtype}{void} refresh();}
+\DoxyCodeLine{27         \mbox{\hyperlink{class_screen}{Screen}} \&operator<<(std::string);}
+\DoxyCodeLine{28         \mbox{\hyperlink{class_screen}{Screen}} \&operator<<(\mbox{\hyperlink{class_component}{Component}} \&);}
+\DoxyCodeLine{29 \};}
+\DoxyCodeLine{30 }
+
+\end{DoxyCode}

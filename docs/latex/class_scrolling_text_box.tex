@@ -1,0 +1,67 @@
+\hypertarget{class_scrolling_text_box}{}\doxysection{Scrolling\+Text\+Box Class Reference}
+\label{class_scrolling_text_box}\index{ScrollingTextBox@{ScrollingTextBox}}
+Inheritance diagram for Scrolling\+Text\+Box\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_scrolling_text_box}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_scrolling_text_box_ac16d03bd7066a9a7bee967e49a0643f4}\label{class_scrolling_text_box_ac16d03bd7066a9a7bee967e49a0643f4}} 
+{\bfseries Scrolling\+Text\+Box} (int \mbox{\hyperlink{class_component_a3fe84cea3e41ac363349595e1a92a5b6}{x}}, int y, int width, int height)
+\item 
+\mbox{\Hypertarget{class_scrolling_text_box_aaf655c09ca18e53ac3e14961248d5aee}\label{class_scrolling_text_box_aaf655c09ca18e53ac3e14961248d5aee}} 
+\mbox{\hyperlink{class_scrolling_text_box}{Scrolling\+Text\+Box}} \& {\bfseries operator$<$$<$} (std\+::string)
+\item 
+\mbox{\Hypertarget{class_scrolling_text_box_a61d963c6d09bdd6a107072a933e47f71}\label{class_scrolling_text_box_a61d963c6d09bdd6a107072a933e47f71}} 
+\mbox{\hyperlink{class_scrolling_text_box}{Scrolling\+Text\+Box}} \& {\bfseries operator$<$$<$} (std\+::vector$<$ std\+::string $>$)
+\item 
+\mbox{\Hypertarget{class_scrolling_text_box_af3a8f16389587be166764f97b8214c3a}\label{class_scrolling_text_box_af3a8f16389587be166764f97b8214c3a}} 
+\mbox{\hyperlink{class_scrolling_text_box}{Scrolling\+Text\+Box}} \& {\bfseries operator$<$$<$} (const char $\ast$)
+\item 
+\mbox{\Hypertarget{class_scrolling_text_box_ae1ea17398f9563e6e434fc993ca1bf9a}\label{class_scrolling_text_box_ae1ea17398f9563e6e434fc993ca1bf9a}} 
+\mbox{\hyperlink{class_scrolling_text_box}{Scrolling\+Text\+Box}} \& {\bfseries operator$<$$<$} (const char)
+\item 
+\mbox{\Hypertarget{class_scrolling_text_box_a3515147c1efab89d417527ae47f41c62}\label{class_scrolling_text_box_a3515147c1efab89d417527ae47f41c62}} 
+\mbox{\hyperlink{class_scrolling_text_box}{Scrolling\+Text\+Box}} \& {\bfseries operator$<$$<$} (color\+\_\+c)
+\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{class_scrolling_text_box_a373d778838c77149d168667c2765a1ca}{str}} () override
+\begin{DoxyCompactList}\small\item\em Visual Representation. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_scrolling_text_box_a62832997c1e84d3ff7a92c7fe53a9f2b}\label{class_scrolling_text_box_a62832997c1e84d3ff7a92c7fe53a9f2b}} 
+\mbox{\hyperlink{class_scrolling_text_box}{Scrolling\+Text\+Box}} \& {\bfseries clear} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_scrolling_text_box_adbf779a2c6bc7da48cccbcd59a3a86f8}\label{class_scrolling_text_box_adbf779a2c6bc7da48cccbcd59a3a86f8}} 
+std\+::list$<$ std\+::string $>$ {\bfseries lines}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_scrolling_text_box_a373d778838c77149d168667c2765a1ca}\label{class_scrolling_text_box_a373d778838c77149d168667c2765a1ca}} 
+\index{ScrollingTextBox@{ScrollingTextBox}!str@{str}}
+\index{str@{str}!ScrollingTextBox@{ScrollingTextBox}}
+\doxysubsubsection{\texorpdfstring{str()}{str()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ Scrolling\+Text\+Box\+::str (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Visual Representation. 
+
+Visual representation of the component, to be called when the screen is refreshed \begin{DoxyReturn}{Returns}
+Vector of strings, each element of the vector is a line on screen 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{class_component_a22c7d4818a30b32a77d28d36f20ca45d}{Component}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/dbg/\mbox{\hyperlink{component_8hpp}{component.\+hpp}}\item 
+src/dbg/component.\+cpp\end{DoxyCompactItemize}
