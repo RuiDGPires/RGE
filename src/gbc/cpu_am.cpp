@@ -1,3 +1,7 @@
+/*********************************************//**
+ * \file cpu_am.hpp
+ * \brief Implementation of addressing modes
+ ************************************************/
 #include "cpu.hpp"
 
 void SharpSM83::AM_IMP(){

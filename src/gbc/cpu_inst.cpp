@@ -1,3 +1,7 @@
+/*********************************************//**
+ * \file cpu_inst.hpp
+ * \brief Implementation of instructions
+ ************************************************/
 #include "cpu.hpp"
 #include "../common/assert.hpp"
 
