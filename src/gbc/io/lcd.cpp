@@ -1,6 +1,5 @@
 #include "lcd.hpp"
-#include "../common/assert.hpp"
-#include "../common/defs.hpp"
+#include "../../common/assert.hpp"
 
 LCD::LCD(int pixel_size){
     this->window_width = DISPLAY_WIDTH*pixel_size;

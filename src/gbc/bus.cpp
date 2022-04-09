@@ -55,7 +55,10 @@ void Bus::write(u16 addr, u8 data){
 
     // IO
     else if (addr >= IO_BEGIN && addr <= IO_END){
-        io[addr-IO_BEGIN] = data;
+        if (addr == 0xFF00) {
+            joypad->select(data);
+        }else
+            io[addr-IO_BEGIN] = data;
     }
 
     // HRAM
@@ -65,7 +68,7 @@ void Bus::write(u16 addr, u8 data){
 
     // Interrupt byte
     else if (addr == IE_BEGIN){
-        // TODO
+        ie = data;
     }
 }
 
@@ -107,7 +110,10 @@ u8 Bus::read(u16 addr){
 
     // IO
     else if (addr >= IO_BEGIN && addr <= IO_END){
-        return io[addr-IO_BEGIN];
+        if (addr == 0xFF00) 
+            return this->joypad->read();
+        else
+            return io[addr-IO_BEGIN];
     }
 
     // HRAM
@@ -117,7 +123,7 @@ u8 Bus::read(u16 addr){
 
     // Interrupt byte
     else if (addr == IE_BEGIN){
-        // TODO
+        return ie;
     }
     return 0xFF;
 }
@@ -128,4 +134,8 @@ void Bus::connect_cpu(SharpSM83 *cpu){
 
 void Bus::connect_cart(Cartridge *cart){
     this->cart = cart;
+}
+
+void Bus::connect_joypad(Joypad *joypad){
+    this->joypad = joypad;
 }

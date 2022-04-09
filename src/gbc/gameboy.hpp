@@ -2,6 +2,8 @@
 
 #include "bus.hpp"
 #include "cpu.hpp"
+#include "io/joypad.hpp"
+
 
 class GameBoy{
 #ifndef DEBUG
@@ -10,6 +12,7 @@ class GameBoy{
     public:
 #endif
         SharpSM83 cpu;
+        Joypad joypad;
         Bus mem_bus;
         Cartridge *slot = NULL;
 

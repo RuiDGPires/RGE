@@ -5,6 +5,7 @@ GameBoy::GameBoy(){
     this->slot = NULL;
     this->cpu.connect_bus(&mem_bus);
     this->mem_bus.connect_cpu(&cpu);
+    this->mem_bus.connect_joypad(&joypad);
 }
 
 GameBoy::~GameBoy(){
