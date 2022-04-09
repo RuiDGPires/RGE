@@ -38,7 +38,6 @@ bool MCB1::map_write(u16 addr, u32 *new_addr, u8 data, bool *rom){
     if (addr <= 0x1FFF)
         this->ram_enabled = (data & 0x0F) == 0xA;
 
-
     if (addr >= ROM0_BEGIN && addr <= ROM1_END){
         *rom = true;
         return true;
