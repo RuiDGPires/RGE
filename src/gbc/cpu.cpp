@@ -74,6 +74,10 @@ void SharpSM83::clock(){
         (this->*fetch_info.inst.mode)();
         if ((this->*fetch_info.inst.type)())
             cycles += fetch_info.inst.extra_cycles;
+
+        if (IME){
+           this->handle_interrupts(); 
+        }
     }
 
     if (debug_mode)
@@ -122,4 +126,33 @@ void SharpSM83::set_flags(u8 nz, u8 nn, u8 nh, u8 nc){
     flags |= (nc != 0) << 4;
 
     this->write_reg(RT_F, flags);
+}
+
+bool SharpSM83::check_interrupt(u16 address, interrupt_type it){
+    if ((this->IF & it) && (this->read(IE) & it)) {
+        this->push(address);
+        this->regs[PC] = address;
+
+        this->IF &= ~it;
+        this->halted = false;
+        this->IME = false;
+
+        return true;
+    }
+
+    return false;
+}
+
+void SharpSM83::handle_interrupts(){
+    if (check_interrupt(0x40, IT_VBLANK)) {
+
+    } else if (check_interrupt(0x48, IT_LCD)) {
+
+    } else if (check_interrupt(0x50, IT_TIMER)) {
+
+    }  else if (check_interrupt(0x58, IT_SERIAL)) {
+
+    }  else if (check_interrupt(0x60, IT_JOYPAD)) {
+
+    } 
 }

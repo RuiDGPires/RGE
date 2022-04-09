@@ -431,12 +431,21 @@ class SharpSM83{
             c = 1 << 4,
         };
 
+        enum interrupt_type {
+            IT_VBLANK   = 1 << 0, 
+            IT_LCD      = 1 << 1,
+            IT_TIMER    = 1 << 2,
+            IT_SERIAL   = 1 << 3,
+            IT_JOYPAD   = 1 << 4,
+        };
+
 
         u8 cycles = 0;
         fetch_info_t fetch_info = {0, {0, "---", &a::IT_NONE}, false, false, 0, 0};
 
         u16 regs[6];
         bool IME = false, ei = false;
+        u16 IF;
         // ei is used to delay the EI instruction effect by one
 
         Bus *bus;
@@ -445,6 +454,8 @@ class SharpSM83{
 
         const instruction get_instruction(u8 opcode);
         const char *instruction_name(instruction inst);
+        bool check_interrupt(u16 address, interrupt_type it);
+        void handle_interrupts();
 
         void write(u16 addr, u8 data);
         u8 read(u16 addr);
