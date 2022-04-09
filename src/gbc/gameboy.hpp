@@ -2,6 +2,7 @@
 
 #include "bus.hpp"
 #include "cpu.hpp"
+#include "timer.hpp"
 #include "io/joypad.hpp"
 
 
@@ -14,6 +15,7 @@ class GameBoy{
         SharpSM83 cpu;
         Joypad joypad;
         Bus mem_bus;
+        Timer timer;
         Cartridge *slot = NULL;
 
     public:

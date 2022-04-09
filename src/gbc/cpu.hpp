@@ -9,13 +9,8 @@
 class Bus;
 
 class SharpSM83{
-#ifndef DEBUG
-    private:
-        const bool debug_mode = false;
-#else
     public:
         const bool debug_mode = true;
-#endif
         enum reg_type{
             RT_NONE = 0, 
             RT_A = 0x0FF00,
@@ -455,6 +450,7 @@ class SharpSM83{
         const instruction get_instruction(u8 opcode);
         const char *instruction_name(instruction inst);
         bool check_interrupt(u16 address, interrupt_type it);
+        void request_interrupt(interrupt_type it);
         void handle_interrupts();
 
         void write(u16 addr, u8 data);

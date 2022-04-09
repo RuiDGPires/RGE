@@ -56,8 +56,15 @@ u16 SharpSM83::read_reg(reg_type reg_t){
 }
 
 void SharpSM83::clock(){
-    if (this->halted) // halt
+    if (this->halted){ // halt
+        if (this->IF & this->read(IE))
+            this->halted = false;
+
+        cycles = 0;
+        if (IME)
+           this->handle_interrupts(); 
         return;
+    }
     else if (cycles == 0){
         if (ei){
             IME = true;
@@ -75,13 +82,14 @@ void SharpSM83::clock(){
         if ((this->*fetch_info.inst.type)())
             cycles += fetch_info.inst.extra_cycles;
 
-        if (IME){
+        if (IME)
            this->handle_interrupts(); 
-        }
     }
 
-    if (debug_mode)
-        cycles = 0;
+    if (debug_mode){
+        for(;cycles != 0; cycles--)
+            this->bus->timer->tick();
+    }
     else
         cycles--;
 }
@@ -141,6 +149,11 @@ bool SharpSM83::check_interrupt(u16 address, interrupt_type it){
     }
 
     return false;
+
+}
+
+void SharpSM83::request_interrupt(interrupt_type it){
+    this->IF |= it;
 }
 
 void SharpSM83::handle_interrupts(){
@@ -156,3 +169,4 @@ void SharpSM83::handle_interrupts(){
 
     } 
 }
+
