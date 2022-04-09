@@ -59,8 +59,8 @@ void SharpSM83::clock(){
     if (this->halted){ // halt
         if (this->IF & this->read(IE))
             this->halted = false;
-
         cycles = 0;
+
         if (IME)
            this->handle_interrupts(); 
         return;
@@ -86,15 +86,12 @@ void SharpSM83::clock(){
            this->handle_interrupts(); 
     }
 
-    if (debug_mode){
-        for(;cycles != 0; cycles--)
-            this->bus->timer->tick();
-    }
-    else
-        cycles--;
+    cycles--;
 }
 
 void SharpSM83::reset(){
+    this->cycles = 0;
+    this->IF = 0xE0;
     this->regs[0] = 0x1100;
     set_flags(1, 0, 0, 0);
 
@@ -138,7 +135,7 @@ void SharpSM83::set_flags(u8 nz, u8 nn, u8 nh, u8 nc){
 
 bool SharpSM83::check_interrupt(u16 address, interrupt_type it){
     if ((this->IF & it) && (this->read(IE) & it)) {
-        this->push(address);
+        this->push(regs[PC]);
         this->regs[PC] = address;
 
         this->IF &= ~it;
@@ -153,7 +150,7 @@ bool SharpSM83::check_interrupt(u16 address, interrupt_type it){
 }
 
 void SharpSM83::request_interrupt(interrupt_type it){
-    this->IF |= it;
+    this->IF |= (u8)it;
 }
 
 void SharpSM83::handle_interrupts(){

@@ -43,6 +43,14 @@ void GameBoy::turn_off(){
 
 }
 
+void GameBoy::clock(){
+    do{
+        for (int i = 0; i < 4; i++)
+            timer.tick();
+        cpu.clock();
+    }while(cpu.cycles != 0 && debug_mode);
+}
+
 void GameBoy::print_cartridge_info(){
     std::vector<std::string> info = this->slot->info();
 

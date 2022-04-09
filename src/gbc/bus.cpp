@@ -60,7 +60,7 @@ void Bus::write(u16 addr, u8 data){
         else if (addr >= 0xFF04 && addr <= 0xFF07)
             this->timer->write(addr, data);
         else if (addr == 0xFF0F)
-            this->cpu->IF = data;
+            this->cpu->IF = 0xE0 | data;
         else
             io[addr-IO_BEGIN] = data;
     }
@@ -72,7 +72,7 @@ void Bus::write(u16 addr, u8 data){
 
     // Interrupt byte
     else if (addr == IE_BEGIN){
-        ie = data;
+        cpu->ie = data;
     }
 }
 
@@ -131,7 +131,7 @@ u8 Bus::read(u16 addr){
 
     // Interrupt byte
     else if (addr == IE_BEGIN){
-        return ie;
+        return cpu->ie;
     }
     return 0xFF;
 }
@@ -150,5 +150,6 @@ void Bus::connect(Joypad *joypad){
 
 void Bus::connect(Timer *timer){
     this->timer = timer;
+    this->timer->connect(cpu);
     this->timer->div = 0xABCC;
 }

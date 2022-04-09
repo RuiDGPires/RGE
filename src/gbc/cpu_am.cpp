@@ -78,10 +78,10 @@ void SharpSM83::AM_A8_R(){
     fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
     fetch_info.is_dest_addr = true;
 }
-void SharpSM83::AM_MHL_SPR(){
-    fetch_info.data = this->regs[SP] + (i8)this->read(this->regs[PC]++);
-    fetch_info.dest = this->read_reg(fetch_info.inst.reg_1);
-    fetch_info.is_dest_addr = true;
+void SharpSM83::AM_HL_SPR(){
+    fetch_info.data = this->read(this->regs[PC]++);
+    fetch_info.dest = fetch_info.inst.reg_1;
+    //fetch_info.is_dest_addr = true;
 }
 void SharpSM83::AM_A16_R(){
     this->SharpSM83::AM_D16_R();

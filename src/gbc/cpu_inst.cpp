@@ -15,6 +15,13 @@ bool SharpSM83::IT_NOP(){
 }
 
 bool SharpSM83::IT_LD(){
+    if (fetch_info.inst.reg_2 == RT_SP && fetch_info.inst.reg_1 == RT_HL){
+        u8 h = (read_reg(RT_SP) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
+        u8 c = (read_reg(RT_SP) & 0xFF) + (fetch_info.data & 0xFF) >= 0x100;
+        fetch_info.data = read_reg(RT_SP) + (i8) fetch_info.data;
+        this->set_flags(0, 0, h, c);
+    }
+
     if (fetch_info.is_dest_addr)
         this->write(fetch_info.dest, fetch_info.data);  
     else

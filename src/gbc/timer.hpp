@@ -18,4 +18,5 @@ class Timer {
         void tick();
         void write(u16, u8);
         u8 read(u16);
+        void connect(SharpSM83 *);
 };

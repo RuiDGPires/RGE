@@ -24,7 +24,6 @@ class Bus{
         u8 wra1[WRA1_SIZE];
         u8 hra[HRA_SIZE]; // tmp
         u8 io[IO_SIZE]; // temporary
-        u8 ie;
 
     public:
         Bus();

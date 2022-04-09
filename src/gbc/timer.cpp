@@ -76,3 +76,7 @@ u8 Timer::read(u16 address) {
     }
     return 0;
 }
+
+void Timer::connect(SharpSM83 *cpu){
+    this->cpu = cpu;
+}

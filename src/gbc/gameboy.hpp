@@ -7,11 +7,8 @@
 
 
 class GameBoy{
-#ifndef DEBUG
-    private:
-#else
+    const bool debug_mode = true;
     public:
-#endif
         SharpSM83 cpu;
         Joypad joypad;
         Bus mem_bus;
@@ -23,6 +20,7 @@ class GameBoy{
         ~GameBoy();
 
         void load_rom(const char *);
+        void clock();
         void turn_on();
         void turn_off();
 
