@@ -4,7 +4,9 @@
 GameBoy::GameBoy(){
     this->slot = NULL;
     this->cpu.connect_bus(&mem_bus);
-    this->mem_bus.connect_cpu(&cpu);
+    this->mem_bus.connect(&cpu);
+    this->mem_bus.connect(&joypad);
+    this->mem_bus.connect(&timer);
 }
 
 GameBoy::~GameBoy(){
@@ -27,7 +29,7 @@ void GameBoy::load_rom(const char *file_name){
         delete this->slot;
         this->slot = NULL;
     }else{
-        this->mem_bus.connect_cart(this->slot);
+        this->mem_bus.connect(this->slot);
     }
 }
 
@@ -39,6 +41,14 @@ void GameBoy::turn_on(){
 
 void GameBoy::turn_off(){
 
+}
+
+void GameBoy::clock(){
+    do{
+        for (int i = 0; i < 4; i++)
+            timer.tick();
+        cpu.clock();
+    }while(cpu.cycles != 0 && debug_mode);
 }
 
 void GameBoy::print_cartridge_info(){

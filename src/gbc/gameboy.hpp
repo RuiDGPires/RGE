@@ -2,15 +2,17 @@
 
 #include "bus.hpp"
 #include "cpu.hpp"
+#include "timer.hpp"
+#include "io/joypad.hpp"
+
 
 class GameBoy{
-#ifndef DEBUG
-    private:
-#else
+    const bool debug_mode = true;
     public:
-#endif
         SharpSM83 cpu;
+        Joypad joypad;
         Bus mem_bus;
+        Timer timer;
         Cartridge *slot = NULL;
 
     public:
@@ -18,6 +20,7 @@ class GameBoy{
         ~GameBoy();
 
         void load_rom(const char *);
+        void clock();
         void turn_on();
         void turn_off();
 

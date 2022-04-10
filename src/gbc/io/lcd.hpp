@@ -1,5 +1,5 @@
 #pragma once
-#include "../common/defs.hpp"
+#include "../../common/defs.hpp"
 #include <SDL2/SDL.h>
 
 #define DISPLAY_WIDTH 160

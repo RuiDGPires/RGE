@@ -44,8 +44,9 @@
 #define HRA_BEGIN 0xFF80
 #define HRA_END 0xFFFE
 
-#define IE_BEGIN 0xFFFF
-#define IE_END 0xFFFF
+#define IE 0xFFFF
+#define IE_BEGIN IE 
+#define IE_END IE 
 
 #define WRA0_SIZE WRA0_END - WRA0_BEGIN + 1
 #define WRA1_SIZE WRA1_END - WRA1_BEGIN + 1

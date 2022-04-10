@@ -9,13 +9,7 @@
 class Bus;
 
 class SharpSM83{
-#ifndef DEBUG
-    private:
-        const bool debug_mode = false;
-#else
     public:
-        const bool debug_mode = true;
-#endif
         enum reg_type{
             RT_NONE = 0, 
             RT_A = 0x0FF00,
@@ -113,7 +107,7 @@ class SharpSM83{
         void AM_MHLD_R();
         void AM_R_A8();
         void AM_A8_R();
-        void AM_MHL_SPR();
+        void AM_HL_SPR();
         void AM_D16();
         void AM_D8();
         void AM_D16_R();
@@ -404,7 +398,7 @@ class SharpSM83{
             {16, "PUSH", &a::IT_PUSH, &a::AM_R, RT_AF},
             {8, "OR", &a::IT_OR, &a::AM_R_D8, RT_A},
             {16, "RST", &a::IT_RST, &a::AM_IMP, RT_NONE, RT_NONE, CT_NONE, 0, 0x30},
-            {12, "LD", &a::IT_LD, &a::AM_MHL_SPR, RT_HL, RT_SP},
+            {12, "LD", &a::IT_LD, &a::AM_HL_SPR, RT_HL, RT_SP},
             {8, "LD", &a::IT_LD, &a::AM_R_R, RT_SP, RT_HL},
             {16, "LD", &a::IT_LD, &a::AM_R_A16, RT_A},
             {4, "EI", &a::IT_EI, &a::AM_IMP},
@@ -431,12 +425,22 @@ class SharpSM83{
             c = 1 << 4,
         };
 
+        enum interrupt_type {
+            IT_VBLANK   = 1 << 0, 
+            IT_LCD      = 1 << 1,
+            IT_TIMER    = 1 << 2,
+            IT_SERIAL   = 1 << 3,
+            IT_JOYPAD   = 1 << 4,
+        };
+
 
         u8 cycles = 0;
         fetch_info_t fetch_info = {0, {0, "---", &a::IT_NONE}, false, false, 0, 0};
 
         u16 regs[6];
         bool IME = false, ei = false;
+        u8 IF;
+        u8 ie;
         // ei is used to delay the EI instruction effect by one
 
         Bus *bus;
@@ -445,6 +449,9 @@ class SharpSM83{
 
         const instruction get_instruction(u8 opcode);
         const char *instruction_name(instruction inst);
+        bool check_interrupt(u16 address, interrupt_type it);
+        void request_interrupt(interrupt_type it);
+        void handle_interrupts();
 
         void write(u16 addr, u8 data);
         u8 read(u16 addr);
