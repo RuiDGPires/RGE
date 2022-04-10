@@ -170,7 +170,7 @@ static void fetch_mem(){
             str.push_back(',');
             append(str, decode_reg(inst.reg_2));
 
-        }else if (inst.mode == &a::AM_MHL_SPR){
+        }else if (inst.mode == &a::AM_HL_SPR){
             append(str, decode_reg(inst.reg_1));
             str.push_back(',');
             append(str, "$SP + " + hex(gb.mem_bus.read(i++)));
@@ -286,12 +286,12 @@ end:
 
 
 static bool gb_step(){
-    gb.cpu.clock();
+    gb.clock();
     check_test_char();
 
     bool is_test;
     bool ret = conf.check(gb, &is_test);
-    
+
     if (is_test)
         exit(!check_test());
 
@@ -342,7 +342,7 @@ EVENT(K_CTRL_ARROW_DOWN){
 
 EVENT(K_ENTER){
     do{
-        gb.cpu.clock();
+        gb.clock();
         if (get_key(true) == K_ENTER) break;
     }while(!conf.check(gb, NULL));
 }
@@ -378,7 +378,7 @@ EVENT(K_N){
         step = true;
     else{
         do{
-            gb.cpu.clock();
+            gb.clock();
         }while(gb.cpu.regs[PC] != pc + 3 && !conf.check(gb, NULL));
     }
 }

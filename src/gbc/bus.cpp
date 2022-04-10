@@ -55,7 +55,14 @@ void Bus::write(u16 addr, u8 data){
 
     // IO
     else if (addr >= IO_BEGIN && addr <= IO_END){
-        io[addr-IO_BEGIN] = data;
+        if (addr == 0xFF00) 
+            joypad->select(data);
+        else if (addr >= 0xFF04 && addr <= 0xFF07)
+            this->timer->write(addr, data);
+        else if (addr == 0xFF0F)
+            this->cpu->IF = 0xE0 | data;
+        else
+            io[addr-IO_BEGIN] = data;
     }
 
     // HRAM
@@ -65,7 +72,7 @@ void Bus::write(u16 addr, u8 data){
 
     // Interrupt byte
     else if (addr == IE_BEGIN){
-        // TODO
+        cpu->ie = data;
     }
 }
 
@@ -107,7 +114,14 @@ u8 Bus::read(u16 addr){
 
     // IO
     else if (addr >= IO_BEGIN && addr <= IO_END){
-        return io[addr-IO_BEGIN];
+        if (addr == 0xFF00) 
+            return this->joypad->read();
+        else if (addr >= 0xFF04 && addr <= 0xFF07)
+            return this->timer->read(addr);
+        else if (addr == 0xFF0F)
+            return this->cpu->IF;
+        else
+            return io[addr-IO_BEGIN];
     }
 
     // HRAM
@@ -117,15 +131,25 @@ u8 Bus::read(u16 addr){
 
     // Interrupt byte
     else if (addr == IE_BEGIN){
-        // TODO
+        return cpu->ie;
     }
     return 0xFF;
 }
 
-void Bus::connect_cpu(SharpSM83 *cpu){
+void Bus::connect(SharpSM83 *cpu){
     this->cpu = cpu;
 }
 
-void Bus::connect_cart(Cartridge *cart){
+void Bus::connect(Cartridge *cart){
     this->cart = cart;
+}
+
+void Bus::connect(Joypad *joypad){
+    this->joypad = joypad;
+}
+
+void Bus::connect(Timer *timer){
+    this->timer = timer;
+    this->timer->connect(cpu);
+    this->timer->div = 0xABCC;
 }
