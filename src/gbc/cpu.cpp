@@ -59,11 +59,7 @@ void SharpSM83::clock(){
     if (this->halted){ // halt
         if (this->IF & this->read(IE))
             this->halted = false;
-        cycles = 0;
 
-        if (IME)
-           this->handle_interrupts(); 
-        return;
     }
     else if (cycles == 0){
         if (ei){
@@ -81,10 +77,10 @@ void SharpSM83::clock(){
         (this->*fetch_info.inst.mode)();
         if ((this->*fetch_info.inst.type)())
             cycles += fetch_info.inst.extra_cycles;
-
-        if (IME)
-           this->handle_interrupts(); 
     }
+
+    if (IME)
+       this->handle_interrupts(); 
 
     cycles--;
 }

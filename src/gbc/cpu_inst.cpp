@@ -129,8 +129,8 @@ bool SharpSM83::IT_RRCA(){
 }
 
 bool SharpSM83::IT_STOP(){
-    this->running = false;
-    this->halted = false;
+    //this->running = false;
+    //this->halted = true;
     return false;
 }
 

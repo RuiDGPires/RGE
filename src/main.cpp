@@ -291,7 +291,7 @@ static bool gb_step(){
 
     bool is_test;
     bool ret = conf.check(gb, &is_test);
-    
+
     if (is_test)
         exit(!check_test());
 
