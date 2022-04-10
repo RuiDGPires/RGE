@@ -52,7 +52,7 @@ ScrollingTextBox console(FIRST_WIDTH+87+2, 0, 40, MAX_ROWS*2+4);
 
 Footer footer(0, screen.term_w);
 
-bool check_test(){
+static bool check_test(){
     if (test_msg[test_msg.size() - 1])
         test_msg.erase(test_msg.end() - 1, test_msg.end());
     std::stringstream stream(test_msg);
@@ -63,7 +63,8 @@ bool check_test(){
     return line == "Passed";
 }
 
-void check_test_char(){
+
+static void check_test_char(){
     if (gb.mem_bus.read(0xFF02) == 0x81){
         changed = true;
         test_msg.push_back(gb.mem_bus.read(0xFF01));
@@ -71,7 +72,14 @@ void check_test_char(){
     }
 }
 
-char ascii_rep(u8 byte){
+static void check_debug_msgs(){
+    while(!gb.cpu.msg_queue.empty()){
+        console << "\n[debug] " << gb.cpu.msg_queue.front();
+        gb.cpu.msg_queue.pop();
+    }
+}
+
+static char ascii_rep(u8 byte){
     if (byte >= ' ' && byte <= '~')
         return (char) byte;
     else
@@ -288,6 +296,7 @@ end:
 static bool gb_step(){
     gb.clock();
     check_test_char();
+    check_debug_msgs();
 
     bool is_test;
     bool ret = conf.check(gb, &is_test);

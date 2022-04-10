@@ -1,5 +1,9 @@
 #include "cpu.hpp"
 
+void SharpSM83::debug_msg(std::string s){
+    msg_queue.push(s);
+}
+
 const SharpSM83::instruction SharpSM83::get_instruction(u8 opcode){
     return lookup[opcode];
 }

@@ -3,6 +3,9 @@
 #include "bus.hpp"
 #include "../common/defs.hpp"
 
+#include <string>
+#include <queue>
+
 #define SP 4
 #define PC 5
 
@@ -10,6 +13,11 @@ class Bus;
 
 class SharpSM83{
     public:
+
+        // for debug
+        std::queue<std::string> msg_queue;
+        void debug_msg(std::string);
+
         enum reg_type{
             RT_NONE = 0, 
             RT_A = 0x0FF00,
