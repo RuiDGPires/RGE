@@ -221,7 +221,7 @@ bool SharpSM83::IT_DAA(){
 }
 
 bool SharpSM83::IT_CPL(){
-    this->write_reg(RT_A, ~this->read(RT_A));
+    this->write_reg(RT_A, ~this->read_reg(RT_A));
     this->set_flags(NA, 1, 1, NA);
     return false;
 }
@@ -233,7 +233,7 @@ bool SharpSM83::IT_SCF(){
 }
 
 bool SharpSM83::IT_CCF(){
-    this->set_flags(NA, 0, 0, (this->read(RT_F) & flags::c) ^ flags::c);
+    this->set_flags(NA, 0, 0, (this->read_reg(RT_F) & flags::c) ^ flags::c);
     return false;
 }
 
@@ -381,6 +381,8 @@ bool SharpSM83::IT_CB(){
     }
 
     switch (bit){
+        case 0:
+            return IT_RLC();
         case 1:
             return IT_RRC();
         case 2:
