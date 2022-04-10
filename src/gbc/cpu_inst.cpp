@@ -103,8 +103,8 @@ bool SharpSM83::IT_ADD(){
     val = read_reg((reg_type) fetch_info.inst.reg_1) + fetch_info.data;
 
     if (is_16_bit){
-        z = (val & 0xFFFF) == 0;
-        h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xFF) + (fetch_info.data & 0xFF) >= 0x1000;
+        z = NA;
+        h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xFFF) + (fetch_info.data & 0xFFF) >= 0x1000;
         c = val >= 0x10000;
     }else{
         z = (val & 0xFF) == 0;
