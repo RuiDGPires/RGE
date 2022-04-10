@@ -357,10 +357,8 @@ bool SharpSM83::IT_CB(){
     reg_type reg;
 
     u8 code = op & 0b111;
-    if (code > 0b111)
-        reg = RT_NONE;
-    else
-        reg = cb_reg_lookup[code];
+
+    reg = cb_reg_lookup[code];
 
     u8 bit = (op >> 3) & 0b111;
     u8 bit_op = (op >> 6) & 0b11;
@@ -368,15 +366,27 @@ bool SharpSM83::IT_CB(){
     fetch_info.data = val;
     fetch_info.dest = reg;
 
+    if (reg == RT_HL){
+        fetch_info.is_dest_addr = true;
+        fetch_info.dest = read_reg(RT_HL);
+        fetch_info.data = read(val);
+    }
+
     switch(bit_op){
         case 1: // Bit
             this->set_flags(!(val & (1 << bit)), 0, 1, NA);
             return false;
         case 2: // RST
-            write_reg(reg, val & ~(1 << bit));
+            if (fetch_info.is_dest_addr)
+                write(fetch_info.dest, fetch_info.data & ~(1 << bit));
+            else
+                write_reg(reg, val & ~(1 << bit));
             return false;
         case 3: // SET
-            write_reg(reg, val | (1 << bit));
+            if (fetch_info.is_dest_addr)
+                write(fetch_info.dest, fetch_info.data | (1 << bit));
+            else
+                write_reg(reg, val | (1 << bit));
             return false;
     }
 
@@ -433,7 +443,10 @@ bool SharpSM83::IT_RLC(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -443,7 +456,10 @@ bool SharpSM83::IT_RRC(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -453,7 +469,10 @@ bool SharpSM83::IT_RL(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -463,7 +482,10 @@ bool SharpSM83::IT_RR(bool clear_z){
 
     set_flags((res == 0) & !clear_z, 0, 0, carry);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -474,7 +496,10 @@ bool SharpSM83::IT_SLA(){
 
     set_flags(res == 0, 0, 0, carry);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -486,7 +511,10 @@ bool SharpSM83::IT_SRA(){
 
     set_flags(res == 0, 0, 0, carry);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -495,7 +523,10 @@ bool SharpSM83::IT_SWAP(){
 
     set_flags(res == 0, 0, 0, 0);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }
 
@@ -506,6 +537,9 @@ bool SharpSM83::IT_SRL(){
 
     set_flags(res == 0, 0, 0, carry);
 
-    write_reg((reg_type) fetch_info.dest, res);
+    if (fetch_info.is_dest_addr)
+        write(fetch_info.dest, res);
+    else
+        write_reg((reg_type) fetch_info.dest, res);
     return false;
 }

@@ -350,7 +350,8 @@ class SharpSM83{
             {8, "RET", &a::IT_RET, &a::AM_IMP, RT_NONE, RT_NONE, CT_Z, 12},
             {16, "RET", &a::IT_RET, &a::AM_IMP},
             {12, "JP", &a::IT_JP, &a::AM_D16, RT_NONE, RT_NONE, CT_Z, 4},
-            {4, "CB", &a::IT_CB, &a::AM_D8},
+            // CB
+            {12, "CB", &a::IT_CB, &a::AM_D8},
             {12, "CALL", &a::IT_CALL, &a::AM_D16, RT_NONE, RT_NONE, CT_Z, 12},
             {24, "CALL", &a::IT_CALL, &a::AM_D16},
             {8, "ADC", &a::IT_ADC, &a::AM_R_D8, RT_A},
