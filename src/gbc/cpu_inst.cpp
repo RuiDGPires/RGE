@@ -122,8 +122,8 @@ bool SharpSM83::IT_RRCA(){
 }
 
 bool SharpSM83::IT_STOP(){
-    this->running = false;
-    this->halted = false;
+    //this->running = false;
+    //this->halted = false;
     return false;
 }
 
@@ -240,11 +240,11 @@ bool SharpSM83::IT_HALT(){
 
 bool SharpSM83::IT_ADC(){
     u32 val = read_reg((reg_type) fetch_info.inst.reg_1) + fetch_info.data;
-    u8 carry = (this->read_reg(RT_F) & flags::c) != 0? 1: 0;
+    u8 carry = (this->read_reg(RT_F) & flags::c) != 0;
 
     val += carry;
 
-    u8 h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) > 0xF;
+    u8 h = (read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) + (fetch_info.data & 0xF) + carry > 0xF;
 
     this->write_reg((reg_type) fetch_info.dest, val & 0xFF);
 
@@ -268,12 +268,13 @@ bool SharpSM83::IT_SUB(){
 
 bool SharpSM83::IT_SBC(){
     u8 val = read_reg((reg_type) fetch_info.inst.reg_1) - fetch_info.data;
-    u8 carry = (this->read_reg(RT_F) & flags::c) != 0 ? 1: 0;
+    u8 carry = (this->read_reg(RT_F) & flags::c) != 0;
 
-    u8 h = ((int)(read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) - (int)(fetch_info.data & 0xF) - (int) carry) < 0;
+    u8 h = (((int)read_reg((reg_type) fetch_info.inst.reg_1) & 0xF) - ((int)fetch_info.data & 0xF) - (int) carry) < 0;
+    u8 c = (((int)read_reg((reg_type) fetch_info.inst.reg_1)) - ((int)fetch_info.data) - (int) carry) < 0;
 
     this->write_reg((reg_type) fetch_info.dest, (val - carry));
-    this->set_flags(val - carry == 0, 1, h, ((int)val - (int)carry) < 0);
+    this->set_flags(val - carry == 0, 1, h, c);
 
     return false;
 }
