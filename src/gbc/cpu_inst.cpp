@@ -5,6 +5,11 @@
 #include "cpu.hpp"
 #include "../common/assert.hpp"
 
+static bool is_reg_16_bit(SharpSM83::reg_type reg_t){
+    u32 reg = (u32) reg_t;
+    return (reg & 0xFF00) != 0 && (reg & 0xFF) != 0; 
+}
+
 bool SharpSM83::IT_NONE(){
     // Unkown behaviour
     return false;
@@ -22,9 +27,13 @@ bool SharpSM83::IT_LD(){
         this->set_flags(0, 0, h, c);
     }
 
-    if (fetch_info.is_dest_addr)
-        this->write(fetch_info.dest, fetch_info.data);  
-    else
+    if (fetch_info.is_dest_addr){
+        if (is_reg_16_bit(fetch_info.inst.reg_2)){
+            this->write(fetch_info.dest+1, (fetch_info.data >> 8) & 0xFF);  
+            this->write(fetch_info.dest, fetch_info.data & 0xFF);  
+        }else
+            this->write(fetch_info.dest, fetch_info.data);  
+    }else
         this->write_reg((reg_type) fetch_info.dest, fetch_info.data);
 
     return false;
