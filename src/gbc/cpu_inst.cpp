@@ -369,7 +369,7 @@ bool SharpSM83::IT_CB(){
     if (reg == RT_HL){
         fetch_info.is_dest_addr = true;
         fetch_info.dest = read_reg(RT_HL);
-        fetch_info.data = read(val);
+        fetch_info.data = read((u16) read_reg(RT_HL));
     }
 
     switch(bit_op){
