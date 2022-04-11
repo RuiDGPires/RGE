@@ -14,5 +14,5 @@
 - [ ] 08-misc instrs.gb
 - [x] 09-op r,r.gb
 - [x] 10-bit ops.gb
-- [ ] 11-op a,(hl).gb
+- [x] 11-op a,(hl).gb
 
