@@ -27,6 +27,7 @@ void SharpSM83::AM_R_R(){
 void SharpSM83::AM_MR_R(){
     fetch_info.data = this->read_reg(fetch_info.inst.reg_2);
     fetch_info.dest = this->read_reg(fetch_info.inst.reg_1);
+
     fetch_info.is_dest_addr = true;
 }
 void SharpSM83::AM_R(){
@@ -49,6 +50,7 @@ void SharpSM83::AM_D8(){
 }
 void SharpSM83::AM_R_MR(){
     fetch_info.data = this->bus->read(this->read_reg(fetch_info.inst.reg_2));
+
     fetch_info.dest = fetch_info.inst.reg_1;
 }
 void SharpSM83::AM_R_MHLI(){

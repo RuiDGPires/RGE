@@ -19,7 +19,14 @@ bool SharpSM83::IT_NOP(){
     return false;
 }
 
+using a = SharpSM83;
 bool SharpSM83::IT_LD(){
+    if (fetch_info.inst.reg_1 == RT_C && fetch_info.inst.reg_2 == RT_A && fetch_info.is_dest_addr)
+        fetch_info.dest = (u16)read_reg(RT_C) + 0xFF00;
+
+    if (fetch_info.inst.reg_2 == RT_C && fetch_info.inst.reg_1 == RT_A && !fetch_info.is_dest_addr && fetch_info.inst.mode == &a::AM_R_MR)
+        fetch_info.data = read((u16) read_reg(RT_C) + 0xFF00);
+
     if (fetch_info.inst.reg_2 == RT_SP && fetch_info.inst.reg_1 == RT_HL){
         u8 h = (read_reg(RT_SP) & 0xF) + (fetch_info.data & 0xF) >= 0x10;
         u8 c = (read_reg(RT_SP) & 0xFF) + (fetch_info.data & 0xFF) >= 0x100;
