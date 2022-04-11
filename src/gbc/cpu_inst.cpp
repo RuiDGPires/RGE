@@ -374,19 +374,19 @@ bool SharpSM83::IT_CB(){
 
     switch(bit_op){
         case 1: // Bit
-            this->set_flags(!(val & (1 << bit)), 0, 1, NA);
+            this->set_flags(!(fetch_info.data & (1 << bit)), 0, 1, NA);
             return false;
         case 2: // RST
             if (fetch_info.is_dest_addr)
                 write(fetch_info.dest, fetch_info.data & ~(1 << bit));
             else
-                write_reg(reg, val & ~(1 << bit));
+                write_reg(reg, fetch_info.data & ~(1 << bit));
             return false;
         case 3: // SET
             if (fetch_info.is_dest_addr)
                 write(fetch_info.dest, fetch_info.data | (1 << bit));
             else
-                write_reg(reg, val | (1 << bit));
+                write_reg(reg, fetch_info.data | (1 << bit));
             return false;
     }
 
