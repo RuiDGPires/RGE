@@ -60,7 +60,21 @@ u16 SimpleBreakpoint::get_val(GameBoy &gb, u32 val,  val_type t){
     }
 }
 
+bool SimpleBreakpoint::check_changed(u16 new_val){
+    bool ret = false;
+    if (!_first)
+        ret = this->previous != new_val;
+    else
+        _first = false;
+    this->previous = new_val;
+    return ret;
+}
+
 bool SimpleBreakpoint::check(GameBoy &gb){
+    // if an expression is of type "a != a" then it checks if the value has changed
+    if (val_a == val_b && ta == tb)
+        return this->check_changed(get_val(gb, val_a, ta));
+
     return this->compare(get_val(gb, val_a, ta), get_val(gb, val_b, tb));
 }
 

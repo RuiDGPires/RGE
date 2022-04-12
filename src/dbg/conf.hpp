@@ -79,6 +79,13 @@ class SimpleBreakpoint : public Breakpoint{
          * \see val_b
          */
         u16 get_val(GameBoy &gb, u32 val, val_type t);
+
+        /**
+         * Previous value (used to check if value has changed)
+         */
+        u16 previous;
+        bool _first = true;
+        bool check_changed(u16);
         
     public:
         /**

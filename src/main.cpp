@@ -47,7 +47,7 @@ TitledTextBox txt_regs("Registers", 0, 0, FIRST_WIDTH, MAX_ROWS+2),
               txt_mem("Memory", FIRST_WIDTH + 1, MAX_ROWS + 2, SECOND_WIDTH, MAX_ROWS+2),
               txt_cart("Cartridge", FIRST_WIDTH + 1, 0, SECOND_WIDTH/2 + 1, MAX_ROWS+2),
               txt_conf("Configuration", FIRST_WIDTH + SECOND_WIDTH/2 + 2, 0, SECOND_WIDTH/2, MAX_ROWS+2);
-TextBox txt_result(0, 41, 50, 9);
+TextBox txt_result(0, 41, 130, 13);
 ScrollingTextBox console(FIRST_WIDTH+87+2, 0, 40, MAX_ROWS*2+4);
 
 Footer footer(0, screen.term_w);
