@@ -45,9 +45,9 @@ void GameBoy::turn_off(){
 
 void GameBoy::clock(){
     do{
+        cpu.clock();
         for (int i = 0; i < 4; i++)
             timer.tick();
-        cpu.clock();
     }while(cpu.cycles != 0 && debug_mode);
 }
 

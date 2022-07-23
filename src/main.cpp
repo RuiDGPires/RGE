@@ -557,7 +557,7 @@ _wm_end:
 #define ARGV_ argv
 #define CMD_ cmd
 #define HLP_ hlp
-#define UNK_CMD console << "\nUnkown Command"
+#define UNK_CMD console << "\nUnknown Command"
 #define COMMAND(func, help, str) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str) {if (!func(ARGV_)) UNK_CMD; else return;}}
 #define COMMAND2(func, help, str1, str2) {HLP_.push_back(std::string(1, BOLD_c) + std::string(":") + str1 + " | " + str2 + std::string(1, RESET_c) + "\n  " + help); if (CMD_ == str1 || CMD_ == str2 ) {if (!func(ARGV_)) UNK_CMD;else return;}}
 
